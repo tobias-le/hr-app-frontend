@@ -10,6 +10,7 @@ import {
   ListItemText,
 } from "@mui/material";
 import { mockedEmployeeDetails } from "../mocks/employeeData";
+import { styled } from "@mui/material/styles";
 
 interface Employee {
   employeeId: number;
@@ -28,6 +29,34 @@ interface Employee {
   };
 }
 
+const EmployeeInfoItem = ({
+  primary,
+  secondary,
+}: {
+  primary: string;
+  secondary: string | number;
+}) => (
+  <ListItem>
+    <ListItemText primary={primary} secondary={secondary} />
+  </ListItem>
+);
+
+const StyledBox = styled("div")(({ theme }) => ({
+  padding: theme.spacing(3),
+}));
+
+const StyledPaper = styled(Paper)(({ theme }) => ({
+  padding: theme.spacing(2),
+}));
+
+const StyledTypography = styled(Typography)({
+  marginBottom: "16px",
+});
+
+const EmployeeInfoList = styled(List)({
+  width: "100%",
+});
+
 export default function EmployeeDetail() {
   const { id } = useParams<{ id: string }>();
   const [employee, setEmployee] = useState<Employee | null>(null);
@@ -43,67 +72,49 @@ export default function EmployeeDetail() {
   }
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h4" gutterBottom>
-        Employee Details
-      </Typography>
-      <Paper sx={{ p: 2 }}>
+    <StyledBox>
+      <StyledTypography variant="h4">Employee Details</StyledTypography>
+      <StyledPaper>
         <Grid container spacing={2}>
           <Grid item xs={12} md={6}>
-            <List>
-              <ListItem>
-                <ListItemText primary="Name" secondary={employee.name} />
-              </ListItem>
-              <ListItem>
-                <ListItemText
-                  primary="Department"
-                  secondary={employee.department.name}
-                />
-              </ListItem>
-              <ListItem>
-                <ListItemText
-                  primary="Contract Type"
-                  secondary={employee.contractType}
-                />
-              </ListItem>
-              <ListItem>
-                <ListItemText
-                  primary="Work Percentage"
-                  secondary={employee.workPercentage}
-                />
-              </ListItem>
-            </List>
+            <EmployeeInfoList>
+              <EmployeeInfoItem primary="Name" secondary={employee.name} />
+              <EmployeeInfoItem
+                primary="Department"
+                secondary={employee.department.name}
+              />
+              <EmployeeInfoItem
+                primary="Contract Type"
+                secondary={employee.contractType}
+              />
+              <EmployeeInfoItem
+                primary="Work Percentage"
+                secondary={employee.workPercentage}
+              />
+            </EmployeeInfoList>
           </Grid>
           <Grid item xs={12} md={6}>
-            <List>
-              <ListItem>
-                <ListItemText
-                  primary="Contractual Hours"
-                  secondary={employee.contractualHours}
-                />
-              </ListItem>
-              <ListItem>
-                <ListItemText
-                  primary="Account Number"
-                  secondary={employee.accountNumber}
-                />
-              </ListItem>
-              <ListItem>
-                <ListItemText
-                  primary="Available Time Off"
-                  secondary={`${employee.availableTimeOff} days`}
-                />
-              </ListItem>
-              <ListItem>
-                <ListItemText
-                  primary="Address"
-                  secondary={`${employee.address.street}, ${employee.address.city}, ${employee.address.zipCode}, ${employee.address.country}`}
-                />
-              </ListItem>
-            </List>
+            <EmployeeInfoList>
+              <EmployeeInfoItem
+                primary="Contractual Hours"
+                secondary={employee.contractualHours}
+              />
+              <EmployeeInfoItem
+                primary="Account Number"
+                secondary={employee.accountNumber}
+              />
+              <EmployeeInfoItem
+                primary="Available Time Off"
+                secondary={`${employee.availableTimeOff} days`}
+              />
+              <EmployeeInfoItem
+                primary="Address"
+                secondary={`${employee.address.street}, ${employee.address.city}, ${employee.address.zipCode}, ${employee.address.country}`}
+              />
+            </EmployeeInfoList>
           </Grid>
         </Grid>
-      </Paper>
-    </Box>
+      </StyledPaper>
+    </StyledBox>
   );
 }

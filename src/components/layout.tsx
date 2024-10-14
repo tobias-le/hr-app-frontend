@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import styled from "styled-components";
 import {
   Box,
   Drawer,
@@ -8,7 +9,7 @@ import {
   ListItemButton,
   ListItemText,
   Typography,
-  AppBar,
+  AppBar as MuiAppBar,
   Toolbar,
   Button,
   IconButton,
@@ -18,6 +19,51 @@ import BusinessCenterIcon from "@mui/icons-material/BusinessCenter";
 import { menuItems } from "../config/menuItems";
 
 const drawerWidth = 240;
+
+const AppWrapper = styled(Box)`
+  display: flex;
+  min-height: 100vh;
+`;
+
+const AppBar = styled(MuiAppBar)`
+  z-index: ${({ theme }) => theme.zIndex.drawer + 1};
+`;
+
+const Logo = styled(BusinessCenterIcon)`
+  color: white;
+  background-color: black;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  padding: 4px;
+  margin-right: 8px;
+`;
+
+const StyledDrawer = styled(Drawer)`
+  width: ${drawerWidth}px;
+  flex-shrink: 0;
+
+  & .MuiDrawer-paper {
+    width: ${drawerWidth}px;
+    box-sizing: border-box;
+    background-color: ${({ theme }) => theme.palette.primary.main};
+    color: white;
+  }
+`;
+
+const MainContent = styled(Box)<{ isDrawerOpen: boolean }>`
+  flex-grow: 1;
+  padding: 24px;
+  margin-left: ${({ isDrawerOpen }) => (isDrawerOpen ? `${drawerWidth}px` : 0)};
+  transition: margin 0.2s;
+`;
+
+const Footer = styled(Box)`
+  background-color: ${({ theme }) => theme.palette.primary.main};
+  color: white;
+  padding: 16px;
+  text-align: center;
+`;
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -32,11 +78,8 @@ export default function Layout({ children }: LayoutProps) {
   };
 
   return (
-    <Box sx={{ display: "flex", minHeight: "100vh" }}>
-      <AppBar
-        position="fixed"
-        sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
-      >
+    <AppWrapper>
+      <AppBar position="fixed">
         <Toolbar sx={{ justifyContent: "space-between" }}>
           <Box sx={{ display: "flex", alignItems: "center" }}>
             <IconButton
@@ -54,17 +97,7 @@ export default function Layout({ children }: LayoutProps) {
               component="div"
               sx={{ display: "flex", alignItems: "center" }}
             >
-              <BusinessCenterIcon
-                sx={{
-                  color: "white",
-                  bgcolor: "black",
-                  width: 24,
-                  height: 24,
-                  borderRadius: "50%",
-                  p: 0.5,
-                  mr: 1,
-                }}
-              />
+              <Logo />
               HR Tool
             </Typography>
           </Box>
@@ -74,20 +107,7 @@ export default function Layout({ children }: LayoutProps) {
           </Box>
         </Toolbar>
       </AppBar>
-      <Drawer
-        variant="persistent"
-        open={isDrawerOpen}
-        sx={{
-          width: drawerWidth,
-          flexShrink: 0,
-          [`& .MuiDrawer-paper`]: {
-            width: drawerWidth,
-            boxSizing: "border-box",
-            bgcolor: "primary.main",
-            color: "white",
-          },
-        }}
-      >
+      <StyledDrawer variant="persistent" open={isDrawerOpen}>
         <Toolbar />
         <Box sx={{ overflow: "auto", mt: 2 }}>
           <Typography variant="h6" sx={{ px: 2, mb: 2 }}>
@@ -113,30 +133,12 @@ export default function Layout({ children }: LayoutProps) {
             ))}
           </List>
         </Box>
-      </Drawer>
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          p: 3,
-          marginLeft: isDrawerOpen ? `${drawerWidth}px` : 0,
-          transition: "margin 0.2s",
-        }}
-      >
+      </StyledDrawer>
+      <MainContent isDrawerOpen={isDrawerOpen}>
         <Toolbar />
         {children}
-      </Box>
-      <Box
-        component="footer"
-        sx={{
-          bgcolor: "primary.main",
-          color: "white",
-          p: 2,
-          textAlign: "center",
-        }}
-      >
-        © 2024 HR Tool - All Rights Reserved
-      </Box>
-    </Box>
+      </MainContent>
+      <Footer component="footer">© 2024 HR Tool - All Rights Reserved</Footer>
+    </AppWrapper>
   );
 }
