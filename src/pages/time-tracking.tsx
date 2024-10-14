@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { TextField, Button, Typography, Paper, Grid } from "@mui/material";
 import { orange } from "@mui/material/colors";
+import { useTheme } from "@mui/material/styles";
 
 const PageContainer = styled.div`
   flex-grow: 1;
-  background-color: ${(props) => props.theme.palette.background.default};
   padding: 24px;
 `;
 
@@ -37,6 +37,11 @@ export default function TimeTracking() {
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const [workDetails, setWorkDetails] = useState("");
+  const theme = useTheme();
+
+  const PageContainerWithBackground = styled(PageContainer)`
+    background-color: ${theme.palette.background.default};
+  `;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,7 +50,7 @@ export default function TimeTracking() {
   };
 
   return (
-    <PageContainer>
+    <PageContainerWithBackground>
       <StyledPaper elevation={0}>
         <FormTitle variant="h5">Track Work Hours</FormTitle>
         <form onSubmit={handleSubmit}>
@@ -113,6 +118,6 @@ export default function TimeTracking() {
           </FormGrid>
         </form>
       </StyledPaper>
-    </PageContainer>
+    </PageContainerWithBackground>
   );
 }

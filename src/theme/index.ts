@@ -10,6 +10,9 @@ const theme = createTheme({
       main: grey[200],
     },
   },
+  zIndex: {
+    drawer: 1200,
+  },
   // Add more custom theme options here
 });
 
