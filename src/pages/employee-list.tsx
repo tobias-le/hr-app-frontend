@@ -12,6 +12,7 @@ import {
   Box,
 } from "@mui/material";
 import { Link } from "react-router-dom";
+import { mockedEmployees } from "../mocks/employeeData";
 
 interface Employee {
   employeeId: number;
@@ -27,22 +28,7 @@ export default function EmployeeList() {
   useEffect(() => {
     // Fetch employees from API
     // For now, we'll use mock data
-    setEmployees([
-      {
-        employeeId: 1,
-        name: "John Doe",
-        department: { name: "IT" },
-        contractType: "FULL_TIME",
-        workPercentage: "FULL_TIME",
-      },
-      {
-        employeeId: 2,
-        name: "Jane Smith",
-        department: { name: "HR" },
-        contractType: "PART_TIME",
-        workPercentage: "HALF_TIME",
-      },
-    ]);
+    setEmployees(mockedEmployees);
   }, []);
 
   return (

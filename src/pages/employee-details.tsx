@@ -9,6 +9,7 @@ import {
   ListItem,
   ListItemText,
 } from "@mui/material";
+import { mockedEmployeeDetails } from "../mocks/employeeData";
 
 interface Employee {
   employeeId: number;
@@ -34,22 +35,7 @@ export default function EmployeeDetail() {
   useEffect(() => {
     // Fetch employee details from API
     // For now, we'll use mock data
-    setEmployee({
-      employeeId: 1,
-      name: "John Doe",
-      department: { name: "IT" },
-      contractType: "FULL_TIME",
-      workPercentage: "FULL_TIME",
-      contractualHours: 40,
-      accountNumber: "1234567890",
-      availableTimeOff: 20,
-      address: {
-        street: "123 Main St",
-        city: "Prague",
-        zipCode: "12000",
-        country: "Czech Republic",
-      },
-    });
+    setEmployee(mockedEmployeeDetails);
   }, [id]);
 
   if (!employee) {

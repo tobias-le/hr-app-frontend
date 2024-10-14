@@ -18,6 +18,7 @@ import {
 import MenuIcon from "@mui/icons-material/Menu";
 import BusinessCenterIcon from "@mui/icons-material/BusinessCenter";
 import { orange, grey } from "@mui/material/colors";
+import { menuItems } from "../config/menuItems";
 
 const drawerWidth = 240;
 
@@ -43,14 +44,6 @@ export default function Layout({ children }: LayoutProps) {
   const toggleDrawer = () => {
     setIsDrawerOpen(!isDrawerOpen);
   };
-
-  const menuItems = [
-    { text: "Dashboard", path: "/" },
-    { text: "Time Tracking", path: "/time-tracking" },
-    { text: "Employees", path: "/employees" },
-    { text: "Reports", path: "/reports" },
-    { text: "Settings", path: "/settings" },
-  ];
 
   return (
     <ThemeProvider theme={theme}>

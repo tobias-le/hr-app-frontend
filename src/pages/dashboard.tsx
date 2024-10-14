@@ -24,26 +24,11 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-
-const workHoursData = [
-  { day: "Mon", hours: 8 },
-  { day: "Tue", hours: 7.5 },
-  { day: "Wed", hours: 8.5 },
-  { day: "Thu", hours: 8 },
-  { day: "Fri", hours: 7 },
-];
-
-const recentActivities = [
-  { id: 1, activity: "Submitted timesheet for last week", time: "2 hours ago" },
-  { id: 2, activity: "Requested time off for next month", time: "1 day ago" },
-  { id: 3, activity: "Updated personal information", time: "3 days ago" },
-];
-
-const upcomingTasks = [
-  { id: 1, task: "Complete quarterly review", deadline: "2023-06-30" },
-  { id: 2, task: "Submit expense report", deadline: "2023-06-15" },
-  { id: 3, task: "Attend team building workshop", deadline: "2023-07-05" },
-];
+import {
+  workHoursData,
+  recentActivities,
+  upcomingTasks,
+} from "../mocks/dashboardData";
 
 export default function Dashboard() {
   return (
