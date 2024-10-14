@@ -158,7 +158,7 @@ export default function Layout({ children }: LayoutProps) {
           textAlign: "center",
         }}
       >
-        © 2023 HR Tool - All Rights Reserved
+        © 2024 HR Tool - All Rights Reserved
       </Box>
     </ThemeProvider>
   );
