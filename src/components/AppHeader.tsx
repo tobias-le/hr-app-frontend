@@ -6,9 +6,9 @@ import {
   Button,
   IconButton,
   Box,
-  Drawer,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 import BusinessCenterIcon from "@mui/icons-material/BusinessCenter";
 import styled from "styled-components";
 
@@ -28,9 +28,10 @@ const Logo = styled(BusinessCenterIcon)(({ theme }) => ({
 
 interface AppHeaderProps {
   toggleDrawer: () => void;
+  isMobile: boolean;
 }
 
-const AppHeader: React.FC<AppHeaderProps> = ({ toggleDrawer }) => (
+const AppHeader: React.FC<AppHeaderProps> = ({ toggleDrawer, isMobile }) => (
   <AppBar position="fixed">
     <Toolbar sx={{ justifyContent: "space-between" }}>
       <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -44,18 +45,27 @@ const AppHeader: React.FC<AppHeaderProps> = ({ toggleDrawer }) => (
           <MenuIcon />
         </IconButton>
         <Typography
-          variant="h6"
+          variant={isMobile ? "body1" : "h6"}
           noWrap
           component="div"
           sx={{ display: "flex", alignItems: "center" }}
         >
           <Logo />
-          HR Tool
+          {!isMobile && "HR Tool"}
         </Typography>
       </Box>
       <Box>
-        <Button color="inherit">Profile</Button>
-        <Button color="inherit">Log out</Button>
+        {!isMobile && (
+          <>
+            <Button color="inherit">Profile</Button>
+            <Button color="inherit">Log out</Button>
+          </>
+        )}
+        {isMobile && (
+          <IconButton color="inherit" aria-label="menu">
+            <MoreVertIcon />
+          </IconButton>
+        )}
       </Box>
     </Toolbar>
   </AppBar>

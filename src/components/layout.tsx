@@ -1,6 +1,12 @@
 import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
-import { Box, Toolbar, AppBar as MuiAppBar, Drawer } from "@mui/material";
+import {
+  Box,
+  Toolbar,
+  AppBar as MuiAppBar,
+  Drawer,
+  useMediaQuery,
+} from "@mui/material";
 import BusinessCenterIcon from "@mui/icons-material/BusinessCenter";
 import AppHeader from "./AppHeader";
 import SideMenu from "./SideMenu";
@@ -11,7 +17,13 @@ const drawerWidth = 240;
 
 const AppWrapper = styled(Box)`
   display: flex;
+  flex-direction: column;
   min-height: 100vh;
+`;
+
+const MainContentWrapper = styled(Box)`
+  display: flex;
+  flex-grow: 1;
 `;
 
 const AppBar = styled(MuiAppBar)(
@@ -32,7 +44,8 @@ const Logo = styled(BusinessCenterIcon)`
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const theme = useTheme();
-  const [isDrawerOpen, setIsDrawerOpen] = useState(true);
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const [isDrawerOpen, setIsDrawerOpen] = useState(!isMobile);
   const location = useLocation();
 
   const toggleDrawer = () => {
@@ -53,10 +66,14 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   const MainContent = styled(Box)<{ isDrawerOpen: boolean }>`
     flex-grow: 1;
-    padding: 24px;
-    margin-left: ${({ isDrawerOpen }) =>
-      isDrawerOpen ? `${drawerWidth}px` : 0};
+    padding: ${theme.spacing(3)};
     transition: margin 0.2s;
+    ${({ isDrawerOpen }) =>
+      !isMobile &&
+      isDrawerOpen &&
+      `
+      margin-left: ${drawerWidth}px;
+    `}
   `;
 
   const StyledFooter = styled(Box)`
@@ -69,15 +86,22 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <AppWrapper>
       <AppBar position="fixed">
-        <AppHeader toggleDrawer={toggleDrawer} />
+        <AppHeader toggleDrawer={toggleDrawer} isMobile={isMobile} />
       </AppBar>
-      <StyledDrawer variant="persistent" open={isDrawerOpen}>
-        <SideMenu isOpen={isDrawerOpen} location={location} />
-      </StyledDrawer>
-      <MainContent isDrawerOpen={isDrawerOpen}>
-        <Toolbar />
-        {children}
-      </MainContent>
+      <MainContentWrapper>
+        <StyledDrawer
+          variant={isMobile ? "temporary" : "persistent"}
+          open={isDrawerOpen}
+          onClose={toggleDrawer}
+        >
+          <Toolbar />
+          <SideMenu isOpen={isDrawerOpen} location={location} />
+        </StyledDrawer>
+        <MainContent isDrawerOpen={isDrawerOpen}>
+          <Toolbar />
+          {children}
+        </MainContent>
+      </MainContentWrapper>
       <StyledFooter>
         <FooterComponent />
       </StyledFooter>

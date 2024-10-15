@@ -13,7 +13,6 @@ import {
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import { mockedEmployees } from "../mocks/employeeData";
-import styled from "styled-components";
 
 interface Employee {
   employeeId: number;
@@ -23,59 +22,76 @@ interface Employee {
   workPercentage: string;
 }
 
-const FormContainer = styled.div`
-  padding: 24px;
-`;
-
-const FormPaper = styled(Paper)`
-  padding: 16px;
-  background-color: #fff;
-  border-radius: 4px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
-`;
-
-const FormGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 24px;
-`;
-
-const FullWidthGrid = styled.div`
-  grid-column: 1 / -1;
-`;
+const mobileBreakpoint = "600px";
 
 export default function EmployeeList() {
   const [employees, setEmployees] = useState<Employee[]>([]);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 600);
 
   useEffect(() => {
-    // Fetch employees from API
-    // For now, we'll use mock data
     setEmployees(mockedEmployees);
+
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 600);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  const containerStyle = {
+    padding: "24px",
+  };
+
+  const paperStyle = {
+    padding: "16px",
+    backgroundColor: "#fff",
+    borderRadius: "4px",
+    boxShadow: "0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24)",
+    overflowX: "auto" as const,
+  };
+
+  const headerStyle = {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "16px",
+  };
+
+  const buttonStyle = {
+    fontSize: isMobile ? "0.8rem" : "0.875rem",
+    padding: isMobile ? "6px 16px" : "8px 22px",
+  };
+
   return (
-    <FormContainer>
-      <FormPaper>
-        <Typography variant="h4" gutterBottom>
-          Employee List
-        </Typography>
-        <Button
-          component={Link}
-          to="/employees/new"
-          variant="contained"
-          color="primary"
-          sx={{ mb: 2 }}
-        >
-          Add New Employee
-        </Button>
+    <Box style={containerStyle}>
+      <Paper style={paperStyle}>
+        <Box style={headerStyle}>
+          <Typography variant={isMobile ? "h6" : "h5"}>
+            Employee List
+          </Typography>
+          <Button
+            component={Link}
+            to="/employees/new"
+            variant="contained"
+            color="primary"
+            style={buttonStyle}
+          >
+            Add New Employee
+          </Button>
+        </Box>
         <TableContainer>
-          <Table>
+          <Table size={isMobile ? "small" : "medium"}>
             <TableHead>
               <TableRow>
                 <TableCell>Name</TableCell>
                 <TableCell>Department</TableCell>
-                <TableCell>Contract Type</TableCell>
-                <TableCell>Work Percentage</TableCell>
+                {!isMobile && (
+                  <>
+                    <TableCell>Contract Type</TableCell>
+                    <TableCell>Work Percentage</TableCell>
+                  </>
+                )}
                 <TableCell>Actions</TableCell>
               </TableRow>
             </TableHead>
@@ -84,8 +100,12 @@ export default function EmployeeList() {
                 <TableRow key={employee.employeeId}>
                   <TableCell>{employee.name}</TableCell>
                   <TableCell>{employee.department.name}</TableCell>
-                  <TableCell>{employee.contractType}</TableCell>
-                  <TableCell>{employee.workPercentage}</TableCell>
+                  {!isMobile && (
+                    <>
+                      <TableCell>{employee.contractType}</TableCell>
+                      <TableCell>{employee.workPercentage}</TableCell>
+                    </>
+                  )}
                   <TableCell>
                     <Button
                       component={Link}
@@ -101,7 +121,7 @@ export default function EmployeeList() {
             </TableBody>
           </Table>
         </TableContainer>
-      </FormPaper>
-    </FormContainer>
+      </Paper>
+    </Box>
   );
 }

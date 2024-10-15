@@ -1,5 +1,4 @@
 import React from "react";
-import styled from "styled-components";
 import {
   Typography,
   Grid,
@@ -31,37 +30,17 @@ import {
   upcomingTasks,
 } from "../mocks/dashboardData";
 
-const DashboardWrapper = styled(Box)`
-  flex-grow: 1;
-  padding: 24px;
-`;
-
-const ChartPaper = styled(Paper)`
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  height: 240px;
-`;
-
-const TaskProgress = styled(LinearProgress)`
-  height: 10px;
-  border-radius: 5px;
-  background-color: rgba(255, 152, 0, 0.2);
-
-  & .MuiLinearProgress-bar {
-    background-color: #ff9800;
-  }
-`;
-
 export default function Dashboard() {
   return (
-    <DashboardWrapper>
+    <Box sx={{ flexGrow: 1, p: 3 }}>
       <Typography variant="h4" gutterBottom component="h1">
         Dashboard
       </Typography>
       <Grid container spacing={3}>
         <Grid item xs={12} md={8}>
-          <ChartPaper>
+          <Paper
+            sx={{ p: 2, display: "flex", flexDirection: "column", height: 240 }}
+          >
             <Typography variant="h6" gutterBottom component="div">
               Weekly Work Hours
             </Typography>
@@ -82,10 +61,68 @@ export default function Dashboard() {
                 <Bar dataKey="hours" fill="#ff9800" />
               </BarChart>
             </ResponsiveContainer>
-          </ChartPaper>
+          </Paper>
         </Grid>
-        {/* Rest of the component remains the same */}
+        <Grid item xs={12} md={4}>
+          <Paper
+            sx={{ p: 2, display: "flex", flexDirection: "column", height: 240 }}
+          >
+            <Typography variant="h6" gutterBottom component="div">
+              Recent Activities
+            </Typography>
+            <List>
+              {recentActivities.map((activity) => (
+                <ListItem key={activity.id}>
+                  <ListItemText
+                    primary={activity.activity}
+                    secondary={activity.time}
+                  />
+                </ListItem>
+              ))}
+            </List>
+          </Paper>
+        </Grid>
+        <Grid item xs={12}>
+          <Paper sx={{ p: 2, display: "flex", flexDirection: "column" }}>
+            <Typography variant="h6" gutterBottom component="div">
+              Upcoming Tasks
+            </Typography>
+            <TableContainer>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Task</TableCell>
+                    <TableCell>Deadline</TableCell>
+                    <TableCell>Progress</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {upcomingTasks.map((task) => (
+                    <TableRow key={task.id}>
+                      <TableCell>{task.task}</TableCell>
+                      <TableCell>{task.deadline}</TableCell>
+                      <TableCell>
+                        <LinearProgress
+                          variant="determinate"
+                          value={Math.random() * 100}
+                          sx={{
+                            height: 10,
+                            borderRadius: 5,
+                            backgroundColor: "rgba(255, 152, 0, 0.2)",
+                            "& .MuiLinearProgress-bar": {
+                              backgroundColor: "#ff9800",
+                            },
+                          }}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Paper>
+        </Grid>
       </Grid>
-    </DashboardWrapper>
+    </Box>
   );
 }

@@ -17,12 +17,12 @@ const StyledPaper = styled(Paper)`
 
 const FormTitle = styled(Typography)`
   font-weight: bold;
-  margin-bottom: 16px;
+  margin-bottom: 32px; // Increased from 24px to 32px
 `;
 
 const FormGrid = styled(Grid)`
   & > * {
-    margin-bottom: 24px;
+    margin-bottom: 32px;
   }
 `;
 
@@ -30,6 +30,7 @@ const ButtonContainer = styled.div`
   display: flex;
   justify-content: flex-end;
   gap: 16px;
+  margin-top: 16px;
 `;
 
 export default function TimeTracking() {
@@ -51,10 +52,10 @@ export default function TimeTracking() {
 
   return (
     <PageContainerWithBackground>
-      <StyledPaper elevation={0}>
+      <StyledPaper elevation={3}>
         <FormTitle variant="h5">Track Work Hours</FormTitle>
         <form onSubmit={handleSubmit}>
-          <FormGrid container>
+          <FormGrid container spacing={3}>
             <Grid item xs={12}>
               <TextField
                 fullWidth
@@ -100,22 +101,15 @@ export default function TimeTracking() {
                 required
               />
             </Grid>
-            <Grid item xs={12}>
-              <Typography variant="caption" color="error">
-                * Please correct the highlighted errors before submitting.
-              </Typography>
-            </Grid>
-            <Grid item xs={12}>
-              <ButtonContainer>
-                <Button variant="outlined" color="primary">
-                  Cancel
-                </Button>
-                <Button variant="contained" color="primary" type="submit">
-                  Save
-                </Button>
-              </ButtonContainer>
-            </Grid>
           </FormGrid>
+          <ButtonContainer>
+            <Button variant="outlined" color="primary">
+              Cancel
+            </Button>
+            <Button variant="contained" color="primary" type="submit">
+              Save
+            </Button>
+          </ButtonContainer>
         </form>
       </StyledPaper>
     </PageContainerWithBackground>
