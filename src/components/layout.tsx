@@ -2,11 +2,8 @@ import React from "react";
 import { Location } from "react-router-dom";
 import { Box, Toolbar, AppBar as MuiAppBar, Drawer } from "@mui/material";
 import AppHeader from "./AppHeader";
-import SideMenu from "./SideMenu";
 import FooterComponent from "./Footer";
 import { styled } from "@mui/material/styles";
-
-const drawerWidth = 240;
 
 const AppWrapper = styled(Box)`
   display: flex;
@@ -46,32 +43,12 @@ const Layout: React.FC<LayoutProps> = ({
   isMobile,
   location,
 }) => {
-  const StyledDrawer = styled(Drawer)`
-    width: ${drawerWidth}px;
-    flex-shrink: 0;
-
-    & .MuiDrawer-paper {
-      width: ${drawerWidth}px;
-      box-sizing: border-box;
-      background-color: ${({ theme }) => theme.palette.primary.main};
-      color: white;
-    }
-  `;
-
   return (
     <AppWrapper>
       <AppBar position="fixed">
         <AppHeader toggleDrawer={toggleDrawer} isMobile={isMobile} />
       </AppBar>
       <MainContentWrapper>
-        <StyledDrawer
-          variant={isMobile ? "temporary" : "persistent"}
-          open={isDrawerOpen}
-          onClose={toggleDrawer}
-        >
-          <Toolbar />
-          <SideMenu isOpen={isDrawerOpen} location={location} />
-        </StyledDrawer>
         <MainContent>
           <Toolbar />
           {children}
