@@ -1,17 +1,10 @@
-import React, { useState } from "react";
-import { useLocation } from "react-router-dom";
-import {
-  Box,
-  Toolbar,
-  AppBar as MuiAppBar,
-  Drawer,
-  useMediaQuery,
-} from "@mui/material";
-import BusinessCenterIcon from "@mui/icons-material/BusinessCenter";
+import React from "react";
+import { Location } from "react-router-dom";
+import { Box, Toolbar, AppBar as MuiAppBar, Drawer } from "@mui/material";
 import AppHeader from "./AppHeader";
 import SideMenu from "./SideMenu";
 import FooterComponent from "./Footer";
-import { styled, useTheme } from "@mui/material/styles";
+import { styled } from "@mui/material/styles";
 
 const drawerWidth = 240;
 
@@ -32,26 +25,34 @@ const AppBar = styled(MuiAppBar)(
 `
 );
 
-const Logo = styled(BusinessCenterIcon)`
-  color: white;
-  background-color: black;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  padding: 4px;
-  margin-right: 8px;
+const MainContent = styled(Box)`
+  flex-grow: 1;
+  padding: ${({ theme }) => theme.spacing(3)};
+  transition: margin 0.2s;
 `;
 
-const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const [isDrawerOpen, setIsDrawerOpen] = useState(!isMobile);
-  const location = useLocation();
+const StyledFooter = styled(Box)(({ theme }) => ({
+  backgroundColor: theme.palette.primary.main,
+  color: "white",
+  padding: "16px",
+  textAlign: "center",
+}));
 
-  const toggleDrawer = () => {
-    setIsDrawerOpen(!isDrawerOpen);
-  };
+interface LayoutProps {
+  children: React.ReactNode;
+  isDrawerOpen: boolean;
+  toggleDrawer: () => void;
+  isMobile: boolean;
+  location: Location;
+}
 
+const Layout: React.FC<LayoutProps> = ({
+  children,
+  isDrawerOpen,
+  toggleDrawer,
+  isMobile,
+  location,
+}) => {
   const StyledDrawer = styled(Drawer)`
     width: ${drawerWidth}px;
     flex-shrink: 0;
@@ -59,22 +60,9 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     & .MuiDrawer-paper {
       width: ${drawerWidth}px;
       box-sizing: border-box;
-      background-color: ${theme.palette.primary.main};
+      background-color: ${({ theme }) => theme.palette.primary.main};
       color: white;
     }
-  `;
-
-  const MainContent = styled(Box)`
-    flex-grow: 1;
-    padding: ${theme.spacing(3)};
-    transition: margin 0.2s;
-  `;
-
-  const StyledFooter = styled(Box)`
-    background-color: ${theme.palette.primary.main};
-    color: white;
-    padding: 16px;
-    text-align: center;
   `;
 
   return (
@@ -84,7 +72,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       </AppBar>
       <MainContentWrapper>
         <StyledDrawer
-          variant={isMobile ? "temporary" : "temporary"}
+          variant={isMobile ? "temporary" : "persistent"}
           open={isDrawerOpen}
           onClose={toggleDrawer}
         >
