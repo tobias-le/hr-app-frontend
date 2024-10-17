@@ -34,21 +34,35 @@ const ButtonContainer = styled.div`
 `;
 
 export default function TimeTracking() {
-  const [date, setDate] = useState("");
-  const [startTime, setStartTime] = useState("");
-  const [endTime, setEndTime] = useState("");
-  const [workDetails, setWorkDetails] = useState("");
+  const [formData, setFormData] = useState({
+    date: "",
+    startTime: "",
+    endTime: "",
+    workDetails: "",
+  });
   const theme = useTheme();
 
   const PageContainerWithBackground = styled(PageContainer)`
     background-color: ${theme.palette.background.default};
   `;
 
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    // const { name, value } = e.target;
+    // setFormData((prevData) => ({
+    //   ...prevData,
+    //   [name]: value,
+    // }));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Handle form submission
-    console.log({ date, startTime, endTime, workDetails });
+    console.log(formData);
   };
+
+  console.log("TimeTracking component rendered");
 
   return (
     <PageContainerWithBackground>
@@ -61,8 +75,13 @@ export default function TimeTracking() {
                 fullWidth
                 label="Select Date"
                 type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
+                value={formData.date}
+                onChange={(e) =>
+                  setFormData((prevData) => ({
+                    ...prevData,
+                    date: e.target.value,
+                  }))
+                }
                 InputLabelProps={{ shrink: true }}
                 required
               />
@@ -72,8 +91,13 @@ export default function TimeTracking() {
                 fullWidth
                 label="Start Time"
                 type="time"
-                value={startTime}
-                onChange={(e) => setStartTime(e.target.value)}
+                value={formData.startTime}
+                onChange={(e) =>
+                  setFormData((prevData) => ({
+                    ...prevData,
+                    startTime: e.target.value,
+                  }))
+                }
                 InputLabelProps={{ shrink: true }}
                 required
               />
@@ -83,8 +107,13 @@ export default function TimeTracking() {
                 fullWidth
                 label="End Time"
                 type="time"
-                value={endTime}
-                onChange={(e) => setEndTime(e.target.value)}
+                value={formData.endTime}
+                onChange={(e) =>
+                  setFormData((prevData) => ({
+                    ...prevData,
+                    endTime: e.target.value,
+                  }))
+                }
                 InputLabelProps={{ shrink: true }}
                 required
               />
@@ -95,8 +124,8 @@ export default function TimeTracking() {
                 label="Work Details"
                 multiline
                 rows={4}
-                value={workDetails}
-                onChange={(e) => setWorkDetails(e.target.value)}
+                name="workDetails"
+                onChange={handleInputChange}
                 placeholder="Describe your work..."
                 required
               />
