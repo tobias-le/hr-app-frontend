@@ -17,12 +17,13 @@ const StyledPaper = styled(Paper)`
 
 const FormTitle = styled(Typography)`
   font-weight: bold;
-  margin-bottom: 32px; // Increased from 24px to 32px
+  margin-bottom: 80px; // Increase this value for a bigger gap
 `;
 
 const FormGrid = styled(Grid)`
   & > * {
     margin-bottom: 32px;
+    margin-top: 32px;
   }
 `;
 
@@ -49,11 +50,11 @@ export default function TimeTracking() {
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    // const { name, value } = e.target;
-    // setFormData((prevData) => ({
-    //   ...prevData,
-    //   [name]: value,
-    // }));
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -67,7 +68,9 @@ export default function TimeTracking() {
   return (
     <PageContainerWithBackground>
       <StyledPaper elevation={3}>
-        <FormTitle variant="h5">Track Work Hours</FormTitle>
+        <FormTitle variant="h5" gutterBottom>
+          Track Work Hours
+        </FormTitle>
         <form onSubmit={handleSubmit}>
           <FormGrid container spacing={3}>
             <Grid item xs={12}>
