@@ -64,16 +64,10 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     }
   `;
 
-  const MainContent = styled(Box)<{ isDrawerOpen: boolean }>`
+  const MainContent = styled(Box)`
     flex-grow: 1;
     padding: ${theme.spacing(3)};
     transition: margin 0.2s;
-    ${({ isDrawerOpen }) =>
-      !isMobile &&
-      isDrawerOpen &&
-      `
-      margin-left: ${drawerWidth}px;
-    `}
   `;
 
   const StyledFooter = styled(Box)`
@@ -90,14 +84,14 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       </AppBar>
       <MainContentWrapper>
         <StyledDrawer
-          variant={isMobile ? "temporary" : "persistent"}
+          variant={isMobile ? "temporary" : "temporary"}
           open={isDrawerOpen}
           onClose={toggleDrawer}
         >
           <Toolbar />
           <SideMenu isOpen={isDrawerOpen} location={location} />
         </StyledDrawer>
-        <MainContent isDrawerOpen={isDrawerOpen}>
+        <MainContent>
           <Toolbar />
           {children}
         </MainContent>
