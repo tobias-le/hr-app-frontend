@@ -31,13 +31,6 @@ const MainContent = styled(Box)`
   transition: margin 0.2s;
 `;
 
-const StyledFooter = styled(Box)(({ theme }) => ({
-  backgroundColor: theme.palette.primary.main,
-  color: "white",
-  padding: "16px",
-  textAlign: "center",
-}));
-
 interface LayoutProps {
   children: React.ReactNode;
   isDrawerOpen: boolean;
@@ -84,9 +77,7 @@ const Layout: React.FC<LayoutProps> = ({
           {children}
         </MainContent>
       </MainContentWrapper>
-      <StyledFooter>
-        <FooterComponent />
-      </StyledFooter>
+      <FooterComponent />
     </AppWrapper>
   );
 };

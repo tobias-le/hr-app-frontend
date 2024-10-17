@@ -1,14 +1,11 @@
 import React from "react";
 import { Box } from "@mui/material";
 import styled from "styled-components";
-import { useTheme } from "@mui/material/styles";
 
 const Footer: React.FC = () => {
-  const theme = useTheme();
-
   const StyledFooter = styled(Box)`
-    background-color: ${theme.palette.primary.main};
-    color: white;
+    background-color: rgba(255, 255, 255, 0.7);
+    color: black;
     padding: 16px;
     text-align: center;
   `;

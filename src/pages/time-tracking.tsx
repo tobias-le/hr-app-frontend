@@ -1,23 +1,15 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { TextField, Button, Typography, Paper, Grid } from "@mui/material";
-import { orange } from "@mui/material/colors";
-import { useTheme } from "@mui/material/styles";
+import { TextField, Button, Typography, Grid } from "@mui/material";
 
 const PageContainer = styled.div`
   flex-grow: 1;
   padding: 24px;
 `;
 
-const StyledPaper = styled(Paper)`
-  padding: 32px;
-  max-width: 800px;
-  margin: 0 auto;
-`;
-
 const FormTitle = styled(Typography)`
   font-weight: bold;
-  margin-bottom: 80px; // Increase this value for a bigger gap
+  margin-bottom: 80px;
 `;
 
 const FormGrid = styled(Grid)`
@@ -41,10 +33,9 @@ export default function TimeTracking() {
     endTime: "",
     workDetails: "",
   });
-  const theme = useTheme();
 
   const PageContainerWithBackground = styled(PageContainer)`
-    background-color: ${theme.palette.background.default};
+    background-color: rgba(255, 255, 255, 0.7);
   `;
 
   const handleInputChange = (
@@ -67,83 +58,81 @@ export default function TimeTracking() {
 
   return (
     <PageContainerWithBackground>
-      <StyledPaper elevation={3}>
-        <FormTitle variant="h5" gutterBottom>
-          Track Work Hours
-        </FormTitle>
-        <form onSubmit={handleSubmit}>
-          <FormGrid container spacing={3}>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Select Date"
-                type="date"
-                value={formData.date}
-                onChange={(e) =>
-                  setFormData((prevData) => ({
-                    ...prevData,
-                    date: e.target.value,
-                  }))
-                }
-                InputLabelProps={{ shrink: true }}
-                required
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Start Time"
-                type="time"
-                value={formData.startTime}
-                onChange={(e) =>
-                  setFormData((prevData) => ({
-                    ...prevData,
-                    startTime: e.target.value,
-                  }))
-                }
-                InputLabelProps={{ shrink: true }}
-                required
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="End Time"
-                type="time"
-                value={formData.endTime}
-                onChange={(e) =>
-                  setFormData((prevData) => ({
-                    ...prevData,
-                    endTime: e.target.value,
-                  }))
-                }
-                InputLabelProps={{ shrink: true }}
-                required
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Work Details"
-                multiline
-                rows={4}
-                name="workDetails"
-                onChange={handleInputChange}
-                placeholder="Describe your work..."
-                required
-              />
-            </Grid>
-          </FormGrid>
-          <ButtonContainer>
-            <Button variant="outlined" color="primary">
-              Cancel
-            </Button>
-            <Button variant="contained" color="primary" type="submit">
-              Save
-            </Button>
-          </ButtonContainer>
-        </form>
-      </StyledPaper>
+      <FormTitle variant="h5" gutterBottom>
+        Track Work Hours
+      </FormTitle>
+      <form onSubmit={handleSubmit}>
+        <FormGrid container spacing={3}>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Select Date"
+              type="date"
+              value={formData.date}
+              onChange={(e) =>
+                setFormData((prevData) => ({
+                  ...prevData,
+                  date: e.target.value,
+                }))
+              }
+              InputLabelProps={{ shrink: true }}
+              required
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              label="Start Time"
+              type="time"
+              value={formData.startTime}
+              onChange={(e) =>
+                setFormData((prevData) => ({
+                  ...prevData,
+                  startTime: e.target.value,
+                }))
+              }
+              InputLabelProps={{ shrink: true }}
+              required
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              label="End Time"
+              type="time"
+              value={formData.endTime}
+              onChange={(e) =>
+                setFormData((prevData) => ({
+                  ...prevData,
+                  endTime: e.target.value,
+                }))
+              }
+              InputLabelProps={{ shrink: true }}
+              required
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Work Details"
+              multiline
+              rows={4}
+              name="workDetails"
+              onChange={handleInputChange}
+              placeholder="Describe your work..."
+              required
+            />
+          </Grid>
+        </FormGrid>
+        <ButtonContainer>
+          <Button variant="outlined" color="primary">
+            Cancel
+          </Button>
+          <Button variant="contained" color="primary" type="submit">
+            Save
+          </Button>
+        </ButtonContainer>
+      </form>
     </PageContainerWithBackground>
   );
 }
