@@ -1,0 +1,29 @@
+@import url('https://fonts.googleapis.com/css2?family=Londrina+Sketch&display=swap');
+
+body {
+  background: linear-gradient(150deg, orange 60%, ghostwhite 40%);
+  position: absolute;
+  height: 100vh;
+  width: 100%;
+}
+
+*{
+  margin: 0;
+  padding: 0;
+}
+
+header{
+  height: 20vh;
+  color:whitesmoke;
+  display: flex;
+  flex-direction: column;
+}
+
+h1 {
+  font-family: 'Londrina Sketch';
+  font-size: 60px;
+  color:whitesmoke;
+}
+@media screen and (max-width:500px) {
+
+}
