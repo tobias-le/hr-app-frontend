@@ -1,29 +1,260 @@
 @import url('https://fonts.googleapis.com/css2?family=Londrina+Sketch&display=swap');
-
+@import url('https://fonts.googleapis.com/css2?family=Agdasima:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Zen+Dots&display=swap');
 body {
-  background: linear-gradient(150deg, orange 60%, ghostwhite 40%);
   position: absolute;
-  height: 100vh;
+  min-height: 100vh;
   width: 100%;
+  background-color: orange;
+  display: flex;
+  flex-direction: column;
 }
 
 *{
   margin: 0;
   padding: 0;
+  box-shadow: none;
+  overscroll-behavior: none;
+}
+
+h1,h2,h3,h4,h5,h6 {
+  font-family: "Zen Dots";
 }
 
 header{
-  height: 20vh;
+  position: sticky;
+  top: 0;
+  width: 100%;
+  height: fit-content;
   color:whitesmoke;
   display: flex;
   flex-direction: column;
+  background: linear-gradient(orangered 10%, darkorange 65%, orange 100%);
+  margin-bottom: 6%;
 }
 
-h1 {
-  font-family: 'Londrina Sketch';
+header h1 {
+  margin-top: 5px;
+  margin-bottom: 5px;
   font-size: 60px;
   color:whitesmoke;
+  width: fit-content;
+  margin-left: 6%;
 }
-@media screen and (max-width:500px) {
 
+header h4 {
+  font-weight: 400;
+  margin-left: 9%;
+  font-size: 22px;
+  width: fit-content;
+}
+
+main {
+  background-color: whitesmoke;
+  height: max-content;
+  border-radius: 10px;
+  align-self: center;
+  color: darkslategray;
+}
+
+.material-icons {
+  font-size: 48px;
+}
+
+main > :first-child {
+  border-bottom: 1px solid darkslategray;
+}
+
+.doable {
+  display: flex;
+  flex-direction: row;
+  height: fit-content;
+}
+
+i {
+  aspect-ratio: 1;
+  align-self: center;
+}
+
+p {
+  font-family: "Roboto";
+}
+
+#ending {
+  border-bottom: 1px solid darkslategray;
+  text-align: end;
+  padding-right: 10px;
+}
+
+main > :last-child {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+}
+
+main > :last-child >:first-child {
+  border-right: 1px solid darkslategray;
+}
+
+main > :last-child div {
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px;
+}
+
+main > :last-child div p {
+  text-align: center;
+  margin-bottom: 15px;
+}
+button {
+  border: none;
+  border-radius: 10px;
+  padding: 5px 10px 5px 10px;
+  background-color: darkslategray;
+  color: whitesmoke;
+  transition: 0.2s;
+}
+
+#hopin button {
+  background-color: orange;
+  font-size: 1.3rem;
+}
+
+button:hover {
+  cursor: pointer;
+  transform: scale(105%);
+  transition: 0.2s;
+}
+
+footer {
+  background: linear-gradient(orange 20%, darkslategray 100%);
+  padding-top: 30px;
+  padding-bottom: 10px;
+  color: whitesmoke;
+}
+
+footer h6 {
+  text-align: center;
+}
+
+@media screen and (max-width:850px) {
+  main {
+    width: 90%;
+  }
+  main > * {
+    padding: 8px;
+  }
+  main > :first-child p {
+    padding: 8px;
+  }
+
+  section h1 {
+    font-size: 3.5vh;
+  }
+
+  .fa-solid {
+    font-size: 56px;
+  }
+  .doable {
+    width: 100%;
+    display: inline-flex;
+    margin-bottom: 15px;
+  }
+
+  .description {
+    padding-left: 5px;
+    width: 80%;
+  }
+
+}
+
+@media screen and (min-width: 851px) {
+  header {
+    margin-bottom: 2%;
+  }
+
+  header h1 {
+    font-size: 80px;
+    margin-left: 3%;
+  }
+
+  main {
+    width: 82%;
+  }
+
+  main > * {
+    padding: 16px;
+  }
+
+  main > :first-child {
+    display: inline-flex;
+  }
+
+  main > :first-child h1 {
+    width: 40%;
+    font-size: 8vh;
+    border-right: solid 1px darkslategray;
+  }
+
+  main > :first-child p {
+    width: 60%;
+    padding: 16px;
+    font-size: 3vh;
+    height: fit-content;
+    align-self: center;
+  }
+
+  #doableContainer {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .doable {
+    width: 70%;
+    display: inline-flex;
+    margin-bottom: 20px;
+  }
+
+  .description {
+    width: 100%;
+    padding-left: 15px;
+  }
+
+  .fa-solid {
+    font-size: 72px;
+  }
+
+  #doableContainer > :nth-child(3) {
+    margin-left: 20%;
+  }
+  #doableContainer  > :nth-child(2) {
+    margin-left: 10%;
+  }
+  #doableContainer > :nth-child(4) {
+    margin-left: 30%;
+  }
+
+  #ending {
+    padding-right: 40px;
+  }
+
+  button {
+    font-size: 1.6rem;
+  }
+  #hopin button {
+    font-size: 1.8rem;
+  }
+}
+
+@media screen and (min-width: 1201px) {
+ main :first-child h1{
+   width: 30%;
+ }
+
+  main :first-child p{
+    width: 70%;
+  }
 }
