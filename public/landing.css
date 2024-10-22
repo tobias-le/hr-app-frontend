@@ -89,7 +89,7 @@ i {
   align-self: center;
 }
 
-p {
+p,span {
   font-family: "Lato";
   font-weight: 400;
 }
@@ -135,6 +135,7 @@ button {
 #hopin button {
   background-color: orange;
   font-size: 1.3rem;
+  color: black;
 }
 
 button:hover {
@@ -230,6 +231,10 @@ footer span {
     width: 70%;
     display: inline-flex;
     margin-bottom: 20px;
+  }
+
+  .doable h4 {
+    font-size: 1.6rem;
   }
 
   .description {
