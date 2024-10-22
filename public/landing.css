@@ -1,11 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Londrina+Sketch&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Agdasima:wght@400;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Zen+Dots&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap');
+
 body {
   position: absolute;
   min-height: 100vh;
   width: 100%;
-  background-color: orange;
   display: flex;
   flex-direction: column;
 }
@@ -18,7 +20,7 @@ body {
 }
 
 h1,h2,h3,h4,h5,h6 {
-  font-family: "Zen Dots";
+  font-family: "Bebas Neue";
 }
 
 header{
@@ -26,35 +28,36 @@ header{
   top: 0;
   width: 100%;
   height: fit-content;
-  color:whitesmoke;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(orangered 10%, darkorange 65%, orange 100%);
-  margin-bottom: 6%;
+  background-color: white;
+  z-index: 2;
 }
 
 header h1 {
-  margin-top: 5px;
-  margin-bottom: 5px;
+  padding-top: 5px;
+  padding-bottom: 5px;
   font-size: 60px;
-  color:whitesmoke;
-  width: fit-content;
-  margin-left: 6%;
+  background-color: orange;
+  padding-left: 6%;
 }
 
-header h4 {
+h4 {
   font-weight: 400;
   margin-left: 9%;
+  margin-bottom: 15px;
   font-size: 22px;
   width: fit-content;
 }
 
 main {
-  background-color: whitesmoke;
   height: max-content;
   border-radius: 10px;
   align-self: center;
-  color: darkslategray;
+  background-color: whitesmoke;
+  animation: load ease-in-out 1s;
+  animation-iteration-count: 1;
+  z-index: 1;
 }
 
 .material-icons {
@@ -65,10 +68,20 @@ main > :first-child {
   border-bottom: 1px solid darkslategray;
 }
 
+main > :first-child h1 {
+  font-size: 3rem;
+}
+
 .doable {
   display: flex;
   flex-direction: row;
   height: fit-content;
+  animation: slideIn;
+}
+.description h4 {
+  margin-left:0;
+  margin-bottom: 0;
+  font-size: 1.3rem;
 }
 
 i {
@@ -77,7 +90,8 @@ i {
 }
 
 p {
-  font-family: "Roboto";
+  font-family: "Lato";
+  font-weight: 400;
 }
 
 #ending {
@@ -113,7 +127,7 @@ button {
   border: none;
   border-radius: 10px;
   padding: 5px 10px 5px 10px;
-  background-color: darkslategray;
+  background-color: black;
   color: whitesmoke;
   transition: 0.2s;
 }
@@ -130,14 +144,17 @@ button:hover {
 }
 
 footer {
-  background: linear-gradient(orange 20%, darkslategray 100%);
-  padding-top: 30px;
-  padding-bottom: 10px;
-  color: whitesmoke;
+  background:white;
+  margin-top: 20px;
+  padding-bottom: 5px;
+  display: flex;
+  flex-direction: column;
 }
 
-footer h6 {
-  text-align: center;
+footer span {
+  align-self: center;
+  width: fit-content;
+  font-size: 0.5rem;
 }
 
 @media screen and (max-width:850px) {
@@ -172,13 +189,10 @@ footer h6 {
 }
 
 @media screen and (min-width: 851px) {
-  header {
-    margin-bottom: 2%;
-  }
 
   header h1 {
-    font-size: 80px;
-    margin-left: 3%;
+    font-size: 64px;
+    padding-left: 3%;
   }
 
   main {
@@ -195,7 +209,7 @@ footer h6 {
 
   main > :first-child h1 {
     width: 40%;
-    font-size: 8vh;
+    font-size: 90px;
     border-right: solid 1px darkslategray;
   }
 
@@ -256,5 +270,14 @@ footer h6 {
 
   main :first-child p{
     width: 70%;
+  }
+}
+
+@keyframes load {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
   }
 }
