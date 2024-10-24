@@ -4,5 +4,5 @@ export default interface Department {
     id: number;
     name: string;
     employees: Employee[];
-    boss: Employee;
+    boss: Employee | null;
 }
