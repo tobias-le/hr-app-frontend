@@ -7,7 +7,9 @@ import EmployeeList from "./pages/employee-list";
 import EmployeeDetail from "./pages/employee-details";
 import EmployeeForm from "./pages/employee-form";
 import { ThemeProvider } from "@mui/material/styles";
+import DepartmentPersonel from "./pages/department";
 import theme from "./theme";
+
 
 export default function App() {
   return (
@@ -20,6 +22,7 @@ export default function App() {
             <Route path="/employees" element={<EmployeeList />} />
             <Route path="/employees/:id" element={<EmployeeDetail />} />
             <Route path="/employees/new" element={<EmployeeForm />} />
+            <Route path="/departments" element={<DepartmentPersonel />} />
           </Routes>
         </AppLayout>
       </Router>
