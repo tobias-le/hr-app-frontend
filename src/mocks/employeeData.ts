@@ -2,7 +2,7 @@ export const mockedEmployees = [
   {
     employeeId: 1,
     name: "John Doe",
-    department: { name: "IT" },
+    department: {name: "Accounting"},
     contractType: "FULL_TIME",
     workPercentage: "FULL_TIME",
   },
@@ -18,7 +18,7 @@ export const mockedEmployees = [
 export const mockedEmployeeDetails = {
   employeeId: 1,
   name: "John Doe",
-  department: { name: "IT" },
+  department: {name: "Accounting"},
   contractType: "FULL_TIME",
   workPercentage: "FULL_TIME",
   contractualHours: 40,

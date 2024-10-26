@@ -1,7 +1,7 @@
 export interface Employee {
   employeeId: number;
   name: string;
-  department: { name: string };
+  department: {name:string};
   contractType: string;
   workPercentage: string;
   contractualHours: number;

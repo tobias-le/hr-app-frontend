@@ -7,7 +7,7 @@ import EmployeeList from "./pages/employee-list";
 import EmployeeDetail from "./pages/employee-details";
 import EmployeeForm from "./pages/employee-form";
 import { ThemeProvider } from "@mui/material/styles";
-import DepartmentPersonel from "./pages/department";
+import DepartmentPersonel from "./pages/department-view";
 import theme from "./theme";
 
 

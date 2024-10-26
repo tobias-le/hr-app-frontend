@@ -1,24 +1,22 @@
-import Department from "../types/Department";
-
-export const mockedDepartmentsData: Department[] = [
+export const mockedDepartmentsData = [
     {
-        id: 1,
-        name: "Department 1",
-        employees: [],
-        boss:null
+        departmentId: 1,
+        departmentName: "Department 1",
+        //employees: [],
+        //boss:null
     },
 
     {
-        id: 2,
-        name: "Department 2",
-        employees: [],
-        boss:null
+        departmentId: 2,
+        departmentName: "Department 2",
+        //employees: [],
+        //boss:null
     },
 
     {
-        id: 3,
-        name: "Department 3",
-        employees: [],
-        boss: null
+        departmentId: 3,
+        departmentName: "Department 3",
+        //employees: [],
+        //boss: null
     },
 ]
