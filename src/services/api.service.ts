@@ -6,6 +6,7 @@ import {
   Team,
   TeamAttendanceDetail,
 } from "../types/attendance";
+import {TimeOffRequest, TimeOffSummary} from "../types/timeoff";
 
 // Add these interfaces at the top of the file
 interface Employee {
@@ -78,7 +79,30 @@ class ApiService {
     >;
   }
 
-  // Add other API methods here
+  //must instert proper path!!
+  public static async getTimeOffSumary() :Promise<TimeOffSummary> {
+    return this.fetchWithConfig('') as Promise<TimeOffSummary>;
+  }
+
+  //must insert proper path!!
+  public static async getRecentTimeOffRequests() :Promise<TimeOffRequest[]> {
+    return this.fetchWithConfig('') as Promise<TimeOffRequest[]>;
+  }
+
+  //must insert proper path!!
+  //to create new time off request, returns 1 if ok and 0 if not??
+  public static async createNewTimeOffRequest(timeOffRequest: TimeOffRequest):Promise<number> {
+    try {
+      this.fetchWithConfig('', {
+        method: 'POST',
+        body: JSON.stringify(timeOffRequest),
+      });
+      return 1;
+    } catch (error) {
+      return 0;
+    }
+  }
+
 }
 
 export default ApiService;
