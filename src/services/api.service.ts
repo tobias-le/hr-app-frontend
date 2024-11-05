@@ -80,7 +80,7 @@ class ApiService {
   }
 
   //must instert proper path!!
-  public static async getTimeOffSumary() :Promise<TimeOffSummary> {
+  public static async getTimeOffSummary() :Promise<TimeOffSummary> {
     return this.fetchWithConfig('') as Promise<TimeOffSummary>;
   }
 

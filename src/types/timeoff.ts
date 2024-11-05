@@ -1,11 +1,23 @@
 export interface TimeOffRequest {
   id: number;
-  employeeName: string;
+  employeeName: string; //later employee entity
   startDate: string;
   endDate: string;
-  type: "VACATION" | "SICK" | "PERSONAL";
-  status: "PENDING" | "APPROVED" | "REJECTED";
+  type: RequestType
+  status: RequestStatus
   reason: string;
+}
+
+export enum RequestType {
+  Vacation = "Vacation",
+  Sick = "Sickness",
+  Personal = "Personal"
+}
+
+export enum RequestStatus {
+  Pending = "PENDING",
+  Approved = "APPROVED",
+  Rejected = "REJECTED"
 }
 
 export interface TimeOffSummary {
