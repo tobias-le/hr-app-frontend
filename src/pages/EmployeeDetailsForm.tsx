@@ -81,7 +81,11 @@ const EmployeeDetailsForm: React.FC = () => {
     setLoading(true);
     setMessage("");
     try {
-      await ApiService.updateEmployee(selectedEmployee.id, selectedEmployee);
+      const updatedEmployee = await ApiService.updateEmployee(
+        selectedEmployee.id,
+        selectedEmployee
+      );
+      updateEmployee(updatedEmployee);
       setMessage("Employee updated successfully.");
       setOpenSnackbar(true);
     } catch (error) {
