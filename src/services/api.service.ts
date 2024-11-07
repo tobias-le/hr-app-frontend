@@ -6,15 +6,7 @@ import {
   Team,
   TeamAttendanceDetail,
 } from "../types/attendance";
-
-// Add these interfaces at the top of the file
-interface Employee {
-  name: string;
-  overtime: string | null;
-  picture: string | null;
-  location: string;
-  note: string;
-}
+import { Employee, EmployeeNameWithId } from "../types/employee";
 
 class ApiService {
   private static async fetchWithConfig(
@@ -78,7 +70,26 @@ class ApiService {
     >;
   }
 
-  // Add other API methods here
+  public static async getEmployeeById(id: number): Promise<any> {
+    return this.fetchWithConfig(`/api/employees/${id}`);
+  }
+
+  public static async updateEmployee(
+    id: number,
+    employeeData: Employee
+  ): Promise<any> {
+    return this.fetchWithConfig(`/api/employees/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(employeeData),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  }
+
+  public static async getEmployeeNamesWithIds(): Promise<EmployeeNameWithId[]> {
+    return this.fetchWithConfig("/api/employees/withId");
+  }
 }
 
 export default ApiService;
