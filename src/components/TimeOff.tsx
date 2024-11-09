@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {
+  Alert,
   Box,
   Button,
   Chip,
@@ -20,8 +21,9 @@ import {
   Typography,
 } from "@mui/material";
 import Header from "./Header";
-import {RequestStatus, RequestType, TimeOffRequest, TimeOffSummary} from "../types/timeoff";
+import {EmployeeLeaveBalance, Leave, LeaveStatus, LeaveType} from "../types/timeoff";
 import CircularProgress from "@mui/material/CircularProgress";
+import ApiService from "../services/api.service";
 
 function calculateDaysBetween (date1: Date, date2: Date): number {
   return Math.round((date1.getTime() - date2.getTime())/(3600*1000*24))+1;
@@ -31,25 +33,26 @@ function calculateDaysBetween (date1: Date, date2: Date): number {
 const TimeOff: React.FC = () => {
 
   // summary of users remaining time off, fetched
-  const [summary, setSummary] = useState<TimeOffSummary | null>(null);
+  const [summary, setSummary] = useState<EmployeeLeaveBalance | null>(null);
+  const [summaryError, setSummaryError] = useState<string | null>(null);
   const [daysBetween, setDaysBetween] = useState<number>(0);
 
   //leave request form variables
+  const[formLocked,setFormLocked] = useState(false);
   const [startDate, setStartDate] = useState<string>("");
   const [startDateInValid, setStartDateInvalid] = useState<string |  null>(null);
 
   const [endDate, setEndDate] = useState<string>("");
   const [endDateInvalid, setEndDateInvalid] = useState<string | null>(null);
 
-  const [requestType, setRequestType] = useState<RequestType>(RequestType.Sick);
-  const [requestTypeInvalid, setRequestTypeInvalid] = useState<string | null>(null);
+  const [requestType, setRequestType] = useState<LeaveType>(LeaveType.Sick);
   const [description, setDescription] = useState<string>("");
 
   const updateStartDate = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedDate= new Date(event.target.value);
 
     //if user logs sickday
-    if (requestType ===RequestType.Sick) {
+    if (requestType ===LeaveType.Sick) {
       //if selected date is more than 7 days back
       if (calculateDaysBetween(new Date(), updatedDate) >7) {
           setStartDateInvalid("Log sick days max 7 days back");
@@ -85,8 +88,7 @@ const TimeOff: React.FC = () => {
   }
 
   const updateRequestType = (event: SelectChangeEvent) => {
-    setRequestType(event.target.value as RequestType);
-    setRequestTypeInvalid(null);
+    setRequestType(event.target.value as LeaveType);
   }
 
   const updateDesciption = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -94,19 +96,48 @@ const TimeOff: React.FC = () => {
   }
 
   //users recent requests, fetched
-  const [requests, setRequests] = useState<TimeOffRequest[]>([]);
+  const [requests, setRequests] = useState<Leave[]>([]);
+  const [requestsError, setRequestsError] = useState<string | null>(null);
 
-  //submiting form via api
+  //submiting form, checks for required fields
   const submitRequestForm = (event : React.FormEvent) => {
     event.preventDefault();
     event.stopPropagation();
     if (requestType && !startDateInValid && !endDateInvalid) {
-      //send form data to system
-    } else {
-      setRequestTypeInvalid("You must select type of request");
+      if (startDate==="" || endDate==="") {
+        if (startDate==="") {
+          setStartDateInvalid("you must insert a date");
+        } else {
+          setEndDateInvalid("you must insert a date");
+        }
+        return;
+      }
+      const request = {
+        startDate: startDate,
+        endDate: endDate,
+        leaveType: requestType,
+        leaveStatus: LeaveStatus.Pending,
+        employeeId:1,  //later replace with currently signed in employee id
+        leaveAmount: calculateDaysBetween(new Date(endDate), new Date(startDate))*8,
+        reason: description
+      }
+      console.log(request);
+      setFormLocked(true);
+      ApiService.createNewTimeOffRequest(request).then(
+        createdRequest => {
+          setRequests(prevState => {
+            prevState.push(createdRequest);
+            return prevState;
+          })
+          resetInput();
+          setFormLocked(false);
+        }).catch(error =>
+          alert("We had problem with creating new request")
+      );
     }
   }
 
+  //resets forms input
   const resetInput = () => {
     setDaysBetween(0);
     setStartDate("");
@@ -120,51 +151,28 @@ const TimeOff: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        //const requests = await ApiService.getRecentTimeOffRequests();
-        //const summary = await ApiService.getTimeOffSummary();
-        //setRequests(requests);
-        //setSummary(summary);
-
-        // Mock data
-
-        setSummary({
-          vacationDaysLeft: 15,
-          sickDaysLeft: 5,
-          personalDaysLeft: 3,
-          pendingRequests: 2,
-        });
-
-        setRequests([{
-          id:1,
-          employeeName: "Someone",
-          startDate: "2024-11-03",
-          endDate: "2024-11-06",
-          reason:"im bored",
-          type: RequestType.Vacation,
-          status: RequestStatus.Pending
-        }, {
-          id:2,
-          employeeName: "Someone Else",
-          startDate: "2024-11-03",
-          endDate: "2024-11-06",
-          reason:"i hate my job",
-          type: RequestType.Sick,
-          status: RequestStatus.Rejected
-        },{
-          id:3,
-          employeeName: "Someone",
-          startDate: "2024-11-03",
-          endDate: "2024-11-06",
-          reason:"i love you boss",
-          type: RequestType.Personal,
-          status: RequestStatus.Approved
-        } ]);
-
+        ApiService.getRecentTimeOffRequests()
+            .then( reqs => setRequests(reqs))
+            .catch(error => {
+              setRequestsError("Failed to load your requests");
+              setRequests([]);
+            });
+        ApiService.getTimeOffSummary()
+            .then( sum => setSummary(sum))
+            .catch(error => {
+              setSummaryError("Failed to load you vacations");
+              setSummary({
+                personalDaysLeft:0,
+                vacationDaysLeft:0,
+                sickDaysLeft:0,
+                id:0,
+                employeeId:null
+              })
+            });
       } catch (error) {
         console.error("Error fetching time off data:", error);
       }
     };
-
     fetchData();
   }, []);
 
@@ -174,7 +182,7 @@ const TimeOff: React.FC = () => {
       const updatedDate= new Date(startDate);
 
       //if user logs sickday
-      if (requestType === RequestType.Sick) {
+      if (requestType === LeaveType.Sick) {
         //if selected date is more than 7 days back
         if (calculateDaysBetween(new Date(), updatedDate) >7) {
           setStartDateInvalid("Log sick days max 7 days back");
@@ -195,11 +203,11 @@ const TimeOff: React.FC = () => {
   }, [requestType]);
 
   //returns color in which chip is displayed
-  const getStatusColor = (status: RequestStatus) => {
+  const getStatusColor = (status: LeaveStatus) => {
        switch (status) {
-         case RequestStatus.Approved:
+         case LeaveStatus.Approved:
            return "success";
-         case RequestStatus.Rejected:
+         case LeaveStatus.Rejected:
            return "error";
          default:
            return "warning";
@@ -215,6 +223,12 @@ const TimeOff: React.FC = () => {
             Time Off Management
           </Typography>
 
+          {summaryError?
+              <Alert severity="error">{summaryError}</Alert>
+              :
+              null
+          }
+
           {/* Summary Cards */}
           <Grid container spacing={3} className="mb-6">
               <Grid item xs={12} md={3}>
@@ -227,7 +241,7 @@ const TimeOff: React.FC = () => {
                         <Typography variant="h4">
                           {summary.vacationDaysLeft}
                         </Typography>
-                        {(requestType===RequestType.Vacation && daysBetween>0)?
+                        {(requestType===LeaveType.Vacation && daysBetween>0)?
                             <Typography variant="h4" color={summary.vacationDaysLeft >=0? "primary" : "warning"} >
                               {" " && summary.vacationDaysLeft - daysBetween}
                             </Typography> :
@@ -249,7 +263,7 @@ const TimeOff: React.FC = () => {
                         <Typography variant="h4">
                           {summary.sickDaysLeft}
                         </Typography>
-                        {(requestType===RequestType.Sick && daysBetween>0)?
+                        {(requestType===LeaveType.Sick && daysBetween>0)?
                             <Typography variant="h4" color={summary.sickDaysLeft >=0? "primary" : "warning"} >
                               {" " && summary.sickDaysLeft - daysBetween}
                             </Typography> :
@@ -271,7 +285,7 @@ const TimeOff: React.FC = () => {
                         <Typography variant="h4">
                           {summary.personalDaysLeft}
                         </Typography>
-                        {(requestType===RequestType.Personal && daysBetween>0)?
+                        {(requestType===LeaveType.Personal && daysBetween>0)?
                             <Typography variant="h4" color={summary.personalDaysLeft >=0? "primary" : "warning"} >
                               {" " && summary.personalDaysLeft - daysBetween}
                             </Typography> :
@@ -288,14 +302,13 @@ const TimeOff: React.FC = () => {
                   <Typography color="textSecondary">
                     Pending Requests
                   </Typography>
-                  {summary?
+                  {requests?
                       <Typography variant="h4">
-                        {summary.pendingRequests}
+                        {requests.filter(req => {return req.status===LeaveStatus.Pending}).length}
                       </Typography> :
                       <CircularProgress/>}
                 </Paper>
               </Grid>
-
           </Grid>
 
           {/* Request Form */}
@@ -328,9 +341,9 @@ const TimeOff: React.FC = () => {
                 <FormControl fullWidth>
                   <InputLabel>Type</InputLabel>
                   <Select label="Type" onChange={updateRequestType} value={requestType}>
-                    <MenuItem value={RequestType.Vacation} selected={requestType===RequestType.Vacation}>Vacation</MenuItem>
-                    <MenuItem value={RequestType.Sick} selected={requestType===RequestType.Sick}>Sick Leave</MenuItem>
-                    <MenuItem value={RequestType.Personal} selected={requestType===RequestType.Personal}>Personal Leave</MenuItem>
+                    <MenuItem value={LeaveType.Vacation} selected={requestType===LeaveType.Vacation}>Vacation</MenuItem>
+                    <MenuItem value={LeaveType.Sick} selected={requestType===LeaveType.Sick}>Sick Leave</MenuItem>
+                    <MenuItem value={LeaveType.Personal} selected={requestType===LeaveType.Personal}>Personal Leave</MenuItem>
                   </Select>
                 </FormControl>
                 <TextField
@@ -345,8 +358,9 @@ const TimeOff: React.FC = () => {
               </div>
               <div className="flex justify-end space-x-2">
                 <Button variant="outlined" onClick={resetInput}>Cancel</Button>
-                <Button variant="contained" color="primary">
+                <Button variant="contained" color="primary" type="submit" disabled={formLocked}>
                   Submit Request
+                  {formLocked? <CircularProgress/>:null}
                 </Button>
               </div>
             </form>
@@ -367,21 +381,25 @@ const TimeOff: React.FC = () => {
                   <TableCell>Status</TableCell>
                 </TableRow>
               </TableHead>
-              <TableBody>
-                {/* Replace with actual data mapping */}
 
-                {requests.map(request => (
+              {requests.length>0?
+                <TableBody>
+                  {requests.map(request => (
                   <TableRow>
-                    <TableCell>{request.type}</TableCell>
+                    <TableCell>{request.leaveType}</TableCell>
                     <TableCell>{request.startDate}</TableCell>
                     <TableCell>{request.endDate}</TableCell>
                     <TableCell>{request.reason}</TableCell>
                     <TableCell>
                       <Chip label={request.status} color={getStatusColor(request.status)} size="small" />
                     </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
+                  </TableRow>))}
+                </TableBody> :
+                  <>
+                    <TableBody/>
+                    <Alert severity={requestsError? "error": "info"}>{requestsError? requestsError : "Nothing to show"}</Alert>
+                  </>
+              }
             </Table>
           </TableContainer>
         </Paper>
