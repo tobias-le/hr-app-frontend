@@ -11,7 +11,7 @@ import {
   TextField,
   Avatar,
 } from "@mui/material";
-import { Add, Search, Notifications } from "@mui/icons-material";
+import { Notifications } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import { stringToColor } from "../utils/colorUtils";
 import { useEmployeeStore } from "../store/employeeStore";
