@@ -29,6 +29,10 @@ const Header: React.FC = () => {
     setAnchorEl(event.currentTarget);
   };
 
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
   return (
     <AppBar position="static" className="bg-gray-900" data-testid="header">
       <Toolbar>
@@ -103,12 +107,6 @@ const Header: React.FC = () => {
             Work Time
           </Button>
         </div>
-        <IconButton color="inherit" className="ml-4" data-testid="add-button">
-          <Add />
-        </IconButton>
-        <IconButton color="inherit" data-testid="search-button">
-          <Search />
-        </IconButton>
         <IconButton color="inherit" data-testid="notifications-button">
           <Notifications />
         </IconButton>
@@ -140,9 +138,30 @@ const Header: React.FC = () => {
         <Menu
           id="profile-menu"
           anchorEl={anchorEl}
-          keepMounted
           open={Boolean(anchorEl)}
+          onClose={handleClose}
           data-testid="profile-menu"
+          MenuListProps={{
+            "aria-labelledby": "profile-button",
+          }}
+          anchorOrigin={{
+            vertical: "bottom",
+            horizontal: "right",
+          }}
+          transformOrigin={{
+            vertical: "top",
+            horizontal: "right",
+          }}
+          slotProps={{
+            paper: {
+              elevation: 0,
+              sx: {
+                overflow: "visible",
+                filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
+                mt: 1.5,
+              },
+            },
+          }}
         >
           <MenuItem data-testid="profile-menu-item">
             <Link
@@ -153,8 +172,6 @@ const Header: React.FC = () => {
               Profile
             </Link>
           </MenuItem>
-          <MenuItem data-testid="account-menu-item">My account</MenuItem>
-          <MenuItem data-testid="logout-menu-item">Logout</MenuItem>
         </Menu>
       </Toolbar>
     </AppBar>
