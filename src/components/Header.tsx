@@ -107,12 +107,6 @@ const Header: React.FC = () => {
             Work Time
           </Button>
         </div>
-        <IconButton color="inherit" className="ml-4" data-testid="add-button">
-          <Add />
-        </IconButton>
-        <IconButton color="inherit" data-testid="search-button">
-          <Search />
-        </IconButton>
         <IconButton color="inherit" data-testid="notifications-button">
           <Notifications />
         </IconButton>
@@ -178,8 +172,6 @@ const Header: React.FC = () => {
               Profile
             </Link>
           </MenuItem>
-          <MenuItem data-testid="account-menu-item">My account</MenuItem>
-          <MenuItem data-testid="logout-menu-item">Logout</MenuItem>
         </Menu>
       </Toolbar>
     </AppBar>
