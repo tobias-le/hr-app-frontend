@@ -7,6 +7,7 @@ import {
   TeamAttendanceDetail,
 } from "../types/attendance";
 import { Employee, EmployeeNameWithId } from "../types/employee";
+import { AttendanceRecord, Project } from "../types/attendance";
 
 class ApiService {
   private static async fetchWithConfig(
@@ -89,6 +90,65 @@ class ApiService {
 
   public static async getEmployeeNamesWithIds(): Promise<EmployeeNameWithId[]> {
     return this.fetchWithConfig("/api/employees/withId");
+  }
+
+  public static async createAttendanceRecord(
+    attendanceRecord: AttendanceRecord
+  ): Promise<AttendanceRecord> {
+    return this.fetchWithConfig("/api/attendance", {
+      method: "POST",
+      body: JSON.stringify(attendanceRecord),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  }
+
+  public static async getProjectsByEmployeeId(
+    employeeId: number
+  ): Promise<Project[]> {
+    return this.fetchWithConfig(`/api/projects/${employeeId}`);
+  }
+
+  public static async getAttendanceRecordsByMember(
+    memberId: number
+  ): Promise<AttendanceRecord[]> {
+    return this.fetchWithConfig(`/api/attendance/member/${memberId}`);
+  }
+
+  public static async deleteAttendanceRecord(
+    attendanceId: number
+  ): Promise<void> {
+    const response = await fetch(
+      `${API_CONFIG.BASE_URL}/api/attendance/${attendanceId}`,
+      {
+        method: "DELETE",
+        headers: API_CONFIG.HEADERS,
+      }
+    );
+
+    if (response.status === 204) {
+      return; // Success, no content
+    }
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to delete attendance record: ${response.statusText}`
+      );
+    }
+  }
+
+  public static async updateAttendanceRecord(
+    id: number,
+    attendanceRecord: AttendanceRecord
+  ): Promise<AttendanceRecord> {
+    return this.fetchWithConfig(`/api/attendance/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(attendanceRecord),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
   }
 }
 

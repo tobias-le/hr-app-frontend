@@ -72,15 +72,20 @@ const AttendanceSummary: React.FC<AttendanceSummaryProps> = ({
 
   return (
     <>
-      <FormControl fullWidth>
-        <InputLabel>Select Team</InputLabel>
+      <FormControl fullWidth data-testid="team-select-container">
+        <InputLabel data-testid="team-select-label">Select Team</InputLabel>
         <Select
           value={teamId}
           onChange={(e) => setTeamId(e.target.value as number)}
           disabled={isDisabled}
+          data-testid="team-select"
         >
           {teams.map((team) => (
-            <MenuItem key={team.teamId} value={team.teamId}>
+            <MenuItem
+              key={team.teamId}
+              value={team.teamId}
+              data-testid={`team-option-${team.teamId}`}
+            >
               {team.name}
             </MenuItem>
           ))}
@@ -88,43 +93,64 @@ const AttendanceSummary: React.FC<AttendanceSummaryProps> = ({
       </FormControl>
 
       {summaryLoading ? (
-        <div className="flex justify-center items-center h-64">
+        <div
+          className="flex justify-center items-center h-64"
+          data-testid="loading-spinner"
+        >
           <CircularProgress />
         </div>
       ) : (
         summaryData && (
-          <Grid container spacing={3}>
+          <Grid container spacing={3} data-testid="summary-grid">
             <Grid item xs={12} md={4}>
-              <Paper className="rounded-lg mt-5">
+              <Paper className="rounded-lg mt-5" data-testid="total-hours-card">
                 <div className="p-4">
                   <Typography variant="subtitle1" className="text-gray-500">
                     Total Hours / Expected Hours
                   </Typography>
-                  <Typography variant="h4" className="font-bold">
+                  <Typography
+                    variant="h4"
+                    className="font-bold"
+                    data-testid="total-hours-value"
+                  >
                     {summaryData.totalHours} / {summaryData.expectedHours}
                   </Typography>
                 </div>
               </Paper>
             </Grid>
             <Grid item xs={12} md={4}>
-              <Paper className="rounded-lg mt-5">
+              <Paper
+                className="rounded-lg mt-5"
+                data-testid="average-hours-card"
+              >
                 <div className="p-4">
                   <Typography variant="subtitle1" className="text-gray-500">
                     Average Hours/Day
                   </Typography>
-                  <Typography variant="h4" className="font-bold">
+                  <Typography
+                    variant="h4"
+                    className="font-bold"
+                    data-testid="average-hours-value"
+                  >
                     {summaryData.averageHoursPerDay.toFixed(1)}
                   </Typography>
                 </div>
               </Paper>
             </Grid>
             <Grid item xs={12} md={4}>
-              <Paper className="rounded-lg mt-5">
+              <Paper
+                className="rounded-lg mt-5"
+                data-testid="attendance-rate-card"
+              >
                 <div className="p-4">
                   <Typography variant="subtitle1" className="text-gray-500">
                     Attendance Rate
                   </Typography>
-                  <Typography variant="h4" className="font-bold">
+                  <Typography
+                    variant="h4"
+                    className="font-bold"
+                    data-testid="attendance-rate-value"
+                  >
                     {summaryData.attendanceRate.toFixed(1)}%
                   </Typography>
                 </div>

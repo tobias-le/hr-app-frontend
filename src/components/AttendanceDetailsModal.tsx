@@ -39,35 +39,62 @@ const AttendanceDetailsModal: React.FC<AttendanceDetailsModalProps> = ({
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>Team Attendance Details</DialogTitle>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="md"
+      fullWidth
+      data-testid="attendance-details-modal"
+    >
+      <DialogTitle data-testid="modal-title">
+        Team Attendance Details
+      </DialogTitle>
       <DialogContent>
         {loading ? (
-          <div className="flex justify-center p-4">
+          <div
+            className="flex justify-center p-4"
+            data-testid="loading-spinner"
+          >
             <CircularProgress />
           </div>
         ) : (
-          <TableContainer component={Paper}>
+          <TableContainer
+            component={Paper}
+            data-testid="attendance-details-table"
+          >
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>Employee Name</TableCell>
-                  <TableCell>Date</TableCell>
-                  <TableCell>Clock In</TableCell>
-                  <TableCell>Clock Out</TableCell>
-                  <TableCell>Project</TableCell>
+                  <TableCell data-testid="header-employee">
+                    Employee Name
+                  </TableCell>
+                  <TableCell data-testid="header-date">Date</TableCell>
+                  <TableCell data-testid="header-clock-in">Clock In</TableCell>
+                  <TableCell data-testid="header-clock-out">
+                    Clock Out
+                  </TableCell>
+                  <TableCell data-testid="header-project">Project</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {details.map((detail) => (
-                  <TableRow key={detail.attendanceId}>
-                    <TableCell>{detail.member}</TableCell>
-                    <TableCell>
+                  <TableRow
+                    key={detail.attendanceId}
+                    data-testid={`attendance-row-${detail.attendanceId}`}
+                  >
+                    <TableCell data-testid={`employee-${detail.attendanceId}`}>
+                      {detail.member}
+                    </TableCell>
+                    <TableCell data-testid={`date-${detail.attendanceId}`}>
                       {new Date(detail.date).toLocaleDateString()}
                     </TableCell>
-                    <TableCell>{formatDateTime(detail.clockInTime)}</TableCell>
-                    <TableCell>{formatDateTime(detail.clockOutTime)}</TableCell>
-                    <TableCell>
+                    <TableCell data-testid={`clock-in-${detail.attendanceId}`}>
+                      {formatDateTime(detail.clockInTime)}
+                    </TableCell>
+                    <TableCell data-testid={`clock-out-${detail.attendanceId}`}>
+                      {formatDateTime(detail.clockOutTime)}
+                    </TableCell>
+                    <TableCell data-testid={`project-${detail.attendanceId}`}>
                       <Chip {...createProjectChip(detail.project)} />
                     </TableCell>
                   </TableRow>
@@ -78,7 +105,7 @@ const AttendanceDetailsModal: React.FC<AttendanceDetailsModalProps> = ({
         )}
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} color="primary">
+        <Button onClick={onClose} color="primary" data-testid="close-button">
           Close
         </Button>
       </DialogActions>

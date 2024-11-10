@@ -6,12 +6,12 @@ import {
   Typography,
   Grid,
   CircularProgress,
-  Snackbar,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import ApiService from "../services/api.service";
 import Header from "../components/Header";
 import { useEmployeeStore } from "../store/employeeStore";
+import { useSnackbarStore } from "../components/GlobalSnackbar";
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -37,9 +37,8 @@ const FullPageLoader = styled("div")({
 
 const EmployeeDetailsForm: React.FC = () => {
   const { selectedEmployee, updateEmployee } = useEmployeeStore();
+  const { showMessage } = useSnackbarStore();
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
-  const [openSnackbar, setOpenSnackbar] = useState(false);
 
   useEffect(() => {
     const fetchEmployeeDetails = async () => {
@@ -53,15 +52,14 @@ const EmployeeDetailsForm: React.FC = () => {
         updateEmployee(employeeData);
       } catch (error) {
         console.error("Failed to fetch employee details:", error);
-        setMessage("Failed to fetch employee details");
-        setOpenSnackbar(true);
+        showMessage("Failed to fetch employee details");
       } finally {
         setLoading(false);
       }
     };
 
     fetchEmployeeDetails();
-  }, [selectedEmployee?.id, updateEmployee]);
+  }, [selectedEmployee?.id, updateEmployee, showMessage]);
 
   const handleChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -79,19 +77,16 @@ const EmployeeDetailsForm: React.FC = () => {
     if (!selectedEmployee?.id) return;
 
     setLoading(true);
-    setMessage("");
     try {
       const updatedEmployee = await ApiService.updateEmployee(
         selectedEmployee.id,
         selectedEmployee
       );
       updateEmployee(updatedEmployee);
-      setMessage("Employee updated successfully.");
-      setOpenSnackbar(true);
+      showMessage("Employee updated successfully.");
     } catch (error) {
       console.error("Failed to update employee:", error);
-      setMessage("Failed to update employee.");
-      setOpenSnackbar(true);
+      showMessage("Failed to update employee.");
     }
     setLoading(false);
   };
@@ -112,13 +107,16 @@ const EmployeeDetailsForm: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-gray-100">
+    <div
+      className="flex flex-col h-screen bg-gray-100"
+      data-testid="employee-details-container"
+    >
       <Header />
-      <StyledPaper elevation={3}>
-        <Typography variant="h6" gutterBottom>
+      <StyledPaper elevation={3} data-testid="employee-form-paper">
+        <Typography variant="h6" gutterBottom data-testid="employee-form-title">
           Employee Details - {selectedEmployee.name}
         </Typography>
-        <form noValidate autoComplete="off">
+        <form noValidate autoComplete="off" data-testid="employee-details-form">
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <TextField
@@ -128,6 +126,7 @@ const EmployeeDetailsForm: React.FC = () => {
                 onChange={handleChange}
                 fullWidth
                 InputLabelProps={{ shrink: true }}
+                data-testid="employee-name-input"
               />
             </Grid>
             <Grid item xs={12}>
@@ -138,6 +137,7 @@ const EmployeeDetailsForm: React.FC = () => {
                 onChange={handleChange}
                 fullWidth
                 InputLabelProps={{ shrink: true }}
+                data-testid="employee-job-title-input"
               />
             </Grid>
             <Grid item xs={12}>
@@ -148,6 +148,7 @@ const EmployeeDetailsForm: React.FC = () => {
                 onChange={handleChange}
                 fullWidth
                 InputLabelProps={{ shrink: true }}
+                data-testid="employee-email-input"
               />
             </Grid>
             <Grid item xs={12}>
@@ -158,6 +159,7 @@ const EmployeeDetailsForm: React.FC = () => {
                 onChange={handleChange}
                 fullWidth
                 InputLabelProps={{ shrink: true }}
+                data-testid="employee-phone-input"
               />
             </Grid>
             <Grid item xs={12}>
@@ -170,6 +172,7 @@ const EmployeeDetailsForm: React.FC = () => {
                 variant="contained"
                 color="primary"
                 fullWidth
+                data-testid="update-employee-button"
               >
                 Update Employee
               </Button>
@@ -178,17 +181,10 @@ const EmployeeDetailsForm: React.FC = () => {
         </form>
       </StyledPaper>
       {loading && (
-        <FullPageLoader>
+        <FullPageLoader data-testid="loading-spinner">
           <CircularProgress />
         </FullPageLoader>
       )}
-      <Snackbar
-        open={openSnackbar}
-        autoHideDuration={6000}
-        onClose={() => setOpenSnackbar(false)}
-        message={message}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-      />
     </div>
   );
 };
