@@ -6,12 +6,12 @@ import {
   Typography,
   Grid,
   CircularProgress,
-  Snackbar,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import ApiService from "../services/api.service";
 import Header from "../components/Header";
 import { useEmployeeStore } from "../store/employeeStore";
+import { useSnackbarStore } from "../components/GlobalSnackbar";
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -37,9 +37,8 @@ const FullPageLoader = styled("div")({
 
 const EmployeeDetailsForm: React.FC = () => {
   const { selectedEmployee, updateEmployee } = useEmployeeStore();
+  const { showMessage } = useSnackbarStore();
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
-  const [openSnackbar, setOpenSnackbar] = useState(false);
 
   useEffect(() => {
     const fetchEmployeeDetails = async () => {
@@ -53,15 +52,14 @@ const EmployeeDetailsForm: React.FC = () => {
         updateEmployee(employeeData);
       } catch (error) {
         console.error("Failed to fetch employee details:", error);
-        setMessage("Failed to fetch employee details");
-        setOpenSnackbar(true);
+        showMessage("Failed to fetch employee details");
       } finally {
         setLoading(false);
       }
     };
 
     fetchEmployeeDetails();
-  }, [selectedEmployee?.id, updateEmployee]);
+  }, [selectedEmployee?.id, updateEmployee, showMessage]);
 
   const handleChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -79,19 +77,16 @@ const EmployeeDetailsForm: React.FC = () => {
     if (!selectedEmployee?.id) return;
 
     setLoading(true);
-    setMessage("");
     try {
       const updatedEmployee = await ApiService.updateEmployee(
         selectedEmployee.id,
         selectedEmployee
       );
       updateEmployee(updatedEmployee);
-      setMessage("Employee updated successfully.");
-      setOpenSnackbar(true);
+      showMessage("Employee updated successfully.");
     } catch (error) {
       console.error("Failed to update employee:", error);
-      setMessage("Failed to update employee.");
-      setOpenSnackbar(true);
+      showMessage("Failed to update employee.");
     }
     setLoading(false);
   };
@@ -182,13 +177,6 @@ const EmployeeDetailsForm: React.FC = () => {
           <CircularProgress />
         </FullPageLoader>
       )}
-      <Snackbar
-        open={openSnackbar}
-        autoHideDuration={6000}
-        onClose={() => setOpenSnackbar(false)}
-        message={message}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-      />
     </div>
   );
 };

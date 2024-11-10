@@ -4,6 +4,7 @@ import Dashboard from "./pages/Dashboard";
 import WorkTime from "./pages/WorkTime";
 import TimeOff from "./pages/TimeOff";
 import EmployeeDetailsForm from "./pages/EmployeeDetailsForm";
+import GlobalSnackbar from "./components/GlobalSnackbar";
 
 const App: React.FC = () => {
   return (
@@ -14,6 +15,7 @@ const App: React.FC = () => {
         <Route path="/time-off" element={<TimeOff />} />
         <Route path="/employee-details" element={<EmployeeDetailsForm />} />
       </Routes>
+      <GlobalSnackbar />
     </Router>
   );
 };
