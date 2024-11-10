@@ -17,7 +17,7 @@ import {
   TableRow,
   Chip,
 } from "@mui/material";
-import Header from "./Header";
+import Header from "../components/Header";
 import { format } from "date-fns";
 import { createProjectChip } from "../utils/chipUtils";
 

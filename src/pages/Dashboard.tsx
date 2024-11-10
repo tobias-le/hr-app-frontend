@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { Box, Paper, Typography, Button, TextField } from "@mui/material";
-import AttendanceSummary from "./AttendanceSummary";
-import EmployeeTable from "./EmployeeTable";
+import AttendanceSummary from "../components/AttendanceSummary";
+import EmployeeTable from "../components/EmployeeTable";
 import { format, startOfWeek, addDays } from "date-fns";
 import ApiService from "../services/api.service";
 import { TeamAttendanceDetail } from "../types/attendance";
-import AttendanceDetailsModal from "./AttendanceDetailsModal";
-import Header from "./Header"; // Import the new Header component
+import AttendanceDetailsModal from "../components/AttendanceDetailsModal";
+import Header from "../components/Header"; // Import the new Header component
 
 const Dashboard: React.FC = () => {
   const monday = startOfWeek(new Date(), { weekStartsOn: 1 });

@@ -18,7 +18,7 @@ import {
   TableRow,
   Chip,
 } from "@mui/material";
-import Header from "./Header";
+import Header from "../components/Header";
 // import ApiService from "../services/api.service";
 import { TimeOffSummary } from "../types/timeoff";
 // import { TimeOffRequest } from "../types/timeoff";
