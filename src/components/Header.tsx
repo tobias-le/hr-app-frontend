@@ -30,7 +30,7 @@ const Header: React.FC = () => {
   };
 
   return (
-    <AppBar position="static" className="bg-gray-900">
+    <AppBar position="static" className="bg-gray-900" data-testid="header">
       <Toolbar>
         <Autocomplete
           sx={{ width: 300, mr: 2 }}
@@ -38,12 +38,14 @@ const Header: React.FC = () => {
           getOptionLabel={(option) => option.name}
           value={selectedEmployee}
           onChange={(_, newValue) => setSelectedEmployee(newValue)}
+          data-testid="employee-search"
           renderInput={(params) => (
             <TextField
               {...params}
               variant="outlined"
               size="small"
               placeholder="Search employee"
+              data-testid="employee-search-input"
               sx={{
                 backgroundColor: "white",
                 borderRadius: 1,
@@ -56,18 +58,23 @@ const Header: React.FC = () => {
             />
           )}
         />
-        <Typography variant="h6" className="flex-grow">
-          <Link to="/" className="no-underline text-white">
+        <Typography variant="h6" className="flex-grow" data-testid="app-title">
+          <Link
+            to="/"
+            className="no-underline text-white"
+            data-testid="home-link"
+          >
             <span className="font-bold text-yellow-400">time.ly</span> Time
             Management
           </Link>
         </Typography>
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-4" data-testid="nav-buttons">
           <Button
             color="inherit"
             className="text-yellow-400"
             component={Link}
             to="/"
+            data-testid="attendance-link"
           >
             Attendance
           </Button>
@@ -76,9 +83,13 @@ const Header: React.FC = () => {
             className="text-yellow-400"
             component={Link}
             to="/time-off"
+            data-testid="time-off-link"
           >
             Time Off{" "}
-            <span className="ml-1 px-1 bg-red-500 rounded-full text-xs">
+            <span
+              className="ml-1 px-1 bg-red-500 rounded-full text-xs"
+              data-testid="time-off-badge"
+            >
               50
             </span>
           </Button>
@@ -87,23 +98,29 @@ const Header: React.FC = () => {
             className="text-yellow-400"
             component={Link}
             to="/work-time"
+            data-testid="work-time-link"
           >
             Work Time
           </Button>
         </div>
-        <IconButton color="inherit" className="ml-4">
+        <IconButton color="inherit" className="ml-4" data-testid="add-button">
           <Add />
         </IconButton>
-        <IconButton color="inherit">
+        <IconButton color="inherit" data-testid="search-button">
           <Search />
         </IconButton>
-        <IconButton color="inherit">
+        <IconButton color="inherit" data-testid="notifications-button">
           <Notifications />
         </IconButton>
-        <IconButton color="inherit" onClick={handleClick}>
+        <IconButton
+          color="inherit"
+          onClick={handleClick}
+          data-testid="profile-button"
+        >
           <Avatar
             alt={useEmployeeStore.getState().selectedEmployee?.name || "User"}
             className="w-8 h-8"
+            data-testid="profile-avatar"
             sx={{
               bgcolor: stringToColor(
                 useEmployeeStore.getState().selectedEmployee?.name || ""
@@ -125,17 +142,19 @@ const Header: React.FC = () => {
           anchorEl={anchorEl}
           keepMounted
           open={Boolean(anchorEl)}
+          data-testid="profile-menu"
         >
-          <MenuItem>
+          <MenuItem data-testid="profile-menu-item">
             <Link
               to="/employee-details"
               style={{ textDecoration: "none", color: "inherit" }}
+              data-testid="profile-link"
             >
               Profile
             </Link>
           </MenuItem>
-          <MenuItem>My account</MenuItem>
-          <MenuItem>Logout</MenuItem>
+          <MenuItem data-testid="account-menu-item">My account</MenuItem>
+          <MenuItem data-testid="logout-menu-item">Logout</MenuItem>
         </Menu>
       </Toolbar>
     </AppBar>

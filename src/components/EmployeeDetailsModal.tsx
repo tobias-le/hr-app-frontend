@@ -28,22 +28,26 @@ const EmployeeDetailsModal: React.FC<EmployeeDetailsModalProps> = ({
     maxWidth="sm"
     fullWidth
     sx={{ borderRadius: 2 }}
+    data-testid="employee-details-modal"
   >
     <DialogTitle>
       <div className="flex justify-between items-center">
-        <Typography variant="h6">Employee Details</Typography>
-        <IconButton onClick={handleCloseModal}>
+        <Typography variant="h6" data-testid="modal-title">
+          Employee Details
+        </Typography>
+        <IconButton onClick={handleCloseModal} data-testid="close-button">
           <CloseIcon />
         </IconButton>
       </div>
     </DialogTitle>
     <DialogContent>
       {selectedEmployee && (
-        <div className="space-y-4 py-4">
+        <div className="space-y-4 py-4" data-testid="employee-details-content">
           <div className="flex items-center gap-4">
             <Avatar
               className="w-16 h-16"
-              sx={{ bgcolor: stringToColor(selectedEmployee.name ?? "") }} // Set background color
+              sx={{ bgcolor: stringToColor(selectedEmployee.name ?? "") }}
+              data-testid="employee-avatar"
             >
               {(selectedEmployee.name ?? "")
                 .split(" ")
@@ -52,15 +56,24 @@ const EmployeeDetailsModal: React.FC<EmployeeDetailsModalProps> = ({
                 .toUpperCase()}
             </Avatar>
             <div>
-              <Typography variant="h6">{selectedEmployee.name}</Typography>
-              <Typography color="textSecondary">
+              <Typography variant="h6" data-testid="employee-name">
+                {selectedEmployee.name}
+              </Typography>
+              <Typography
+                color="textSecondary"
+                data-testid="employee-job-title"
+              >
                 {selectedEmployee.jobTitle}
               </Typography>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Typography variant="subtitle2" color="textSecondary">
+              <Typography
+                variant="subtitle2"
+                color="textSecondary"
+                data-testid="status-label"
+              >
                 Status
               </Typography>
               <Chip
@@ -71,23 +84,43 @@ const EmployeeDetailsModal: React.FC<EmployeeDetailsModalProps> = ({
                     : "default"
                 }
                 size="small"
+                data-testid="status-chip"
               />
             </div>
             <div>
-              <Typography variant="subtitle2" color="textSecondary">
+              <Typography
+                variant="subtitle2"
+                color="textSecondary"
+                data-testid="contact-info-label"
+              >
                 Contact Information
               </Typography>
-              <Typography>{selectedEmployee.email}</Typography>
-              <Typography>{selectedEmployee.phoneNumber}</Typography>
+              <Typography data-testid="employee-email">
+                {selectedEmployee.email}
+              </Typography>
+              <Typography data-testid="employee-phone">
+                {selectedEmployee.phoneNumber}
+              </Typography>
             </div>
           </div>
           <div>
-            <Typography variant="subtitle2" color="textSecondary">
+            <Typography
+              variant="subtitle2"
+              color="textSecondary"
+              data-testid="projects-label"
+            >
               Current Projects
             </Typography>
-            <div className="flex gap-1 flex-wrap mt-1">
+            <div
+              className="flex gap-1 flex-wrap mt-1"
+              data-testid="projects-container"
+            >
               {selectedEmployee.currentProjects?.map((project, idx) => (
-                <Chip key={idx} {...createProjectChip(project)} />
+                <Chip
+                  key={idx}
+                  {...createProjectChip(project)}
+                  data-testid={`project-chip-${idx}`}
+                />
               ))}
             </div>
           </div>

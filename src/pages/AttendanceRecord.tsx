@@ -258,6 +258,7 @@ const WorkTime: React.FC = () => {
           </Typography>
 
           <form
+            data-testid="work-time-form"
             onSubmit={editingEntry ? handleUpdate : handleSubmit}
             className="space-y-4 mb-8"
           >
@@ -265,13 +266,18 @@ const WorkTime: React.FC = () => {
               <FormControl fullWidth>
                 <InputLabel>Project</InputLabel>
                 <Select
+                  data-testid="project-select"
                   name="project"
                   value={formData.project}
                   onChange={handleInputChange}
                   label="Project"
                 >
                   {projects.map((project) => (
-                    <MenuItem key={project.projectId} value={project.projectId}>
+                    <MenuItem
+                      data-testid={`project-option-${project.projectId}`}
+                      key={project.projectId}
+                      value={project.projectId}
+                    >
                       {project.name}
                     </MenuItem>
                   ))}
@@ -279,6 +285,7 @@ const WorkTime: React.FC = () => {
               </FormControl>
 
               <TextField
+                data-testid="date-input"
                 name="date"
                 label="Date"
                 type="date"
@@ -289,6 +296,7 @@ const WorkTime: React.FC = () => {
               />
 
               <TextField
+                data-testid="start-time-input"
                 name="startTime"
                 label="Start Time"
                 type="time"
@@ -299,6 +307,7 @@ const WorkTime: React.FC = () => {
               />
 
               <TextField
+                data-testid="end-time-input"
                 name="endTime"
                 label="End Time"
                 type="time"
@@ -309,6 +318,7 @@ const WorkTime: React.FC = () => {
               />
 
               <TextField
+                data-testid="description-input"
                 name="description"
                 label="Description"
                 multiline
@@ -322,6 +332,7 @@ const WorkTime: React.FC = () => {
 
             <div className="flex justify-end space-x-2">
               <Button
+                data-testid="cancel-button"
                 variant="outlined"
                 onClick={() => {
                   setEditingEntry(null);
@@ -337,6 +348,7 @@ const WorkTime: React.FC = () => {
                 Cancel
               </Button>
               <Button
+                data-testid="submit-button"
                 variant="contained"
                 color="primary"
                 type="submit"
@@ -365,7 +377,7 @@ const WorkTime: React.FC = () => {
               <CircularProgress />
             </div>
           ) : (
-            <TableContainer>
+            <TableContainer data-testid="entries-table">
               <Table>
                 <TableHead>
                   <TableRow>
@@ -378,7 +390,10 @@ const WorkTime: React.FC = () => {
                 </TableHead>
                 <TableBody>
                   {pastEntries.map((entry) => (
-                    <TableRow key={entry.attendanceId}>
+                    <TableRow
+                      data-testid={`entry-row-${entry.attendanceId}`}
+                      key={entry.attendanceId}
+                    >
                       <TableCell>{formatDate(entry.date)}</TableCell>
                       <TableCell>
                         <Chip {...createProjectChip(entry.project)} />
@@ -391,6 +406,7 @@ const WorkTime: React.FC = () => {
                       <TableCell>
                         <div className="flex space-x-2">
                           <Button
+                            data-testid={`edit-button-${entry.attendanceId}`}
                             size="small"
                             color="primary"
                             onClick={() => handleEdit(entry)}
@@ -398,6 +414,7 @@ const WorkTime: React.FC = () => {
                             Edit
                           </Button>
                           <Button
+                            data-testid={`delete-button-${entry.attendanceId}`}
                             size="small"
                             color="error"
                             onClick={() => handleDelete(entry.attendanceId)}

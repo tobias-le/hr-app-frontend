@@ -66,19 +66,31 @@ const TimeOff: React.FC = () => {
   //   };
 
   return (
-    <div className="flex flex-col h-screen bg-gray-100">
+    <div
+      className="flex flex-col h-screen bg-gray-100"
+      data-testid="timeoff-container"
+    >
       <Header />
       <Box className="flex-grow p-6">
         <Paper className="p-6">
-          <Typography variant="h5" className="font-bold mb-6">
+          <Typography
+            variant="h5"
+            className="font-bold mb-6"
+            data-testid="timeoff-title"
+          >
             Time Off Management
           </Typography>
 
           {/* Summary Cards */}
           {summary && (
-            <Grid container spacing={3} className="mb-6">
+            <Grid
+              container
+              spacing={3}
+              className="mb-6"
+              data-testid="summary-cards"
+            >
               <Grid item xs={12} md={3}>
-                <Paper className="p-4">
+                <Paper className="p-4" data-testid="vacation-days-card">
                   <Typography color="textSecondary">
                     Vacation Days Left
                   </Typography>
@@ -88,13 +100,13 @@ const TimeOff: React.FC = () => {
                 </Paper>
               </Grid>
               <Grid item xs={12} md={3}>
-                <Paper className="p-4">
+                <Paper className="p-4" data-testid="sick-days-card">
                   <Typography color="textSecondary">Sick Days Left</Typography>
                   <Typography variant="h4">{summary.sickDaysLeft}</Typography>
                 </Paper>
               </Grid>
               <Grid item xs={12} md={3}>
-                <Paper className="p-4">
+                <Paper className="p-4" data-testid="personal-days-card">
                   <Typography color="textSecondary">
                     Personal Days Left
                   </Typography>
@@ -104,7 +116,7 @@ const TimeOff: React.FC = () => {
                 </Paper>
               </Grid>
               <Grid item xs={12} md={3}>
-                <Paper className="p-4">
+                <Paper className="p-4" data-testid="pending-requests-card">
                   <Typography color="textSecondary">
                     Pending Requests
                   </Typography>
@@ -121,26 +133,34 @@ const TimeOff: React.FC = () => {
             <Typography variant="h6" className="mb-4">
               New Time Off Request
             </Typography>
-            <form className="space-y-4 mt-5">
+            <form className="space-y-4 mt-5" data-testid="timeoff-request-form">
               <div className="grid grid-cols-2 gap-4">
                 <TextField
                   label="Start Date"
                   type="date"
                   InputLabelProps={{ shrink: true }}
                   fullWidth
+                  data-testid="start-date-input"
                 />
                 <TextField
                   label="End Date"
                   type="date"
                   InputLabelProps={{ shrink: true }}
                   fullWidth
+                  data-testid="end-date-input"
                 />
                 <FormControl fullWidth>
                   <InputLabel>Type</InputLabel>
-                  <Select label="Type">
-                    <MenuItem value="VACATION">Vacation</MenuItem>
-                    <MenuItem value="SICK">Sick Leave</MenuItem>
-                    <MenuItem value="PERSONAL">Personal Leave</MenuItem>
+                  <Select label="Type" data-testid="leave-type-select">
+                    <MenuItem value="VACATION" data-testid="vacation-option">
+                      Vacation
+                    </MenuItem>
+                    <MenuItem value="SICK" data-testid="sick-option">
+                      Sick Leave
+                    </MenuItem>
+                    <MenuItem value="PERSONAL" data-testid="personal-option">
+                      Personal Leave
+                    </MenuItem>
                   </Select>
                 </FormControl>
                 <TextField
@@ -149,11 +169,18 @@ const TimeOff: React.FC = () => {
                   rows={4}
                   fullWidth
                   className="col-span-2"
+                  data-testid="reason-input"
                 />
               </div>
               <div className="flex justify-end space-x-2">
-                <Button variant="outlined">Cancel</Button>
-                <Button variant="contained" color="primary">
+                <Button variant="outlined" data-testid="cancel-button">
+                  Cancel
+                </Button>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  data-testid="submit-button"
+                >
                   Submit Request
                 </Button>
               </div>
@@ -164,7 +191,7 @@ const TimeOff: React.FC = () => {
           <Typography variant="h6" className="mb-4">
             Recent Requests
           </Typography>
-          <TableContainer component={Paper}>
+          <TableContainer component={Paper} data-testid="requests-table">
             <Table>
               <TableHead>
                 <TableRow>
@@ -176,14 +203,18 @@ const TimeOff: React.FC = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {/* Replace with actual data mapping */}
-                <TableRow>
+                <TableRow data-testid="request-row">
                   <TableCell>Vacation</TableCell>
                   <TableCell>2024-01-15</TableCell>
                   <TableCell>2024-01-20</TableCell>
                   <TableCell>Annual leave</TableCell>
                   <TableCell>
-                    <Chip label="PENDING" color="warning" size="small" />
+                    <Chip
+                      label="PENDING"
+                      color="warning"
+                      size="small"
+                      data-testid="status-chip"
+                    />
                   </TableCell>
                 </TableRow>
               </TableBody>

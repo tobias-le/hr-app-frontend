@@ -26,7 +26,10 @@ const GlobalSnackbar: React.FC = () => {
       onClose={() => setOpen(false)}
       message={message}
       anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-    />
+      data-testid="global-snackbar"
+    >
+      <div data-testid="snackbar-message">{message}</div>
+    </Snackbar>
   );
 };
 

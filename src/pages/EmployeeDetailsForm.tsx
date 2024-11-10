@@ -107,13 +107,16 @@ const EmployeeDetailsForm: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-gray-100">
+    <div
+      className="flex flex-col h-screen bg-gray-100"
+      data-testid="employee-details-container"
+    >
       <Header />
-      <StyledPaper elevation={3}>
-        <Typography variant="h6" gutterBottom>
+      <StyledPaper elevation={3} data-testid="employee-form-paper">
+        <Typography variant="h6" gutterBottom data-testid="employee-form-title">
           Employee Details - {selectedEmployee.name}
         </Typography>
-        <form noValidate autoComplete="off">
+        <form noValidate autoComplete="off" data-testid="employee-details-form">
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <TextField
@@ -123,6 +126,7 @@ const EmployeeDetailsForm: React.FC = () => {
                 onChange={handleChange}
                 fullWidth
                 InputLabelProps={{ shrink: true }}
+                data-testid="employee-name-input"
               />
             </Grid>
             <Grid item xs={12}>
@@ -133,6 +137,7 @@ const EmployeeDetailsForm: React.FC = () => {
                 onChange={handleChange}
                 fullWidth
                 InputLabelProps={{ shrink: true }}
+                data-testid="employee-job-title-input"
               />
             </Grid>
             <Grid item xs={12}>
@@ -143,6 +148,7 @@ const EmployeeDetailsForm: React.FC = () => {
                 onChange={handleChange}
                 fullWidth
                 InputLabelProps={{ shrink: true }}
+                data-testid="employee-email-input"
               />
             </Grid>
             <Grid item xs={12}>
@@ -153,6 +159,7 @@ const EmployeeDetailsForm: React.FC = () => {
                 onChange={handleChange}
                 fullWidth
                 InputLabelProps={{ shrink: true }}
+                data-testid="employee-phone-input"
               />
             </Grid>
             <Grid item xs={12}>
@@ -165,6 +172,7 @@ const EmployeeDetailsForm: React.FC = () => {
                 variant="contained"
                 color="primary"
                 fullWidth
+                data-testid="update-employee-button"
               >
                 Update Employee
               </Button>
@@ -173,7 +181,7 @@ const EmployeeDetailsForm: React.FC = () => {
         </form>
       </StyledPaper>
       {loading && (
-        <FullPageLoader>
+        <FullPageLoader data-testid="loading-spinner">
           <CircularProgress />
         </FullPageLoader>
       )}

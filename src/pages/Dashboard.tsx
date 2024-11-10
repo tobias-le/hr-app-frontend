@@ -37,22 +37,37 @@ const Dashboard: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-gray-100">
+    <div
+      className="flex flex-col h-screen bg-gray-100"
+      data-testid="dashboard-container"
+    >
       <Header />
       <Box className="flex-grow p-6">
         <Paper className="p-6">
           <div className="flex justify-between items-center mb-6">
             <div className="flex items-center space-x-4">
-              <Typography variant="h5" className="font-bold">
+              <Typography
+                variant="h5"
+                className="font-bold"
+                data-testid="attendance-title"
+              >
                 Attendance
               </Typography>
-              <Typography>{weekDates}</Typography>
+              <Typography data-testid="week-dates">{weekDates}</Typography>
             </div>
             <div className="flex space-x-2">
-              <Button variant="outlined" onClick={handleAttendanceReportClick}>
+              <Button
+                variant="outlined"
+                onClick={handleAttendanceReportClick}
+                data-testid="attendance-report-btn"
+              >
                 Attendance Report
               </Button>
-              <Button variant="outlined" className="addAttendance">
+              <Button
+                variant="outlined"
+                className="addAttendance"
+                data-testid="add-attendance-btn"
+              >
                 Add Attendance
               </Button>
             </div>
@@ -66,9 +81,14 @@ const Dashboard: React.FC = () => {
               size="small"
               placeholder="Search employee"
               className="flex-grow"
+              data-testid="employee-search"
             />
-            <Button variant="outlined">Date Range</Button>
-            <Button variant="outlined">Advance Filter</Button>
+            <Button variant="outlined" data-testid="date-range-btn">
+              Date Range
+            </Button>
+            <Button variant="outlined" data-testid="advance-filter-btn">
+              Advance Filter
+            </Button>
           </div>
 
           <EmployeeTable teamId={selectedTeamId} />
@@ -78,6 +98,7 @@ const Dashboard: React.FC = () => {
             onClose={() => setModalOpen(false)}
             details={details}
             loading={detailsLoading}
+            data-testid="attendance-details-modal"
           />
         </Paper>
       </Box>

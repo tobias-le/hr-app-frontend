@@ -17,13 +17,18 @@ const EmployeeRow: React.FC<EmployeeRowProps> = ({ employee, onClick }) => (
     }}
     hover
     onClick={() => onClick(employee)}
+    data-testid={`employee-row-${employee.id}`}
   >
     <TableCell>
-      <div className="flex items-center gap-3">
+      <div
+        className="flex items-center gap-3"
+        data-testid={`employee-info-${employee.id}`}
+      >
         <Avatar
           alt={employee.name}
           className="w-10 h-10"
           sx={{ bgcolor: stringToColor(employee.name ?? "") }}
+          data-testid={`employee-avatar-${employee.id}`}
         >
           {employee.name
             ? employee.name
@@ -33,27 +38,49 @@ const EmployeeRow: React.FC<EmployeeRowProps> = ({ employee, onClick }) => (
                 .toUpperCase()
             : ""}
         </Avatar>
-        <span>{employee.name}</span>
+        <span data-testid={`employee-name-${employee.id}`}>
+          {employee.name}
+        </span>
       </div>
     </TableCell>
-    <TableCell>{employee.jobTitle}</TableCell>
+    <TableCell data-testid={`employee-job-${employee.id}`}>
+      {employee.jobTitle}
+    </TableCell>
     <TableCell>
       <Chip
         label={employee.employmentStatus}
         color={employee.employmentStatus === "ACTIVE" ? "success" : "default"}
         size="small"
+        data-testid={`employee-status-${employee.id}`}
       />
     </TableCell>
     <TableCell>
-      <div className="flex flex-col">
-        <span>{employee.email}</span>
-        <span className="text-gray-500 text-sm">{employee.phoneNumber}</span>
+      <div
+        className="flex flex-col"
+        data-testid={`employee-contact-${employee.id}`}
+      >
+        <span data-testid={`employee-email-${employee.id}`}>
+          {employee.email}
+        </span>
+        <span
+          className="text-gray-500 text-sm"
+          data-testid={`employee-phone-${employee.id}`}
+        >
+          {employee.phoneNumber}
+        </span>
       </div>
     </TableCell>
     <TableCell>
-      <div className="flex gap-1 flex-wrap">
+      <div
+        className="flex gap-1 flex-wrap"
+        data-testid={`employee-projects-${employee.id}`}
+      >
         {employee.currentProjects?.map((project, idx) => (
-          <Chip key={idx} {...createProjectChip(project)} />
+          <Chip
+            key={idx}
+            {...createProjectChip(project)}
+            data-testid={`employee-project-${employee.id}-${idx}`}
+          />
         ))}
       </div>
     </TableCell>

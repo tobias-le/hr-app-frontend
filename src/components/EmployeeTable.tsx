@@ -55,7 +55,10 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({ teamId }) => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
+      <div
+        className="flex justify-center items-center h-64"
+        data-testid="loading-spinner"
+      >
         <CircularProgress />
       </div>
     );
@@ -63,7 +66,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({ teamId }) => {
 
   if (error) {
     return (
-      <Alert severity="error" className="m-4">
+      <Alert severity="error" className="m-4" data-testid="error-alert">
         {error}
       </Alert>
     );
@@ -71,7 +74,10 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({ teamId }) => {
 
   if (!employees.length) {
     return (
-      <div className="flex justify-center items-center h-64">
+      <div
+        className="flex justify-center items-center h-64"
+        data-testid="empty-state"
+      >
         <Typography variant="h6" color="textSecondary">
           No employees are on this team yet
         </Typography>
@@ -80,21 +86,31 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({ teamId }) => {
   }
 
   return (
-    <TableContainer component={Paper} className="mt-5 shadow-lg">
-      <Table sx={{ minWidth: 650 }} aria-label="employee table">
+    <TableContainer
+      component={Paper}
+      className="mt-5 shadow-lg"
+      data-testid="employee-table-container"
+    >
+      <Table
+        sx={{ minWidth: 650 }}
+        aria-label="employee table"
+        data-testid="employee-table"
+      >
         <TableHead>
           <TableRow className="bg-gray-50">
-            <TableCell>Employee</TableCell>
-            <TableCell>Job Title</TableCell>
-            <TableCell>Status</TableCell>
-            <TableCell>Contact</TableCell>
-            <TableCell>Current Projects</TableCell>
+            <TableCell data-testid="header-employee">Employee</TableCell>
+            <TableCell data-testid="header-job-title">Job Title</TableCell>
+            <TableCell data-testid="header-status">Status</TableCell>
+            <TableCell data-testid="header-contact">Contact</TableCell>
+            <TableCell data-testid="header-projects">
+              Current Projects
+            </TableCell>
           </TableRow>
         </TableHead>
-        <TableBody>
+        <TableBody data-testid="employee-table-body">
           {employees.map((employee, index) => (
             <EmployeeRow
-              key={index}
+              key={employee.id || index}
               employee={employee}
               onClick={handleEmployeeClick}
             />
