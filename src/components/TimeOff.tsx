@@ -29,7 +29,6 @@ function calculateDaysBetween (date1: Date, date2: Date): number {
   return Math.round((date1.getTime() - date2.getTime())/(3600*1000*24))+1;
 }
 
-
 const TimeOff: React.FC = () => {
 
   // summary of users remaining time off, fetched
@@ -39,27 +38,25 @@ const TimeOff: React.FC = () => {
 
   //leave request form variables
   const[formLocked,setFormLocked] = useState(false);
+
   const [startDate, setStartDate] = useState<string>("");
-  const [startDateInValid, setStartDateInvalid] = useState<string |  null>(null);
-
-  const [endDate, setEndDate] = useState<string>("");
-  const [endDateInvalid, setEndDateInvalid] = useState<string | null>(null);
-
-  const [requestType, setRequestType] = useState<LeaveType>(LeaveType.Sick);
-  const [description, setDescription] = useState<string>("");
-
   const updateStartDate = (event: React.ChangeEvent<HTMLInputElement>) => {
     setStartDate(event.target.value);
   }
+  const [startDateInValid, setStartDateInvalid] = useState<string |  null>(null);
 
+  const [endDate, setEndDate] = useState<string>("");
   const updateEndDate = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEndDate(event.target.value);
   }
+  const [endDateInvalid, setEndDateInvalid] = useState<string | null>(null);
 
+  const [requestType, setRequestType] = useState<LeaveType>(LeaveType.Sick);
   const updateRequestType = (event: SelectChangeEvent) => {
     setRequestType(event.target.value as LeaveType);
   }
 
+  const [description, setDescription] = useState<string>("");
   const updateDescription = (event: React.ChangeEvent<HTMLInputElement>) => {
     setDescription(event.target.value);
   }
@@ -166,7 +163,7 @@ const TimeOff: React.FC = () => {
   }, [requestType, startDate]);
 
 
-  //if end date changes, checks if its later than start date and alerts user if necessary
+  //if end date changes, checks if it's later than start date and alerts user if necessary
   useEffect(() => {
     const endDateAsDate = new Date(endDate);
     const startDateAsDate = new Date(startDate);
@@ -214,12 +211,12 @@ const TimeOff: React.FC = () => {
                     Vacation Days Left
                   </Typography>
                   {summary?
-                      <Grid container columns={2}>
+                      <Grid container columns={2} sx={{gap:"10px"}}>
                         <Typography variant="h4">
                           {summary.vacationDaysLeft}
                         </Typography>
                         {(requestType===LeaveType.Vacation && daysBetween>0)?
-                            <Typography variant="h4" color={summary.vacationDaysLeft >=0? "primary" : "warning"} >
+                            <Typography variant="h4" sx={{color: summary.vacationDaysLeft-daysBetween>=0? "#1976d2" : "red"}}>
                               ↓{summary.vacationDaysLeft - daysBetween}
                             </Typography> :
                             null
@@ -236,12 +233,12 @@ const TimeOff: React.FC = () => {
                     Sick Days Left
                   </Typography>
                   {summary?
-                      <Grid container columns={2}>
+                      <Grid container columns={2} sx={{gap:"10px"}}>
                         <Typography variant="h4">
                           {summary.sickDaysLeft}
                         </Typography>
                         {(requestType===LeaveType.Sick && daysBetween>0)?
-                            <Typography variant="h4" color={summary.sickDaysLeft >=0? "primary" : "warning"} >
+                            <Typography variant="h4" sx={{color: summary.vacationDaysLeft-daysBetween>=0? "#1976d2" : "red"}} >
                               ↓{summary.sickDaysLeft - daysBetween}
                             </Typography> :
                             null
@@ -258,12 +255,12 @@ const TimeOff: React.FC = () => {
                     Personal Days Left
                   </Typography>
                   {summary?
-                      <Grid container columns={2}>
+                      <Grid container columns={2} sx={{gap:"10px"}}>
                         <Typography variant="h4">
                           {summary.personalDaysLeft}
                         </Typography>
                         {(requestType===LeaveType.Personal && daysBetween>0)?
-                            <Typography variant="h4" color={summary.personalDaysLeft >=0? "primary" : "warning"} >
+                            <Typography variant="h4" sx={{color: summary.vacationDaysLeft-daysBetween>=0? "#1976d2" : "red"}} >
                               ↓{summary.personalDaysLeft - daysBetween}
                             </Typography> :
                             null
