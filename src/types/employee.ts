@@ -1,8 +1,14 @@
 export interface Employee {
-  name?: string;
+  id: number;
+  name: string;
   jobTitle?: string;
   employmentStatus?: string;
   email?: string;
   phoneNumber?: string;
   currentProjects?: string[];
+}
+
+export interface EmployeeNameWithId {
+  id: number;
+  name: string;
 }

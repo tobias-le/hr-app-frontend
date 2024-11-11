@@ -20,6 +20,17 @@ export interface AttendanceDetail {
   present: boolean;
 }
 
+export interface AttendanceRecord {
+  attendanceId: number;
+  memberId: number;
+  member: string;
+  date: string;
+  clockInTime: string;
+  clockOutTime: string;
+  project: string;
+  description: string;
+}
+
 export interface AttendanceDetailsModalProps {
   open: boolean;
   onClose: () => void;
@@ -40,4 +51,16 @@ export interface TeamAttendanceDetail {
   clockInTime: string;
   clockOutTime: string;
   project: string;
+}
+
+export interface Project {
+  id: number;
+  name: string;
+  description?: string;
+  status?: string;
+}
+
+export interface Project {
+  projectId: number;
+  name: string;
 }
