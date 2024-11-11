@@ -49,41 +49,10 @@ const TimeOff: React.FC = () => {
   const [description, setDescription] = useState<string>("");
 
   const updateStartDate = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedDate= new Date(event.target.value);
-
-    //if user logs sickday
-    if (requestType ===LeaveType.Sick) {
-      //if selected date is more than 7 days back
-      if (calculateDaysBetween(new Date(), updatedDate) >7) {
-          setStartDateInvalid("Log sick days max 7 days back");
-      } else {
-        setStartDateInvalid(null);
-      }
-    } else if (requestType!==null) {
-      //if users asks for vacation or days of
-      //it must be
-      if (calculateDaysBetween(new Date(), updatedDate) > 0) {
-        setStartDateInvalid("You must ask for time-off atleast day before")
-      } else {
-        setStartDateInvalid(null);
-      }
-    }
-    if (updatedDate < new Date(endDate)) {
-      setDaysBetween(calculateDaysBetween(new Date(endDate), updatedDate));
-    }
     setStartDate(event.target.value);
   }
 
   const updateEndDate = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedDate = new Date(event.target.value);
-    const startDateAsDate = new Date(startDate);
-
-    if (startDateAsDate > updatedDate) {
-      setEndDateInvalid("End Date must be atleast the same day as start day");
-    } else {
-      setEndDateInvalid(null);
-      setDaysBetween(calculateDaysBetween(updatedDate, startDateAsDate));
-    }
     setEndDate(event.target.value);
   }
 
@@ -91,7 +60,7 @@ const TimeOff: React.FC = () => {
     setRequestType(event.target.value as LeaveType);
   }
 
-  const updateDesciption = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const updateDescription = (event: React.ChangeEvent<HTMLInputElement>) => {
     setDescription(event.target.value);
   }
 
@@ -99,7 +68,7 @@ const TimeOff: React.FC = () => {
   const [requests, setRequests] = useState<Leave[]>([]);
   const [requestsError, setRequestsError] = useState<string | null>(null);
 
-  //submiting form, checks for required fields
+  //submitting form, checks for required fields
   const submitRequestForm = (event : React.FormEvent) => {
     event.preventDefault();
     event.stopPropagation();
@@ -176,31 +145,39 @@ const TimeOff: React.FC = () => {
     fetchData();
   }, []);
 
-  //reaction to change of request type, so startdate might not be invalid
+  //reacts to change of type or start date and validates that date is correct/valid
   useEffect(() => {
-    const reactToTypeChange = () => {
-      const updatedDate= new Date(startDate);
-
-      //if user logs sickday
-      if (requestType === LeaveType.Sick) {
-        //if selected date is more than 7 days back
-        if (calculateDaysBetween(new Date(), updatedDate) >7) {
+    const updatedDate= new Date(startDate);
+    const today = new Date();
+    today.setHours(0,0,0);
+    if (requestType === LeaveType.Sick) {
+        if (calculateDaysBetween(today, updatedDate) >7) {
           setStartDateInvalid("Log sick days max 7 days back");
         } else {
           setStartDateInvalid(null);
         }
-      } else {
-        //if users asks for vacation or days of
-        //it must be atleast day before
-        if (calculateDaysBetween(new Date(), updatedDate) > 0) {
+    } else {
+        if (calculateDaysBetween(today, updatedDate) > 0) {
           setStartDateInvalid("You must ask for time-off atleast day before")
         } else {
           setStartDateInvalid(null);
         }
-      }
     }
-    reactToTypeChange();
-  }, [requestType]);
+  }, [requestType, startDate]);
+
+
+  //if end date changes, checks if its later than start date and alerts user if necessary
+  useEffect(() => {
+    const endDateAsDate = new Date(endDate);
+    const startDateAsDate = new Date(startDate);
+
+    if (startDateAsDate > endDateAsDate) {
+      setEndDateInvalid("End Date must be atleast the same day as start day");
+    } else {
+      setEndDateInvalid(null);
+      setDaysBetween(calculateDaysBetween(endDateAsDate, startDateAsDate));
+    }
+  }, [startDate,endDate]);
 
   //returns color in which chip is displayed
   const getStatusColor = (status: LeaveStatus) => {
@@ -243,7 +220,7 @@ const TimeOff: React.FC = () => {
                         </Typography>
                         {(requestType===LeaveType.Vacation && daysBetween>0)?
                             <Typography variant="h4" color={summary.vacationDaysLeft >=0? "primary" : "warning"} >
-                              {" " && summary.vacationDaysLeft - daysBetween}
+                              ↓{summary.vacationDaysLeft - daysBetween}
                             </Typography> :
                             null
                         }
@@ -265,7 +242,7 @@ const TimeOff: React.FC = () => {
                         </Typography>
                         {(requestType===LeaveType.Sick && daysBetween>0)?
                             <Typography variant="h4" color={summary.sickDaysLeft >=0? "primary" : "warning"} >
-                              {" " && summary.sickDaysLeft - daysBetween}
+                              ↓{summary.sickDaysLeft - daysBetween}
                             </Typography> :
                             null
                         }
@@ -287,7 +264,7 @@ const TimeOff: React.FC = () => {
                         </Typography>
                         {(requestType===LeaveType.Personal && daysBetween>0)?
                             <Typography variant="h4" color={summary.personalDaysLeft >=0? "primary" : "warning"} >
-                              {" " && summary.personalDaysLeft - daysBetween}
+                              ↓{summary.personalDaysLeft - daysBetween}
                             </Typography> :
                             null
                         }
@@ -353,7 +330,7 @@ const TimeOff: React.FC = () => {
                   fullWidth
                   className="col-span-2"
                   value={description}
-                  onChange={updateDesciption}
+                  onChange={updateDescription}
                 />
               </div>
               <div className="flex justify-end space-x-2">
