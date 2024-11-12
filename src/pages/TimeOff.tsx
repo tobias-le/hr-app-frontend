@@ -24,13 +24,13 @@ import Header from "../components/Header";
 import {EmployeeLeaveBalance, Leave, LeaveStatus, LeaveType} from "../types/timeoff";
 import CircularProgress from "@mui/material/CircularProgress";
 import ApiService from "../services/api.service";
+import {useEmployeeStore} from "../store/employeeStore";
 
 function calculateDaysBetween (date1: Date, date2: Date): number {
   return Math.round((date1.getTime() - date2.getTime())/(3600*1000*24))+1;
 }
 
 const TimeOff: React.FC = () => {
-
   // summary of users remaining time off, fetched
   const [summary, setSummary] = useState<EmployeeLeaveBalance | null>(null);
   const [summaryError, setSummaryError] = useState<string | null>(null);
@@ -65,11 +65,13 @@ const TimeOff: React.FC = () => {
   const [requests, setRequests] = useState<Leave[]>([]);
   const [requestsError, setRequestsError] = useState<string | null>(null);
 
+  const employee = useEmployeeStore(state => state.selectedEmployee);
+
   //submitting form, checks for required fields
   const submitRequestForm = (event : React.FormEvent) => {
     event.preventDefault();
     event.stopPropagation();
-    if (requestType && !startDateInValid && !endDateInvalid) {
+    if (requestType && !startDateInValid && !endDateInvalid && employee) {
       if (startDate==="" || endDate==="") {
         if (startDate==="") {
           setStartDateInvalid("you must insert a date");
@@ -83,8 +85,8 @@ const TimeOff: React.FC = () => {
         endDate: endDate,
         leaveType: requestType,
         leaveStatus: LeaveStatus.Pending,
-        employeeId:1,  //later replace with currently signed in employee id
         leaveAmount: calculateDaysBetween(new Date(endDate), new Date(startDate))*8,
+        employeeId: employee.id,
         reason: description
       }
       console.log(request);
@@ -113,17 +115,21 @@ const TimeOff: React.FC = () => {
     setDescription("");
   }
 
-  //loads data on page load
+  //loads data on page load and employee change
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        ApiService.getRecentTimeOffRequests()
+    setSummary(null);
+    setSummaryError(null);
+    setRequests([]);
+    setRequestsError(null);
+    console.log(employee?.id);
+    try {
+        ApiService.getRecentTimeOffRequests(employee? employee.id :0)
             .then( reqs => setRequests(reqs))
             .catch(error => {
               setRequestsError("Failed to load your requests");
               setRequests([]);
             });
-        ApiService.getTimeOffSummary()
+        ApiService.getTimeOffSummary(employee? employee.id :0)
             .then( sum => setSummary(sum))
             .catch(error => {
               setSummaryError("Failed to load you vacations");
@@ -138,9 +144,7 @@ const TimeOff: React.FC = () => {
       } catch (error) {
         console.error("Error fetching time off data:", error);
       }
-    };
-    fetchData();
-  }, []);
+  }, [employee]);
 
   //reacts to change of type or start date and validates that date is correct/valid
   useEffect(() => {

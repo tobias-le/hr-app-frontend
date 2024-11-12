@@ -7,15 +7,6 @@ import {
   TeamAttendanceDetail,
 } from "../types/attendance";
 import {EmployeeLeaveBalance, Leave, LeaveDto} from "../types/timeoff";
-
-// Add these interfaces at the top of the file
-interface Employee {
-  name: string;
-  overtime: string | null;
-  picture: string | null;
-  location: string;
-  note: string;
-}
 import { Employee, EmployeeNameWithId } from "../types/employee";
 import { AttendanceRecord, Project } from "../types/attendance";
 
@@ -81,13 +72,11 @@ class ApiService {
     >;
   }
 
-  public static async getTimeOffSummary() :Promise<EmployeeLeaveBalance> {
-    const employeeId = 1; //replace with id of currently signed user
+  public static async getTimeOffSummary(employeeId:number) :Promise<EmployeeLeaveBalance> {
     return this.fetchWithConfig(`/leave/${employeeId}/balance`) as Promise<EmployeeLeaveBalance>;
   }
 
-  public static async getRecentTimeOffRequests() :Promise<Leave[]> {
-    const employeeId = 1; //replace with id of currently signed user
+  public static async getRecentTimeOffRequests(employeeId:number) :Promise<Leave[]> {
     return this.fetchWithConfig(`/leave/${employeeId}`) as Promise<Leave[]>;
   }
 
