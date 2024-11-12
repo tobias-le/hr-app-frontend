@@ -193,11 +193,11 @@ const TimeOff: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-gray-100">
+    <div className="flex flex-col h-screen bg-gray-100" data-testid="timeoff-container">
       <Header />
       <Box className="flex-grow p-6">
         <Paper className="p-6">
-          <Typography variant="h5" className="font-bold mb-6">
+          <Typography variant="h5" className="font-bold mb-6" data-testid="timeoff-title">
             Time Off Management
           </Typography>
 
@@ -208,9 +208,9 @@ const TimeOff: React.FC = () => {
           }
 
           {/* Summary Cards */}
-          <Grid container spacing={3} className="mb-6">
+          <Grid container spacing={3} className="mb-6" data-testid="summary-cards">
               <Grid item xs={12} md={3}>
-                <Paper className="p-4">
+                <Paper className="p-4" data-testid="vacation-days-card">
                   <Typography color="textSecondary">
                     Vacation Days Left
                   </Typography>
@@ -232,7 +232,7 @@ const TimeOff: React.FC = () => {
               </Grid>
 
               <Grid item xs={12} md={3}>
-                <Paper className="p-4">
+                <Paper className="p-4" data-testid="sick-days-card">
                   <Typography color="textSecondary">
                     Sick Days Left
                   </Typography>
@@ -254,7 +254,7 @@ const TimeOff: React.FC = () => {
               </Grid>
 
               <Grid item xs={12} md={3}>
-                <Paper className="p-4">
+                <Paper className="p-4" data-testid="personal-days-card">
                   <Typography color="textSecondary">
                     Personal Days Left
                   </Typography>
@@ -276,7 +276,7 @@ const TimeOff: React.FC = () => {
               </Grid>
 
               <Grid item xs={12} md={3}>
-                <Paper className="p-4">
+                <Paper className="p-4" data-testid="pending-requests-card">
                   <Typography color="textSecondary">
                     Pending Requests
                   </Typography>
@@ -294,11 +294,12 @@ const TimeOff: React.FC = () => {
             <Typography variant="h6" className="mb-4">
               New Time Off Request
             </Typography>
-            <form className="space-y-4 mt-5" onSubmit={submitRequestForm}>
+            <form className="space-y-4 mt-5" onSubmit={submitRequestForm} data-testid="timeoff-request-form">
               <div className="grid grid-cols-2 gap-4">
                 <TextField
                     error={!!startDateInValid}
                     helperText={startDateInValid}
+                    data-testid="start-date-input"
                   label="Start Date"
                   type="date"
                   onChange={updateStartDate}
@@ -309,6 +310,7 @@ const TimeOff: React.FC = () => {
                 <TextField
                   label="End Date (included)"
                   type="date"
+                  data-testid="end-date-input"
                   onChange={updateEndDate}
                   error={!!endDateInvalid}
                   helperText={endDateInvalid}
@@ -318,10 +320,10 @@ const TimeOff: React.FC = () => {
                 />
                 <FormControl fullWidth>
                   <InputLabel>Type</InputLabel>
-                  <Select label="Type" onChange={updateRequestType} value={requestType}>
-                    <MenuItem value={LeaveType.Vacation} selected={requestType===LeaveType.Vacation}>Vacation</MenuItem>
-                    <MenuItem value={LeaveType.Sick} selected={requestType===LeaveType.Sick}>Sick Leave</MenuItem>
-                    <MenuItem value={LeaveType.Personal} selected={requestType===LeaveType.Personal}>Personal Leave</MenuItem>
+                  <Select label="Type" onChange={updateRequestType} value={requestType} data-testid="leave-type-select">
+                    <MenuItem value={LeaveType.Vacation} selected={requestType===LeaveType.Vacation} data-testid="vacation-option">Vacation</MenuItem>
+                    <MenuItem value={LeaveType.Sick} selected={requestType===LeaveType.Sick} data-testid="sick-option">Sick Leave</MenuItem>
+                    <MenuItem value={LeaveType.Personal} selected={requestType===LeaveType.Personal} data-testid="personal-option">Personal Leave</MenuItem>
                   </Select>
                 </FormControl>
                 <TextField
@@ -332,11 +334,12 @@ const TimeOff: React.FC = () => {
                   className="col-span-2"
                   value={description}
                   onChange={updateDescription}
+                  data-testid="reason-input"
                 />
               </div>
               <div className="flex justify-end space-x-2">
-                <Button variant="outlined" onClick={resetInput}>Cancel</Button>
-                <Button variant="contained" color="primary" type="submit" disabled={formLocked}>
+                <Button variant="outlined" onClick={resetInput} data-testid="cancel-button">Cancel</Button>
+                <Button variant="contained" color="primary" type="submit" disabled={formLocked} data-testid="submit-button">
                   Submit Request
                   {formLocked? <CircularProgress/>:null}
                 </Button>
@@ -348,7 +351,7 @@ const TimeOff: React.FC = () => {
           <Typography variant="h6" className="mb-4">
             Recent Requests
           </Typography>
-          <TableContainer component={Paper}>
+          <TableContainer component={Paper} data-testid="requests-table">
             <Table>
               <TableHead>
                 <TableRow>
@@ -363,13 +366,13 @@ const TimeOff: React.FC = () => {
               {requests.length>0?
                 <TableBody>
                   {requests.map(request => (
-                  <TableRow>
+                  <TableRow data-testid="request-row">
                     <TableCell>{request.leaveType}</TableCell>
                     <TableCell>{request.startDate}</TableCell>
                     <TableCell>{request.endDate}</TableCell>
                     <TableCell>{request.reason}</TableCell>
                     <TableCell>
-                      <Chip label={request.status} color={getStatusColor(request.status)} size="small" />
+                      <Chip label={request.status} color={getStatusColor(request.status)} size="small" data-testid="status-chip"/>
                     </TableCell>
                   </TableRow>))}
                 </TableBody> : null
