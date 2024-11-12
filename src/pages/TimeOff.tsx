@@ -20,7 +20,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import Header from "./Header";
+import Header from "../components/Header";
 import {EmployeeLeaveBalance, Leave, LeaveStatus, LeaveType} from "../types/timeoff";
 import CircularProgress from "@mui/material/CircularProgress";
 import ApiService from "../services/api.service";
@@ -216,7 +216,7 @@ const TimeOff: React.FC = () => {
                           {summary.vacationDaysLeft}
                         </Typography>
                         {(requestType===LeaveType.Vacation && daysBetween>0)?
-                            <Typography variant="h4" sx={{color: summary.vacationDaysLeft-daysBetween>=0? "#1976d2" : "red"}}>
+                            <Typography variant="h4" sx={{color: (summary.vacationDaysLeft-daysBetween)>=0? "#1976d2" : "red"}}>
                               ↓{summary.vacationDaysLeft - daysBetween}
                             </Typography> :
                             null
@@ -238,7 +238,7 @@ const TimeOff: React.FC = () => {
                           {summary.sickDaysLeft}
                         </Typography>
                         {(requestType===LeaveType.Sick && daysBetween>0)?
-                            <Typography variant="h4" sx={{color: summary.vacationDaysLeft-daysBetween>=0? "#1976d2" : "red"}} >
+                            <Typography variant="h4" sx={{color: (summary.sickDaysLeft-daysBetween)>=0? "#1976d2" : "red"}} >
                               ↓{summary.sickDaysLeft - daysBetween}
                             </Typography> :
                             null
@@ -260,7 +260,7 @@ const TimeOff: React.FC = () => {
                           {summary.personalDaysLeft}
                         </Typography>
                         {(requestType===LeaveType.Personal && daysBetween>0)?
-                            <Typography variant="h4" sx={{color: summary.vacationDaysLeft-daysBetween>=0? "#1976d2" : "red"}} >
+                            <Typography variant="h4" sx={{color: summary.personalDaysLeft-daysBetween>=0? "#1976d2" : "red"}} >
                               ↓{summary.personalDaysLeft - daysBetween}
                             </Typography> :
                             null
@@ -368,13 +368,12 @@ const TimeOff: React.FC = () => {
                       <Chip label={request.status} color={getStatusColor(request.status)} size="small" />
                     </TableCell>
                   </TableRow>))}
-                </TableBody> :
-                  <>
-                    <TableBody/>
-                    <Alert severity={requestsError? "error": "info"}>{requestsError? requestsError : "Nothing to show"}</Alert>
-                  </>
+                </TableBody> : null
               }
             </Table>
+            {requests.length ===0?
+              <Alert severity={requestsError? "error": "info"}>{requestsError? requestsError : "Nothing to show"}</Alert> : null
+            }
           </TableContainer>
         </Paper>
       </Box>
