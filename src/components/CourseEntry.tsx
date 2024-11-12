@@ -14,7 +14,7 @@ const CourseEntry = ({course}: CourseEntryProps) => {
             </Link>
             {course.completionDate?
                 <Typography variant="body2" sx={{color:"green"}}>
-                    completed on {format(course.completionDate,"dd.mm.yyyy")} <CheckIcon/>
+                    completed on {format(course.completionDate,"dd.MM.yyyy")} <CheckIcon/>
                 </Typography> :
                 <Button variant="outlined">
                     Mark as completed

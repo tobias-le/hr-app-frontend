@@ -3,8 +3,11 @@ import {Box, Button, Paper, TextField, Typography} from "@mui/material";
 import React, {useEffect, useState} from "react";
 import {Course} from "../types/learning";
 import CourseEntry from "../components/CourseEntry";
+import {useEmployeeStore} from "../store/employeeStore";
 
 const Learning :React.FC = () => {
+    const employee = useEmployeeStore(state => state.selectedEmployee);
+
     const [filter, setFilter] = useState<string>("");
     const [courses, setCourses] = useState<Course[]>([]);
 
@@ -34,14 +37,14 @@ const Learning :React.FC = () => {
                 {
                     id:3,
                     link:"https://youtube.com",
-                    completionDate:null,
+                    completionDate:new Date(),
                 },
             ]
 
             setCourses(mockedCourses);
         }
         fetchCourses();
-    }, []);
+    }, [employee]);
 
 
     return (
