@@ -106,6 +106,24 @@ const Header: React.FC = () => {
           >
             Work Time
           </Button>
+          <Button
+              color="inherit"
+              className="text-yellow-400"
+              component={Link}
+              to="/learning"
+              data-testid="work-time-link"
+          >
+            Learning
+          </Button>
+          <Button
+              color="inherit"
+              className="text-yellow-400"
+              component={Link}
+              to="/organisation"
+              data-testid="work-time-link"
+          >
+            Organisation
+          </Button>
         </div>
         <IconButton color="inherit" data-testid="notifications-button">
           <Notifications />
