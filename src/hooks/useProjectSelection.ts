@@ -1,5 +1,5 @@
 import { useProjectStore } from "../store/projectStore";
-import { Project } from "../types/attendance";
+import { Project } from "../types/project";
 import ApiService from "../services/api.service";
 import { useCallback } from "react";
 

@@ -14,7 +14,8 @@ import {
   IconButton,
   Tooltip,
 } from "@mui/material";
-import { Project, Status } from "../types/attendance";
+import { Status } from "../types/attendance";
+import { Project } from "../types/project";
 import ApiService from "../services/api.service";
 import { PageLayout } from "../components/common/PageLayout";
 import { LoadingSpinner } from "../components/common/LoadingSpinner";
@@ -27,6 +28,7 @@ import { AttendanceRecord } from "../types/attendance";
 import { StatusBadge } from "../components/common/StatusBadge";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
+import { Employee } from "../types/employee";
 
 const ProjectDetails: React.FC = () => {
   const { projectId } = useParams();
@@ -236,7 +238,7 @@ const ProjectDetails: React.FC = () => {
                           </TableRow>
                         </TableHead>
                         <TableBody>
-                          {project.members.map((member) => (
+                          {project.members.map((member: Employee) => (
                             <TableRow key={member.id}>
                               <TableCell>{member.name}</TableCell>
                               <TableCell>{member.jobTitle}</TableCell>

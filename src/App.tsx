@@ -9,6 +9,8 @@ import ProjectManagement from "./pages/ProjectManagement";
 import { ThemeProvider } from "@mui/material/styles";
 import { theme } from "./styles/theme";
 import ProjectDetails from "./pages/ProjectDetails";
+import TeamManagement from "./pages/TeamManagement";
+import TeamDetails from "./pages/TeamDetails";
 
 const App: React.FC = () => {
   return (
@@ -21,6 +23,8 @@ const App: React.FC = () => {
           <Route path="/employee-details" element={<EmployeeDetailsForm />} />
           <Route path="/project-management" element={<ProjectManagement />} />
           <Route path="/projects/:projectId" element={<ProjectDetails />} />
+          <Route path="/team-management" element={<TeamManagement />} />
+          <Route path="/teams/:teamId" element={<TeamDetails />} />
         </Routes>
         <GlobalSnackbar />
       </Router>

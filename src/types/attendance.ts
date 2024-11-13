@@ -1,5 +1,3 @@
-import { Employee } from "./employee";
-
 export interface SummaryItemProps {
   title: string;
   count: number;
@@ -46,13 +44,6 @@ export interface AttendanceDetailsModalProps {
   details: AttendanceDetail[];
 }
 
-export interface Team {
-  teamId: number;
-  name: string;
-  manager: string;
-  members: string[];
-}
-
 export interface AttendanceRecord {
   attendanceId: number;
   member: string;
@@ -61,12 +52,4 @@ export interface AttendanceRecord {
   clockOutTime: string;
   project: string;
   status: Status;
-}
-
-export interface Project {
-  projectId: number;
-  name: string;
-  managerName: string;
-  managerId: number;
-  members?: Employee[];
 }

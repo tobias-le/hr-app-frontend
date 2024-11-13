@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { Button, Grid } from "@mui/material";
-import { Project } from "../types/attendance";
-import { EmployeeNameWithId } from "../types/employee";
+import { Project } from "../types/project";
+import { Employee, EmployeeNameWithId } from "../types/employee";
 import ApiService from "../services/api.service";
 import { FormField } from "./common/FormField";
 import { useForm } from "../hooks/useForm";
@@ -59,7 +59,7 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
       setMemberLoading(true);
       try {
         const excludeIds = [
-          ...(formData.members?.map((m) => m.id) || []),
+          ...(formData.members?.map((m: Employee) => m.id) || []),
           formData.managerId || 0,
         ].filter(Boolean);
         const response = await ApiService.autocompleteEmployees(

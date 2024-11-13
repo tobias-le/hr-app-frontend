@@ -7,7 +7,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import ApiService from "../services/api.service";
-import { Project } from "../types/attendance";
+import { Project } from "../types/project";
 import { Employee, EmployeeNameWithId } from "../types/employee";
 import { useSnackbarStore } from "../components/GlobalSnackbar";
 import { debounce } from "lodash";

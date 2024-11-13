@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { Project } from "../types/attendance";
+import { Project } from "../types/project";
 import ApiService from "../services/api.service";
 
 interface ProjectState {

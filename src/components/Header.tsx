@@ -18,6 +18,7 @@ import {
   EventNote,
   Timer,
   FolderSpecial,
+  Groups,
 } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import { stringToColor } from "../utils/colorUtils";
@@ -117,6 +118,16 @@ const Header: React.FC = () => {
               data-testid="project-management-link"
             >
               <FolderSpecial />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Team Management">
+            <IconButton
+              className="header-icon"
+              component={Link}
+              to="/team-management"
+              data-testid="team-management-link"
+            >
+              <Groups />
             </IconButton>
           </Tooltip>
         </Box>

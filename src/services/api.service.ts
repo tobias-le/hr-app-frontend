@@ -3,11 +3,11 @@ import {
   SummaryItemProps,
   AttendanceDetail,
   AttendanceSummaryType,
-  Team,
   AttendanceRecord,
-  Project,
 } from "../types/attendance";
 import { Employee, EmployeeNameWithId } from "../types/employee";
+import { Project } from "../types/project";
+import { Team } from "../types/team";
 
 class ApiService {
   private static async fetchWithConfig(
@@ -216,6 +216,43 @@ class ApiService {
         },
       }
     );
+  }
+
+  public static async getAllTeams(): Promise<Team[]> {
+    return this.fetchWithConfig(API_CONFIG.ENDPOINTS.TEAMS);
+  }
+
+  public static async getTeamDetails(teamId: number): Promise<Team> {
+    return this.fetchWithConfig(`${API_CONFIG.ENDPOINTS.TEAMS}/${teamId}`);
+  }
+
+  public static async createTeam(teamData: Partial<Team>): Promise<Team> {
+    return this.fetchWithConfig(API_CONFIG.ENDPOINTS.TEAMS, {
+      method: "POST",
+      body: JSON.stringify(teamData),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  }
+
+  public static async updateTeam(
+    teamId: number,
+    teamData: Partial<Team>
+  ): Promise<Team> {
+    return this.fetchWithConfig(`${API_CONFIG.ENDPOINTS.TEAMS}/${teamId}`, {
+      method: "PUT",
+      body: JSON.stringify(teamData),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  }
+
+  public static async deleteTeam(teamId: number): Promise<boolean> {
+    return this.fetchWithConfig(`${API_CONFIG.ENDPOINTS.TEAMS}/${teamId}`, {
+      method: "DELETE",
+    });
   }
 }
 
