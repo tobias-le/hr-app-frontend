@@ -10,7 +10,7 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
-import { Team } from "../types/team";
+import { Team, TeamReference } from "../types/team";
 import ApiService from "../services/api.service";
 import { PageLayout } from "../components/common/PageLayout";
 import { LoadingSpinner } from "../components/common/LoadingSpinner";
@@ -36,7 +36,7 @@ const TeamDetails: React.FC = () => {
         setTeam(details);
       } catch (error) {
         handleApiError(error, "Failed to fetch team details");
-        navigate("/team-management");
+        navigate("/teams");
       } finally {
         setLoading(false);
       }
@@ -61,7 +61,7 @@ const TeamDetails: React.FC = () => {
     try {
       await ApiService.deleteTeam(team.teamId);
       showMessage("Team deleted successfully");
-      navigate("/team-management");
+      navigate("/teams");
     } catch (error) {
       handleApiError(error, "Failed to delete team");
       setIsDeleting(false);
@@ -91,7 +91,7 @@ const TeamDetails: React.FC = () => {
       <div className="flex justify-between items-center mb-4">
         <Button
           variant="outlined"
-          onClick={() => navigate("/team-management")}
+          onClick={() => navigate("/teams")}
           data-testid="back-button"
         >
           Back to Teams
@@ -180,6 +180,84 @@ const TeamDetails: React.FC = () => {
                 </Typography>
               )}
             </div>
+
+            {team.hierarchy && (
+              <>
+                {team.hierarchy.parentTeam && (
+                  <div>
+                    <Typography
+                      variant="subtitle2"
+                      color="textSecondary"
+                      className="mb-2"
+                    >
+                      Parent Team
+                    </Typography>
+                    <TableContainer>
+                      <Table size="small">
+                        <TableHead>
+                          <TableRow>
+                            <TableCell>Team Name</TableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          <TableRow
+                            hover
+                            onClick={() =>
+                              navigate(
+                                `/teams/${team.hierarchy!.parentTeam?.teamId}`
+                              )
+                            }
+                            sx={{ cursor: "pointer" }}
+                          >
+                            <TableCell>
+                              {team.hierarchy.parentTeam.name}
+                            </TableCell>
+                          </TableRow>
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                  </div>
+                )}
+
+                {team.hierarchy.subTeams &&
+                  team.hierarchy.subTeams.length > 0 && (
+                    <div className="mt-4">
+                      <Typography
+                        variant="subtitle2"
+                        color="textSecondary"
+                        className="mb-2"
+                      >
+                        Sub Teams
+                      </Typography>
+                      <TableContainer>
+                        <Table size="small">
+                          <TableHead>
+                            <TableRow>
+                              <TableCell>Team Name</TableCell>
+                            </TableRow>
+                          </TableHead>
+                          <TableBody>
+                            {team.hierarchy.subTeams.map(
+                              (subTeam: TeamReference) => (
+                                <TableRow
+                                  key={subTeam.teamId}
+                                  hover
+                                  onClick={() =>
+                                    navigate(`/teams/${subTeam.teamId}`)
+                                  }
+                                  sx={{ cursor: "pointer" }}
+                                >
+                                  <TableCell>{subTeam.name}</TableCell>
+                                </TableRow>
+                              )
+                            )}
+                          </TableBody>
+                        </Table>
+                      </TableContainer>
+                    </div>
+                  )}
+              </>
+            )}
           </div>
         )
       )}

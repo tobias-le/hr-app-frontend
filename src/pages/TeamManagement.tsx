@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { Button } from "@mui/material";
+import { Button, Typography } from "@mui/material";
 import ApiService from "../services/api.service";
 import { Team } from "../types/team";
 import { useSnackbarStore } from "../components/GlobalSnackbar";
@@ -11,6 +11,10 @@ import { handleApiError } from "../utils/errorUtils";
 import { useForm } from "../hooks/useForm";
 import { useNavigate } from "react-router-dom";
 import { TeamForm, TeamFormData } from "../components/TeamForm";
+import TreeView from "@mui/lab/TreeView";
+import TreeItem from "@mui/lab/TreeItem";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 
 const TeamManagement: React.FC = () => {
   const { formData, setFormData, isSubmitting, setIsSubmitting } =
@@ -113,6 +117,54 @@ const TeamManagement: React.FC = () => {
     { header: "Manager", accessor: "managerName" as keyof Team },
   ];
 
+  const renderTeamTree = (teams: Team[]) => {
+    // Create a map of parent-child relationships
+    const teamMap = new Map<number, Team>();
+    teams.forEach((team) => teamMap.set(team.teamId, team));
+
+    // Find root teams (teams without parents)
+    const rootTeams = teams.filter((team) => !team.hierarchy?.parentTeam);
+
+    const renderTeamNode = (team: Team) => {
+      const subTeams = team.hierarchy?.subTeams || [];
+
+      return (
+        <TreeItem
+          key={team.teamId}
+          nodeId={team.teamId.toString()}
+          label={team.name}
+          onClick={() => handleRowClick(team.teamId)}
+        >
+          {subTeams.map((subTeam) => {
+            const fullSubTeam = teamMap.get(subTeam.teamId);
+            return fullSubTeam ? renderTeamNode(fullSubTeam) : null;
+          })}
+        </TreeItem>
+      );
+    };
+
+    return (
+      <TreeView
+        defaultCollapseIcon={<ExpandMoreIcon />}
+        defaultExpandIcon={<ChevronRightIcon />}
+        sx={{
+          height: "auto",
+          flexGrow: 1,
+          maxWidth: 400,
+          marginBottom: 4,
+          "& .MuiTreeItem-root": {
+            cursor: "pointer",
+            "&:hover": {
+              backgroundColor: "rgba(0, 0, 0, 0.04)",
+            },
+          },
+        }}
+      >
+        {rootTeams.map((team) => renderTeamNode(team))}
+      </TreeView>
+    );
+  };
+
   return (
     <PageLayout title="Team Management">
       <div className="flex justify-between items-center mb-6">
@@ -124,6 +176,13 @@ const TeamManagement: React.FC = () => {
         >
           Add Team
         </Button>
+      </div>
+
+      <div className="mb-6">
+        <Typography variant="h6" className="mb-2">
+          Team Hierarchy
+        </Typography>
+        {renderTeamTree(teams)}
       </div>
 
       {teamsLoading ? (
