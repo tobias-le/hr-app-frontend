@@ -7,7 +7,6 @@ import {
   TableHead,
   TableRow,
   Paper,
-  CircularProgress,
   Alert,
   Typography,
   Chip,
@@ -86,16 +85,12 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({ projectId }) => {
   return (
     <TableContainer
       component={Paper}
-      className="mt-5 shadow-lg"
+      className="mt-5"
       data-testid="employee-table-container"
     >
-      <Table
-        sx={{ minWidth: 650 }}
-        aria-label="employee table"
-        data-testid="employee-table"
-      >
+      <Table aria-label="employee table" data-testid="employee-table">
         <TableHead>
-          <TableRow className="bg-gray-50">
+          <TableRow>
             <TableCell colSpan={5}>
               <div className="flex items-center gap-2">
                 <Typography variant="subtitle1">Project Manager:</Typography>
@@ -103,16 +98,12 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({ projectId }) => {
                   label={selectedProject?.managerName || "Not assigned"}
                   color="primary"
                   size="small"
-                  sx={{
-                    backgroundColor: "#1e293b",
-                    color: "#f5c816",
-                  }}
                   data-testid="project-manager-chip"
                 />
               </div>
             </TableCell>
           </TableRow>
-          <TableRow className="bg-gray-50">
+          <TableRow>
             <TableCell data-testid="header-employee">Employee</TableCell>
             <TableCell data-testid="header-job-title">Job Title</TableCell>
             <TableCell data-testid="header-status">Status</TableCell>

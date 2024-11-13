@@ -4,7 +4,6 @@ import {
   Toolbar,
   Typography,
   IconButton,
-  Button,
   Menu,
   MenuItem,
   Autocomplete,
@@ -12,13 +11,13 @@ import {
   Avatar,
   Tooltip,
   Divider,
+  Box,
 } from "@mui/material";
 import {
   Dashboard,
   EventNote,
   Timer,
   FolderSpecial,
-  Notifications,
 } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import { stringToColor } from "../utils/colorUtils";
@@ -42,7 +41,7 @@ const Header: React.FC = () => {
   };
 
   return (
-    <AppBar position="static" className="bg-gray-900" data-testid="header">
+    <AppBar position="static" data-testid="header">
       <Toolbar>
         <Autocomplete
           sx={{ width: 300, mr: 2 }}
@@ -58,33 +57,31 @@ const Header: React.FC = () => {
               size="small"
               placeholder="Search employee"
               data-testid="employee-search-input"
-              sx={{
-                backgroundColor: "white",
-                borderRadius: 1,
-                "& .MuiOutlinedInput-root": {
-                  "& fieldset": {
-                    borderColor: "white",
-                  },
-                },
-              }}
             />
           )}
         />
-        <Typography variant="h6" className="flex-grow" data-testid="app-title">
+        <Typography variant="h6" sx={{ flexGrow: 1 }} data-testid="app-title">
           <Link
             to="/"
-            className="no-underline text-white"
+            style={{ textDecoration: "none", color: "white" }}
             data-testid="home-link"
           >
-            <span className="font-bold text-yellow-400">time.ly</span> Time
-            Management
+            <Box
+              component="span"
+              sx={{ fontWeight: "bold", color: "secondary.main" }}
+            >
+              time.ly
+            </Box>
+            {" Time Management"}
           </Link>
         </Typography>
-        <div className="flex items-center space-x-4" data-testid="nav-buttons">
+        <Box
+          sx={{ display: "flex", alignItems: "center", gap: 2 }}
+          data-testid="nav-buttons"
+        >
           <Tooltip title="Dashboard">
             <IconButton
-              color="inherit"
-              className="text-yellow-400"
+              className="header-icon"
               component={Link}
               to="/"
               data-testid="dashboard-link"
@@ -94,8 +91,7 @@ const Header: React.FC = () => {
           </Tooltip>
           <Tooltip title="Time Off">
             <IconButton
-              color="inherit"
-              className="text-yellow-400"
+              className="header-icon"
               component={Link}
               to="/time-off"
               data-testid="time-off-link"
@@ -105,8 +101,7 @@ const Header: React.FC = () => {
           </Tooltip>
           <Tooltip title="Work Time">
             <IconButton
-              color="inherit"
-              className="text-yellow-400"
+              className="header-icon"
               component={Link}
               to="/work-time"
               data-testid="work-time-link"
@@ -116,8 +111,7 @@ const Header: React.FC = () => {
           </Tooltip>
           <Tooltip title="Projects">
             <IconButton
-              color="inherit"
-              className="text-yellow-400"
+              className="header-icon"
               component={Link}
               to="/project-management"
               data-testid="project-management-link"
@@ -125,38 +119,25 @@ const Header: React.FC = () => {
               <FolderSpecial />
             </IconButton>
           </Tooltip>
-        </div>
-        <Divider
-          orientation="vertical"
-          flexItem
-          sx={{
-            mx: 2,
-            my: 2,
-            borderRightWidth: 2,
-            borderColor: "rgba(255, 255, 255, 0.12)",
-            height: "60%",
-            alignSelf: "center",
-          }}
-        />
+        </Box>
+        <Divider orientation="vertical" flexItem className="header-divider" />
         <IconButton
-          color="inherit"
+          className="header-icon"
           onClick={handleClick}
           data-testid="profile-button"
         >
           <Avatar
-            alt={useEmployeeStore.getState().selectedEmployee?.name || "User"}
-            className="w-8 h-8"
-            data-testid="profile-avatar"
+            alt={selectedEmployee?.name || "User"}
             sx={{
-              bgcolor: stringToColor(
-                useEmployeeStore.getState().selectedEmployee?.name || ""
-              ),
+              width: 32,
+              height: 32,
+              bgcolor: stringToColor(selectedEmployee?.name || ""),
             }}
+            data-testid="profile-avatar"
           >
-            {useEmployeeStore.getState().selectedEmployee?.name
-              ? useEmployeeStore
-                  .getState()
-                  .selectedEmployee?.name.split(" ")
+            {selectedEmployee?.name
+              ? selectedEmployee.name
+                  .split(" ")
                   .map((n) => n[0])
                   .join("")
                   .toUpperCase()
@@ -171,24 +152,6 @@ const Header: React.FC = () => {
           data-testid="profile-menu"
           MenuListProps={{
             "aria-labelledby": "profile-button",
-          }}
-          anchorOrigin={{
-            vertical: "bottom",
-            horizontal: "right",
-          }}
-          transformOrigin={{
-            vertical: "top",
-            horizontal: "right",
-          }}
-          slotProps={{
-            paper: {
-              elevation: 0,
-              sx: {
-                overflow: "visible",
-                filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
-                mt: 1.5,
-              },
-            },
           }}
         >
           <MenuItem data-testid="profile-menu-item">

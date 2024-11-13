@@ -5,6 +5,8 @@ import {
   Chip,
   SelectChangeEvent,
   CircularProgress,
+  Grid,
+  Stack,
 } from "@mui/material";
 import { format, parseISO } from "date-fns";
 import { createProjectChip } from "../utils/chipUtils";
@@ -295,105 +297,115 @@ const WorkTime: React.FC = () => {
       <form
         data-testid="work-time-form"
         onSubmit={editingEntry ? handleUpdate : handleSubmit}
-        className="space-y-4 mb-8"
         noValidate
       >
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            name="project"
-            label="Project"
-            value={formData.project}
-            onChange={handleInputChange}
-            options={projects.map((project) => ({
-              value: project.projectId.toString(),
-              label: project.name,
-            }))}
-            required
-            validateNotEmpty
-            testId="project-select"
-          />
+        <Grid container spacing={3}>
+          <Grid item xs={6}>
+            <FormField
+              name="project"
+              label="Project"
+              value={formData.project}
+              onChange={handleInputChange}
+              options={projects.map((project) => ({
+                value: project.projectId.toString(),
+                label: project.name,
+              }))}
+              required
+              validateNotEmpty
+              testId="project-select"
+            />
+          </Grid>
 
-          <FormField
-            name="date"
-            label="Date"
-            type="date"
-            value={formData.date}
-            onChange={handleInputChange}
-            required
-            validateNotEmpty
-            testId="date-input"
-          />
+          <Grid item xs={6}>
+            <FormField
+              name="date"
+              label="Date"
+              type="date"
+              value={formData.date}
+              onChange={handleInputChange}
+              required
+              validateNotEmpty
+              testId="date-input"
+            />
+          </Grid>
 
-          <FormField
-            name="startTime"
-            label="Start Time"
-            type="time"
-            value={formData.startTime}
-            onChange={handleInputChange}
-            required
-            validateNotEmpty
-            testId="start-time-input"
-          />
+          <Grid item xs={6}>
+            <FormField
+              name="startTime"
+              label="Start Time"
+              type="time"
+              value={formData.startTime}
+              onChange={handleInputChange}
+              required
+              validateNotEmpty
+              testId="start-time-input"
+            />
+          </Grid>
 
-          <FormField
-            name="endTime"
-            label="End Time"
-            type="time"
-            value={formData.endTime}
-            onChange={handleInputChange}
-            required
-            validateNotEmpty
-            testId="end-time-input"
-          />
+          <Grid item xs={6}>
+            <FormField
+              name="endTime"
+              label="End Time"
+              type="time"
+              value={formData.endTime}
+              onChange={handleInputChange}
+              required
+              validateNotEmpty
+              testId="end-time-input"
+            />
+          </Grid>
 
-          <FormField
-            name="description"
-            label="Description"
-            value={formData.description}
-            onChange={handleInputChange}
-            multiline
-            rows={4}
-            className="col-span-2"
-            testId="description-input"
-          />
-        </div>
+          <Grid item xs={12}>
+            <FormField
+              name="description"
+              label="Description"
+              value={formData.description}
+              onChange={handleInputChange}
+              multiline
+              rows={4}
+              testId="description-input"
+            />
+          </Grid>
 
-        <div className="flex justify-end space-x-2">
-          <Button
-            data-testid="cancel-button"
-            variant="outlined"
-            onClick={() => {
-              setEditingEntry(null);
-              setFormData({
-                project: "",
-                date: format(new Date(), "yyyy-MM-dd"),
-                startTime: "",
-                endTime: "",
-                description: "",
-              });
-            }}
-          >
-            Cancel
-          </Button>
-          <Button
-            data-testid="submit-button"
-            variant="contained"
-            color="primary"
-            type="submit"
-            disabled={isSubmitting || !isFormValid}
-            startIcon={
-              isSubmitting ? (
-                <CircularProgress size={20} color="inherit" />
-              ) : null
-            }
-          >
-            {isSubmitting
-              ? "Submitting..."
-              : editingEntry
-              ? "Update"
-              : "Submit"}
-          </Button>
-        </div>
+          <Grid item xs={12}>
+            <Stack direction="row" spacing={2} justifyContent="flex-end">
+              <Button
+                data-testid="cancel-button"
+                variant="outlined"
+                onClick={() => {
+                  setEditingEntry(null);
+                  setFormData({
+                    project: "",
+                    date: format(new Date(), "yyyy-MM-dd"),
+                    startTime: "",
+                    endTime: "",
+                    description: "",
+                  });
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                data-testid="submit-button"
+                variant="contained"
+                color="primary"
+                type="submit"
+                disabled={isSubmitting || !isFormValid}
+                startIcon={
+                  isSubmitting ? (
+                    <CircularProgress size={20} color="inherit" />
+                  ) : null
+                }
+              >
+                {isSubmitting
+                  ? "Submitting..."
+                  : editingEntry
+                  ? "Update"
+                  : "Submit"}
+              </Button>
+            </Stack>
+          </Grid>
+        </Grid>
       </form>
 
       <Typography variant="h6" className="font-bold mb-4">

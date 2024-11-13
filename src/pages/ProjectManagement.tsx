@@ -59,13 +59,17 @@ const ProjectManagement: React.FC = () => {
   const [managerLoading, setManagerLoading] = useState(false);
   const [memberLoading, setMemberLoading] = useState(false);
   const { handleProjectSelect } = useProjectSelection();
+  const [projectsLoading, setProjectsLoading] = useState(true);
 
   const fetchProjects = useCallback(async () => {
+    setProjectsLoading(true);
     try {
       const response = await ApiService.getAllProjects();
       setProjects(response);
     } catch (error) {
       handleApiError(error, "Failed to fetch projects");
+    } finally {
+      setProjectsLoading(false);
     }
   }, []);
 
@@ -272,12 +276,16 @@ const ProjectManagement: React.FC = () => {
         </Button>
       </div>
 
-      <DataTable
-        data={projects}
-        columns={columns}
-        onRowClick={(project: Project) => handleRowClick(project.projectId)}
-        testId="projects-table"
-      />
+      {projectsLoading ? (
+        <LoadingSpinner testId="projects-loading" />
+      ) : (
+        <DataTable
+          data={projects}
+          columns={columns}
+          onRowClick={(project: Project) => handleRowClick(project.projectId)}
+          testId="projects-table"
+        />
+      )}
 
       <BaseModal
         open={openDialog}

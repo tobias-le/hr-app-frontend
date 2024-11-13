@@ -125,6 +125,7 @@ const TimeOff: React.FC = () => {
           New Time Off Request
         </Typography>
         <form className="space-y-4 mt-5" data-testid="timeoff-request-form">
+          {/* Date Fields Row */}
           <div className="grid grid-cols-2 gap-4">
             <FormField
               name="startDate"
@@ -147,7 +148,10 @@ const TimeOff: React.FC = () => {
               validateNotEmpty
               testId="end-date-input"
             />
+          </div>
 
+          {/* Type Field Row */}
+          <div className="w-full">
             <FormField
               name="type"
               label="Type"
@@ -162,7 +166,10 @@ const TimeOff: React.FC = () => {
               validateNotEmpty
               testId="leave-type-select"
             />
+          </div>
 
+          {/* Reason Field Row */}
+          <div className="w-full">
             <FormField
               name="reason"
               label="Reason"
@@ -173,6 +180,7 @@ const TimeOff: React.FC = () => {
               testId="reason-input"
             />
           </div>
+
           <div className="flex justify-end space-x-2">
             <Button variant="outlined" data-testid="cancel-button">
               Cancel

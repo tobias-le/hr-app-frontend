@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Button, Typography, Grid, CircularProgress } from "@mui/material";
-import { styled } from "@mui/material/styles";
+import { Button, Typography, Grid } from "@mui/material";
 import ApiService from "../services/api.service";
 import { useEmployeeStore } from "../store/employeeStore";
 import { useSnackbarStore } from "../components/GlobalSnackbar";
@@ -90,7 +89,7 @@ const EmployeeDetailsForm: React.FC = () => {
             <FormField
               name="name"
               label="Name"
-              value={selectedEmployee.name}
+              value={formData.name}
               onChange={handleChange}
               required
               validateNotEmpty
@@ -101,7 +100,7 @@ const EmployeeDetailsForm: React.FC = () => {
             <FormField
               name="jobTitle"
               label="Job Title"
-              value={selectedEmployee.jobTitle}
+              value={formData.jobTitle}
               onChange={handleChange}
               required
               validateNotEmpty
@@ -112,11 +111,11 @@ const EmployeeDetailsForm: React.FC = () => {
             <FormField
               name="email"
               label="Email"
-              value={selectedEmployee.email}
+              value={formData.email}
               onChange={handleChange}
               required
               validateNotEmpty
-              error={!isValidEmail(selectedEmployee.email || "")}
+              error={!isValidEmail(formData.email || "")}
               helperText="Please enter a valid email address"
               testId="employee-email-input"
             />
@@ -125,11 +124,11 @@ const EmployeeDetailsForm: React.FC = () => {
             <FormField
               name="phoneNumber"
               label="Phone Number"
-              value={selectedEmployee.phoneNumber}
+              value={formData.phoneNumber}
               onChange={handleChange}
               required
               validateNotEmpty
-              error={!isValidPhone(selectedEmployee.phoneNumber || "")}
+              error={!isValidPhone(formData.phoneNumber || "")}
               helperText="Please enter a valid 9-digit phone number"
               testId="employee-phone-input"
             />
@@ -138,8 +137,8 @@ const EmployeeDetailsForm: React.FC = () => {
             <Button
               onClick={handleUpdateEmployee}
               disabled={
-                !isValidEmail(selectedEmployee.email || "") ||
-                !isValidPhone(selectedEmployee.phoneNumber || "")
+                !isValidEmail(formData.email || "") ||
+                !isValidPhone(formData.phoneNumber || "")
               }
               variant="contained"
               color="primary"

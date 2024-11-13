@@ -13,6 +13,7 @@ import {
 import ApiService from "../services/api.service";
 import { AttendanceSummaryType } from "../types/attendance";
 import { useProjectStore } from "../store/projectStore";
+import { LoadingSpinner } from "./common/LoadingSpinner";
 
 interface ProjectAttendanceSummaryProps {
   onProjectChange: (projectId: number) => void;
@@ -23,26 +24,28 @@ const ProjectAttendanceSummary: React.FC<ProjectAttendanceSummaryProps> = ({
 }) => {
   const { projects, selectedProject, fetchProjects, setSelectedProject } =
     useProjectStore();
-  const [summaryData, setSummaryData] = useState<AttendanceSummaryType>({
-    teamName: "",
-    totalHours: 0,
-    expectedHours: 0,
-    averageHoursPerDay: 0,
-    attendanceRate: 0,
-  });
+  const [summaryData, setSummaryData] = useState<AttendanceSummaryType | null>(
+    null
+  );
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchProjects();
   }, [fetchProjects]);
 
   useEffect(() => {
+    setLoading(true);
     if (selectedProject) {
       ApiService.getAttendanceSummaryType(selectedProject.projectId)
         .then((data) => setSummaryData(data))
-        .catch((error) =>
-          console.error("Error fetching project summary:", error)
-        );
+        .catch((error) => {
+          console.error("Error fetching project summary:", error);
+          setSummaryData(null);
+        })
+        .finally(() => setLoading(false));
       onProjectChange(selectedProject.projectId);
+    } else {
+      setLoading(false);
     }
   }, [selectedProject, onProjectChange]);
 
@@ -75,36 +78,60 @@ const ProjectAttendanceSummary: React.FC<ProjectAttendanceSummaryProps> = ({
         </Select>
       </FormControl>
 
-      <Grid container spacing={3}>
-        <Grid item xs={3}>
-          <Paper className="p-4" data-testid="total-hours-card">
-            <Typography color="textSecondary">Total Hours</Typography>
-            <Typography variant="h4">{summaryData.totalHours}</Typography>
-          </Paper>
-        </Grid>
-        <Grid item xs={3}>
-          <Paper className="p-4" data-testid="expected-hours-card">
-            <Typography color="textSecondary">Expected Hours</Typography>
-            <Typography variant="h4">{summaryData.expectedHours}</Typography>
-          </Paper>
-        </Grid>
-        <Grid item xs={3}>
-          <Paper className="p-4" data-testid="average-hours-card">
-            <Typography color="textSecondary">Avg Hours/Day</Typography>
-            <Typography variant="h4">
-              {summaryData.averageHoursPerDay}
-            </Typography>
-          </Paper>
-        </Grid>
-        <Grid item xs={3}>
-          <Paper className="p-4" data-testid="attendance-rate-card">
-            <Typography color="textSecondary">Attendance Rate</Typography>
-            <Typography variant="h4">
-              {summaryData.attendanceRate.toFixed(1)}%
-            </Typography>
-          </Paper>
-        </Grid>
-      </Grid>
+      {loading ? (
+        <LoadingSpinner testId="summary-loading" />
+      ) : (
+        summaryData && (
+          <Grid container spacing={3}>
+            <Grid item xs={3}>
+              <Paper
+                elevation={1}
+                className="p-4"
+                data-testid="total-hours-card"
+              >
+                <Typography variant="subtitle1">Total Hours</Typography>
+                <Typography variant="h4">{summaryData.totalHours}</Typography>
+              </Paper>
+            </Grid>
+            <Grid item xs={3}>
+              <Paper
+                elevation={1}
+                className="p-4"
+                data-testid="expected-hours-card"
+              >
+                <Typography variant="subtitle1">Expected Hours</Typography>
+                <Typography variant="h4">
+                  {summaryData.expectedHours}
+                </Typography>
+              </Paper>
+            </Grid>
+            <Grid item xs={3}>
+              <Paper
+                elevation={1}
+                className="p-4"
+                data-testid="average-hours-card"
+              >
+                <Typography variant="subtitle1">Avg Hours/Day</Typography>
+                <Typography variant="h4">
+                  {summaryData.averageHoursPerDay}
+                </Typography>
+              </Paper>
+            </Grid>
+            <Grid item xs={3}>
+              <Paper
+                elevation={1}
+                className="p-4"
+                data-testid="attendance-rate-card"
+              >
+                <Typography variant="subtitle1">Attendance Rate</Typography>
+                <Typography variant="h4">
+                  {summaryData.attendanceRate.toFixed(1)}%
+                </Typography>
+              </Paper>
+            </Grid>
+          </Grid>
+        )
+      )}
     </Box>
   );
 };
