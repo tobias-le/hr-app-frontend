@@ -4,6 +4,7 @@ import { TeamAttendanceDetail } from "../types/attendance";
 import { createProjectChip } from "../utils/chipUtils";
 import { DataTable } from "../components/common/DataTable";
 import { BaseModal } from "./common/BaseModal";
+import { LoadingSpinner } from "../components/common/LoadingSpinner";
 
 interface AttendanceDetailsModalProps {
   open: boolean;
@@ -78,6 +79,7 @@ const AttendanceDetailsModal: React.FC<AttendanceDetailsModalProps> = ({
         emptyMessage="No records for this week"
         testId="attendance-details-table"
       />
+      {loading && <LoadingSpinner testId="details-loading" />}
     </BaseModal>
   );
 };

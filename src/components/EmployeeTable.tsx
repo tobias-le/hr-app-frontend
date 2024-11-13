@@ -17,6 +17,7 @@ import ApiService from "../services/api.service";
 import EmployeeDetailsModal from "./EmployeeDetailsModal";
 import EmployeeRow from "./EmployeeRow";
 import { useProjectStore } from "../store/projectStore";
+import { LoadingSpinner } from "../components/common/LoadingSpinner";
 
 interface EmployeeTableProps {
   projectId: number;
@@ -61,14 +62,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({ projectId }) => {
   };
 
   if (loading) {
-    return (
-      <div
-        className="flex justify-center items-center h-64"
-        data-testid="loading-spinner"
-      >
-        <CircularProgress />
-      </div>
-    );
+    return <LoadingSpinner testId="loading-spinner" />;
   }
 
   if (error) {

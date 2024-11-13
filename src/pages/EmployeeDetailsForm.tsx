@@ -6,20 +6,7 @@ import { useEmployeeStore } from "../store/employeeStore";
 import { useSnackbarStore } from "../components/GlobalSnackbar";
 import { FormField } from "../components/common/FormField";
 import { PageLayout } from "../components/common/PageLayout";
-
-const FullPageLoader = styled("div")({
-  position: "fixed",
-  top: 0,
-  left: 0,
-  right: 0,
-  bottom: 0,
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  backgroundColor: "rgba(255, 255, 255, 0.7)",
-  backdropFilter: "blur(3px)",
-  zIndex: 1300,
-});
+import { LoadingSpinner } from "../components/common/LoadingSpinner";
 
 const EmployeeDetailsForm: React.FC = () => {
   const { selectedEmployee, updateEmployee } = useEmployeeStore();
@@ -160,11 +147,7 @@ const EmployeeDetailsForm: React.FC = () => {
           </Grid>
         </Grid>
       </form>
-      {loading && (
-        <FullPageLoader data-testid="loading-spinner">
-          <CircularProgress />
-        </FullPageLoader>
-      )}
+      {loading && <LoadingSpinner fullPage testId="loading-spinner" />}
     </PageLayout>
   );
 };

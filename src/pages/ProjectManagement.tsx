@@ -25,6 +25,7 @@ import { PageLayout } from "../components/common/PageLayout";
 import { DataTable } from "../components/common/DataTable";
 import { BaseModal } from "../components/common/BaseModal";
 import { FormField } from "../components/common/FormField";
+import { LoadingSpinner } from "../components/common/LoadingSpinner";
 
 interface ProjectFormData {
   name: string;
@@ -406,9 +407,7 @@ const ProjectManagement: React.FC = () => {
         actions={<Button onClick={() => setDetailsOpen(false)}>Close</Button>}
       >
         {detailsLoading ? (
-          <div className="flex justify-center items-center h-64">
-            <CircularProgress />
-          </div>
+          <LoadingSpinner testId="details-loading" />
         ) : (
           selectedProjectDetails && (
             <div className="space-y-4 py-4">

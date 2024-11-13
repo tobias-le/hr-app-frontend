@@ -10,6 +10,7 @@ import {
   CircularProgress,
   Typography,
 } from "@mui/material";
+import { LoadingSpinner } from "./LoadingSpinner";
 
 interface DataTableProps<T> {
   data: T[];
@@ -33,14 +34,7 @@ export function DataTable<T>({
   onRowClick,
 }: DataTableProps<T>) {
   if (loading) {
-    return (
-      <div
-        className="flex justify-center items-center h-64"
-        data-testid={`${testId}-loading`}
-      >
-        <CircularProgress />
-      </div>
-    );
+    return <LoadingSpinner testId={`${testId}-loading`} />;
   }
 
   if (!data.length) {
