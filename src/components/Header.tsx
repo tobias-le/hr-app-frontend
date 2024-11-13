@@ -1,11 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import {
   AppBar,
   Toolbar,
   Typography,
   IconButton,
-  Menu,
-  MenuItem,
   Autocomplete,
   TextField,
   Avatar,
@@ -25,21 +23,12 @@ import { stringToColor } from "../utils/colorUtils";
 import { useEmployeeStore } from "../store/employeeStore";
 
 const Header: React.FC = () => {
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const { employees, selectedEmployee, fetchEmployees, setSelectedEmployee } =
     useEmployeeStore();
 
   useEffect(() => {
     fetchEmployees();
   }, [fetchEmployees]);
-
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
 
   return (
     <AppBar position="static" data-testid="header">
@@ -134,7 +123,8 @@ const Header: React.FC = () => {
         <Divider orientation="vertical" flexItem className="header-divider" />
         <IconButton
           className="header-icon"
-          onClick={handleClick}
+          component={Link}
+          to="/employee-details"
           data-testid="profile-button"
           sx={{ padding: 1.5 }}
         >
@@ -156,31 +146,6 @@ const Header: React.FC = () => {
               : ""}
           </Avatar>
         </IconButton>
-        <Menu
-          id="profile-menu"
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={handleClose}
-          data-testid="profile-menu"
-          MenuListProps={{
-            "aria-labelledby": "profile-button",
-          }}
-          PaperProps={{
-            sx: {
-              minWidth: "200px",
-            },
-          }}
-        >
-          <MenuItem data-testid="profile-menu-item" sx={{ py: 1 }}>
-            <Link
-              to="/employee-details"
-              style={{ textDecoration: "none", color: "inherit" }}
-              data-testid="profile-link"
-            >
-              Profile
-            </Link>
-          </MenuItem>
-        </Menu>
       </Toolbar>
     </AppBar>
   );
