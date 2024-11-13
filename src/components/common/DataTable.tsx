@@ -7,8 +7,6 @@ import {
   TableRow,
   TableCell,
   Paper,
-  CircularProgress,
-  Typography,
 } from "@mui/material";
 import { LoadingSpinner } from "./LoadingSpinner";
 import { EmptyState } from "./EmptyState";

@@ -8,7 +8,6 @@ import {
 } from "../types/attendance";
 import { Employee, EmployeeNameWithId } from "../types/employee";
 import { AttendanceRecord, Project } from "../types/attendance";
-import axios from "axios";
 
 class ApiService {
   private static async fetchWithConfig(

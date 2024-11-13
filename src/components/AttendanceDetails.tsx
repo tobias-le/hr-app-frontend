@@ -1,13 +1,4 @@
 import React, { useEffect, useState } from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-} from "@mui/material";
 import ApiService from "../services/api.service";
 import { AttendanceDetail } from "../types/attendance";
 import { DataTable } from "./common/DataTable";
