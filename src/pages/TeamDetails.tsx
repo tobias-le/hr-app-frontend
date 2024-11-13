@@ -10,7 +10,7 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
-import { Team, TeamReference } from "../types/team";
+import { Team } from "../types/team";
 import ApiService from "../services/api.service";
 import { PageLayout } from "../components/common/PageLayout";
 import { LoadingSpinner } from "../components/common/LoadingSpinner";
@@ -84,6 +84,122 @@ const TeamDetails: React.FC = () => {
     } catch (error) {
       handleApiError(error, "Failed to update team");
     }
+  };
+
+  const renderParentTeamHierarchy = (team: Team, level: number = 0) => {
+    return (
+      <div
+        style={{
+          marginLeft: `${level * 24}px`,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          width: "50vw",
+          maxWidth: "50vw",
+          marginBottom: "16px",
+          margin: "0 auto",
+        }}
+      >
+        {team.parentTeam && (
+          <div className="mb-4 w-full">
+            {renderParentTeamHierarchy(team.parentTeam, level + 1)}
+          </div>
+        )}
+        <TableContainer
+          sx={{
+            width: "100%",
+            backgroundColor: "background.paper",
+            "& .MuiTableCell-root": {
+              borderBottom: "none",
+            },
+          }}
+        >
+          <Table size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell
+                  width="50%"
+                  sx={{
+                    backgroundColor: "secondary.main",
+                    "& .MuiTypography-root": {
+                      color: "primary.main",
+                      fontWeight: "bold",
+                      fontSize: "1.1rem",
+                    },
+                  }}
+                >
+                  <Typography variant="subtitle1">Team Name</Typography>
+                </TableCell>
+                <TableCell
+                  width="50%"
+                  sx={{
+                    backgroundColor: "secondary.main",
+                    "& .MuiTypography-root": {
+                      color: "primary.main",
+                      fontWeight: "bold",
+                      fontSize: "1.1rem",
+                    },
+                  }}
+                >
+                  <Typography variant="subtitle1">Team Lead</Typography>
+                </TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              <TableRow
+                hover
+                onClick={() => navigate(`/teams/${team.teamId}`)}
+                sx={{
+                  cursor: "pointer",
+                  backgroundColor: "background.paper",
+                  "&:hover": {
+                    backgroundColor: "grey.50",
+                  },
+                  "& .MuiTableCell-root": {
+                    borderLeft: 4,
+                    borderLeftStyle: "solid",
+                    borderLeftColor: "primary.main",
+                    py: 2,
+                  },
+                }}
+              >
+                <TableCell width="50%">
+                  <Typography
+                    variant="body1"
+                    sx={{ fontSize: "1.1rem", fontWeight: 500 }}
+                  >
+                    {level > 0 && "↑ "}
+                    {team.name}
+                  </Typography>
+                </TableCell>
+                <TableCell width="50%">
+                  <div>
+                    <Typography
+                      variant="body1"
+                      sx={{ fontSize: "1.1rem", fontWeight: 500 }}
+                    >
+                      {team.managerName || "No Team Lead"}
+                    </Typography>
+                    {team.managerName && (
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color: "text.secondary",
+                          fontSize: "0.875rem",
+                          mt: 0.5,
+                        }}
+                      >
+                        {team.managerJobTitle || "Team Lead"}
+                      </Typography>
+                    )}
+                  </div>
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </div>
+    );
   };
 
   return (
@@ -181,82 +297,17 @@ const TeamDetails: React.FC = () => {
               )}
             </div>
 
-            {team.hierarchy && (
-              <>
-                {team.hierarchy.parentTeam && (
-                  <div>
-                    <Typography
-                      variant="subtitle2"
-                      color="textSecondary"
-                      className="mb-2"
-                    >
-                      Parent Team
-                    </Typography>
-                    <TableContainer>
-                      <Table size="small">
-                        <TableHead>
-                          <TableRow>
-                            <TableCell>Team Name</TableCell>
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          <TableRow
-                            hover
-                            onClick={() =>
-                              navigate(
-                                `/teams/${team.hierarchy!.parentTeam?.teamId}`
-                              )
-                            }
-                            sx={{ cursor: "pointer" }}
-                          >
-                            <TableCell>
-                              {team.hierarchy.parentTeam.name}
-                            </TableCell>
-                          </TableRow>
-                        </TableBody>
-                      </Table>
-                    </TableContainer>
-                  </div>
-                )}
-
-                {team.hierarchy.subTeams &&
-                  team.hierarchy.subTeams.length > 0 && (
-                    <div className="mt-4">
-                      <Typography
-                        variant="subtitle2"
-                        color="textSecondary"
-                        className="mb-2"
-                      >
-                        Sub Teams
-                      </Typography>
-                      <TableContainer>
-                        <Table size="small">
-                          <TableHead>
-                            <TableRow>
-                              <TableCell>Team Name</TableCell>
-                            </TableRow>
-                          </TableHead>
-                          <TableBody>
-                            {team.hierarchy.subTeams.map(
-                              (subTeam: TeamReference) => (
-                                <TableRow
-                                  key={subTeam.teamId}
-                                  hover
-                                  onClick={() =>
-                                    navigate(`/teams/${subTeam.teamId}`)
-                                  }
-                                  sx={{ cursor: "pointer" }}
-                                >
-                                  <TableCell>{subTeam.name}</TableCell>
-                                </TableRow>
-                              )
-                            )}
-                          </TableBody>
-                        </Table>
-                      </TableContainer>
-                    </div>
-                  )}
-              </>
+            {team.parentTeam && (
+              <div>
+                <Typography
+                  variant="subtitle2"
+                  color="textSecondary"
+                  className="mb-2"
+                >
+                  Reporting Structure
+                </Typography>
+                {renderParentTeamHierarchy(team.parentTeam, 0)}
+              </div>
             )}
           </div>
         )
