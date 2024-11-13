@@ -9,7 +9,14 @@ interface EmployeeRowProps {
   onClick: (employee: Employee) => void;
 }
 
+const MAX_VISIBLE_PROJECTS = 3;
+
 const EmployeeRow: React.FC<EmployeeRowProps> = ({ employee, onClick }) => {
+  const projectsToShow =
+    employee.currentProjects?.slice(0, MAX_VISIBLE_PROJECTS) || [];
+  const remainingCount =
+    (employee.currentProjects?.length || 0) - MAX_VISIBLE_PROJECTS;
+
   return (
     <TableRow
       sx={{
@@ -76,13 +83,21 @@ const EmployeeRow: React.FC<EmployeeRowProps> = ({ employee, onClick }) => {
           className="flex gap-1 flex-wrap"
           data-testid={`employee-projects-${employee.id}`}
         >
-          {employee.currentProjects?.map((project, idx) => (
+          {projectsToShow.map((project, idx) => (
             <Chip
               key={idx}
               {...createProjectChip(project)}
               data-testid={`employee-project-${employee.id}-${idx}`}
             />
           ))}
+          {remainingCount > 0 && (
+            <Chip
+              label={`+${remainingCount} more`}
+              size="small"
+              variant="outlined"
+              data-testid={`employee-project-more-${employee.id}`}
+            />
+          )}
         </div>
       </TableCell>
     </TableRow>

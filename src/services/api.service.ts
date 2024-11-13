@@ -8,6 +8,7 @@ import {
 } from "../types/attendance";
 import { Employee, EmployeeNameWithId } from "../types/employee";
 import { AttendanceRecord, Project } from "../types/attendance";
+import axios from "axios";
 
 class ApiService {
   private static async fetchWithConfig(
@@ -24,6 +25,9 @@ class ApiService {
       const response = await fetch(url, defaultOptions);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      if (response.status === 204) {
+        return true;
       }
       return await response.json();
     } catch (error) {
@@ -52,18 +56,18 @@ class ApiService {
   }
 
   public static async getTeams(): Promise<Team[]> {
-    return this.fetchWithConfig("/api/teams") as Promise<Team[]>;
+    return this.fetchWithConfig(API_CONFIG.ENDPOINTS.TEAMS) as Promise<Team[]>;
   }
 
   public static async getEmployeeById(id: number): Promise<any> {
-    return this.fetchWithConfig(`/api/employees/${id}`);
+    return this.fetchWithConfig(`${API_CONFIG.ENDPOINTS.EMPLOYEES}/${id}`);
   }
 
   public static async updateEmployee(
     id: number,
     employeeData: Employee
   ): Promise<any> {
-    return this.fetchWithConfig(`/api/employees/${id}`, {
+    return this.fetchWithConfig(`${API_CONFIG.ENDPOINTS.EMPLOYEES}/${id}`, {
       method: "PUT",
       body: JSON.stringify(employeeData),
       headers: {
@@ -73,13 +77,13 @@ class ApiService {
   }
 
   public static async getEmployeeNamesWithIds(): Promise<EmployeeNameWithId[]> {
-    return this.fetchWithConfig("/api/employees/withId");
+    return this.fetchWithConfig(`${API_CONFIG.ENDPOINTS.EMPLOYEES}/withId`);
   }
 
   public static async createAttendanceRecord(
     attendanceRecord: AttendanceRecord
   ): Promise<AttendanceRecord> {
-    return this.fetchWithConfig("/api/attendance", {
+    return this.fetchWithConfig(API_CONFIG.ENDPOINTS.ATTENDANCE, {
       method: "POST",
       body: JSON.stringify(attendanceRecord),
       headers: {
@@ -91,42 +95,35 @@ class ApiService {
   public static async getProjectsByEmployeeId(
     employeeId: number
   ): Promise<Project[]> {
-    return this.fetchWithConfig(`/api/projects/${employeeId}`);
+    return this.fetchWithConfig(
+      `${API_CONFIG.ENDPOINTS.PROJECTS}/by-employee/${employeeId}`
+    );
   }
 
   public static async getAttendanceRecordsByMember(
     memberId: number
   ): Promise<AttendanceRecord[]> {
-    return this.fetchWithConfig(`/api/attendance/member/${memberId}`);
+    return this.fetchWithConfig(
+      `${API_CONFIG.ENDPOINTS.ATTENDANCE}/member/${memberId}`
+    );
   }
 
   public static async deleteAttendanceRecord(
     attendanceId: number
   ): Promise<void> {
-    const response = await fetch(
-      `${API_CONFIG.BASE_URL}/api/attendance/${attendanceId}`,
+    return this.fetchWithConfig(
+      `${API_CONFIG.ENDPOINTS.ATTENDANCE}/${attendanceId}`,
       {
         method: "DELETE",
-        headers: API_CONFIG.HEADERS,
       }
     );
-
-    if (response.status === 204) {
-      return; // Success, no content
-    }
-
-    if (!response.ok) {
-      throw new Error(
-        `Failed to delete attendance record: ${response.statusText}`
-      );
-    }
   }
 
   public static async updateAttendanceRecord(
     id: number,
     attendanceRecord: AttendanceRecord
   ): Promise<AttendanceRecord> {
-    return this.fetchWithConfig(`/api/attendance/${id}`, {
+    return this.fetchWithConfig(`${API_CONFIG.ENDPOINTS.ATTENDANCE}/${id}`, {
       method: "PUT",
       body: JSON.stringify(attendanceRecord),
       headers: {
@@ -155,6 +152,71 @@ class ApiService {
     return this.fetchWithConfig(
       `${API_CONFIG.ENDPOINTS.ATTENDANCE}/project/${projectId}/summary`
     ) as Promise<AttendanceSummaryType>;
+  }
+
+  public static async getAllProjects(): Promise<Project[]> {
+    return this.fetchWithConfig(API_CONFIG.ENDPOINTS.PROJECTS);
+  }
+
+  public static async getAllEmployees(): Promise<Employee[]> {
+    return this.fetchWithConfig(API_CONFIG.ENDPOINTS.EMPLOYEES);
+  }
+
+  public static async createProject(projectData: any): Promise<Project> {
+    return this.fetchWithConfig(API_CONFIG.ENDPOINTS.PROJECTS, {
+      method: "POST",
+      body: JSON.stringify(projectData),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  }
+
+  public static async updateProject(
+    projectId: number,
+    projectData: any
+  ): Promise<Project> {
+    return this.fetchWithConfig(
+      `${API_CONFIG.ENDPOINTS.PROJECTS}/${projectId}`,
+      {
+        method: "PUT",
+        body: JSON.stringify(projectData),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+  }
+
+  public static async deleteProject(projectId: number): Promise<boolean> {
+    return this.fetchWithConfig(
+      `${API_CONFIG.ENDPOINTS.PROJECTS}/${projectId}`,
+      {
+        method: "DELETE",
+      }
+    );
+  }
+
+  public static async getProjectDetails(projectId: number): Promise<Project> {
+    return this.fetchWithConfig(
+      `${API_CONFIG.ENDPOINTS.PROJECTS}/${projectId}/details`
+    );
+  }
+
+  public static async autocompleteEmployees(
+    query: string,
+    excludeIds: number[] = []
+  ): Promise<EmployeeNameWithId[]> {
+    return this.fetchWithConfig(
+      `${API_CONFIG.ENDPOINTS.EMPLOYEES}/autocomplete?query=${query}`,
+      {
+        method: "POST",
+        body: JSON.stringify(excludeIds),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
   }
 }
 

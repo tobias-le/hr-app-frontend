@@ -35,22 +35,34 @@ const AttendanceDetails: React.FC = () => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {details.map((detail) => (
-            <TableRow
-              key={detail.id}
-              data-testid={`attendance-row-${detail.id}`}
-            >
-              <TableCell data-testid={`employee-name-${detail.id}`}>
-                {detail.employeeName}
-              </TableCell>
-              <TableCell data-testid={`date-${detail.id}`}>
-                {detail.date}
-              </TableCell>
-              <TableCell data-testid={`present-${detail.id}`}>
-                {detail.present ? "Yes" : "No"}
+          {details.length === 0 ? (
+            <TableRow>
+              <TableCell
+                colSpan={3}
+                align="center"
+                data-testid="no-records-message"
+              >
+                No records found this week
               </TableCell>
             </TableRow>
-          ))}
+          ) : (
+            details.map((detail) => (
+              <TableRow
+                key={detail.id}
+                data-testid={`attendance-row-${detail.id}`}
+              >
+                <TableCell data-testid={`employee-name-${detail.id}`}>
+                  {detail.employeeName}
+                </TableCell>
+                <TableCell data-testid={`date-${detail.id}`}>
+                  {detail.date}
+                </TableCell>
+                <TableCell data-testid={`present-${detail.id}`}>
+                  {detail.present ? "Yes" : "No"}
+                </TableCell>
+              </TableRow>
+            ))
+          )}
         </TableBody>
       </Table>
     </TableContainer>

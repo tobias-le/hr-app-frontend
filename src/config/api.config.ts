@@ -4,10 +4,11 @@ const API_CONFIG = {
 
   ENDPOINTS: {
     EMPLOYEES: "/api/employees",
-    ATTENDANCE_SUMMARY: "/api/attendance/summary",
-    ATTENDANCE_DETAILS: "/api/attendance/details",
     ATTENDANCE: "/api/attendance",
     PROJECTS: "/api/projects",
+    TEAMS: "/api/teams",
+    ATTENDANCE_SUMMARY: "/api/attendance/summary",
+    ATTENDANCE_DETAILS: "/api/attendance/details",
   },
   TIMEOUT: 5000,
   HEADERS: {

@@ -57,6 +57,13 @@ const AttendanceDetailsModal: React.FC<AttendanceDetailsModalProps> = ({
           >
             <CircularProgress />
           </div>
+        ) : details.length === 0 ? (
+          <div
+            className="flex justify-center p-4 text-gray-500"
+            data-testid="no-records-message"
+          >
+            No records for this week
+          </div>
         ) : (
           <TableContainer
             component={Paper}

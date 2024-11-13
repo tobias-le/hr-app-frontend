@@ -10,8 +10,16 @@ import {
   Autocomplete,
   TextField,
   Avatar,
+  Tooltip,
+  Divider,
 } from "@mui/material";
-import { Notifications } from "@mui/icons-material";
+import {
+  Dashboard,
+  EventNote,
+  Timer,
+  FolderSpecial,
+  Notifications,
+} from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import { stringToColor } from "../utils/colorUtils";
 import { useEmployeeStore } from "../store/employeeStore";
@@ -73,43 +81,63 @@ const Header: React.FC = () => {
           </Link>
         </Typography>
         <div className="flex items-center space-x-4" data-testid="nav-buttons">
-          <Button
-            color="inherit"
-            className="text-yellow-400"
-            component={Link}
-            to="/"
-            data-testid="attendance-link"
-          >
-            Attendance
-          </Button>
-          <Button
-            color="inherit"
-            className="text-yellow-400"
-            component={Link}
-            to="/time-off"
-            data-testid="time-off-link"
-          >
-            Time Off{" "}
-            <span
-              className="ml-1 px-1 bg-red-500 rounded-full text-xs"
-              data-testid="time-off-badge"
+          <Tooltip title="Dashboard">
+            <IconButton
+              color="inherit"
+              className="text-yellow-400"
+              component={Link}
+              to="/"
+              data-testid="dashboard-link"
             >
-              50
-            </span>
-          </Button>
-          <Button
-            color="inherit"
-            className="text-yellow-400"
-            component={Link}
-            to="/work-time"
-            data-testid="work-time-link"
-          >
-            Work Time
-          </Button>
+              <Dashboard />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Time Off">
+            <IconButton
+              color="inherit"
+              className="text-yellow-400"
+              component={Link}
+              to="/time-off"
+              data-testid="time-off-link"
+            >
+              <EventNote />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Work Time">
+            <IconButton
+              color="inherit"
+              className="text-yellow-400"
+              component={Link}
+              to="/work-time"
+              data-testid="work-time-link"
+            >
+              <Timer />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Projects">
+            <IconButton
+              color="inherit"
+              className="text-yellow-400"
+              component={Link}
+              to="/project-management"
+              data-testid="project-management-link"
+            >
+              <FolderSpecial />
+            </IconButton>
+          </Tooltip>
         </div>
-        <IconButton color="inherit" data-testid="notifications-button">
-          <Notifications />
-        </IconButton>
+        <Divider
+          orientation="vertical"
+          flexItem
+          sx={{
+            mx: 2,
+            my: 2,
+            borderRightWidth: 2,
+            borderColor: "rgba(255, 255, 255, 0.12)",
+            height: "60%",
+            alignSelf: "center",
+          }}
+        />
         <IconButton
           color="inherit"
           onClick={handleClick}

@@ -44,6 +44,17 @@ const WorkTime: React.FC = () => {
   const [editingEntry, setEditingEntry] = useState<AttendanceRecord | null>(
     null
   );
+  const [isFormValid, setIsFormValid] = useState(false);
+
+  useEffect(() => {
+    const valid = Boolean(
+      formData.project &&
+        formData.date &&
+        formData.startTime &&
+        formData.endTime
+    );
+    setIsFormValid(valid);
+  }, [formData]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -90,7 +101,7 @@ const WorkTime: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedEmployee?.id) return;
+    if (!selectedEmployee?.id || !isFormValid || submitting) return;
 
     setSubmitting(true);
     try {
@@ -104,7 +115,6 @@ const WorkTime: React.FC = () => {
 
       if (!selectedProject) {
         showMessage("Please select a valid project");
-        setSubmitting(false);
         return;
       }
 
@@ -149,8 +159,6 @@ const WorkTime: React.FC = () => {
   const formatDate = (dateStr: string) => {
     return format(new Date(dateStr), "MMM dd, yyyy");
   };
-
-  console.log("Current projects:", projects);
 
   const handleDelete = async (attendanceId: number) => {
     if (!window.confirm("Are you sure you want to delete this entry?")) return;
@@ -261,6 +269,7 @@ const WorkTime: React.FC = () => {
             data-testid="work-time-form"
             onSubmit={editingEntry ? handleUpdate : handleSubmit}
             className="space-y-4 mb-8"
+            noValidate
           >
             <div className="grid grid-cols-2 gap-4">
               <FormControl fullWidth>
@@ -352,7 +361,7 @@ const WorkTime: React.FC = () => {
                 variant="contained"
                 color="primary"
                 type="submit"
-                disabled={submitting}
+                disabled={submitting || !isFormValid}
                 startIcon={
                   submitting ? (
                     <CircularProgress size={20} color="inherit" />

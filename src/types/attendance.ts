@@ -1,3 +1,5 @@
+import { Employee } from "./employee";
+
 export interface SummaryItemProps {
   title: string;
   count: number;
@@ -58,4 +60,5 @@ export interface Project {
   name: string;
   managerName: string;
   managerId: number;
+  members?: Employee[];
 }
