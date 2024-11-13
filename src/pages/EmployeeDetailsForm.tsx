@@ -7,11 +7,27 @@ import { useSnackbarStore } from "../components/GlobalSnackbar";
 import { FormField } from "../components/common/FormField";
 import { PageLayout } from "../components/common/PageLayout";
 import { LoadingSpinner } from "../components/common/LoadingSpinner";
+import { useForm } from "../hooks/useForm";
 
 const EmployeeDetailsForm: React.FC = () => {
   const { selectedEmployee, updateEmployee } = useEmployeeStore();
   const { showMessage } = useSnackbarStore();
   const [loading, setLoading] = useState(false);
+
+  const { formData, handleChange, setFormData } = useForm(
+    selectedEmployee || {
+      name: "",
+      jobTitle: "",
+      email: "",
+      phoneNumber: "",
+    }
+  );
+
+  useEffect(() => {
+    if (selectedEmployee) {
+      setFormData(selectedEmployee);
+    }
+  }, [selectedEmployee, setFormData]);
 
   useEffect(() => {
     const fetchEmployeeDetails = async () => {
@@ -33,18 +49,6 @@ const EmployeeDetailsForm: React.FC = () => {
 
     fetchEmployeeDetails();
   }, [selectedEmployee?.id, updateEmployee, showMessage]);
-
-  const handleChange = (
-    event: React.ChangeEvent<any> | { target: { name: string; value: any } }
-  ) => {
-    const { name, value } = event.target;
-    if (selectedEmployee?.id) {
-      updateEmployee({
-        ...selectedEmployee,
-        [name]: value,
-      });
-    }
-  };
 
   const handleUpdateEmployee = async () => {
     if (!selectedEmployee?.id) return;

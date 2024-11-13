@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import ApiService from "../services/api.service"; // Import ApiService
 import { AttendanceSummaryType, Team } from "../types/attendance"; // Import from the new location
-import CircularProgress from "@mui/material/CircularProgress";
+import { LoadingSpinner } from "./common/LoadingSpinner";
 
 interface AttendanceSummaryProps {
   onTeamChange: (teamId: number) => void;
@@ -95,12 +95,7 @@ const AttendanceSummary: React.FC<AttendanceSummaryProps> = ({
       </FormControl>
 
       {summaryLoading ? (
-        <div
-          className="flex justify-center items-center h-64"
-          data-testid="loading-spinner"
-        >
-          <CircularProgress />
-        </div>
+        <LoadingSpinner testId="summary-loading" />
       ) : (
         summaryData && (
           <Grid container spacing={3} data-testid="summary-grid">

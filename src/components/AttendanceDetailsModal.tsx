@@ -5,6 +5,7 @@ import { createProjectChip } from "../utils/chipUtils";
 import { DataTable } from "../components/common/DataTable";
 import { BaseModal } from "./common/BaseModal";
 import { LoadingSpinner } from "../components/common/LoadingSpinner";
+import dateUtils from "../utils/dateUtils";
 
 interface AttendanceDetailsModalProps {
   open: boolean;
@@ -19,13 +20,6 @@ const AttendanceDetailsModal: React.FC<AttendanceDetailsModalProps> = ({
   details,
   loading,
 }) => {
-  const formatDateTime = (dateTime: string) => {
-    return new Date(dateTime).toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
   const columns = [
     {
       header: "Employee Name",
@@ -35,19 +29,19 @@ const AttendanceDetailsModal: React.FC<AttendanceDetailsModalProps> = ({
     {
       header: "Date",
       accessor: (detail: TeamAttendanceDetail) =>
-        new Date(detail.date).toLocaleDateString(),
+        dateUtils.formatDate(detail.date),
       testId: "header-date",
     },
     {
       header: "Clock In",
       accessor: (detail: TeamAttendanceDetail) =>
-        formatDateTime(detail.clockInTime),
+        dateUtils.formatTime(detail.clockInTime),
       testId: "header-clock-in",
     },
     {
       header: "Clock Out",
       accessor: (detail: TeamAttendanceDetail) =>
-        formatDateTime(detail.clockOutTime),
+        dateUtils.formatTime(detail.clockOutTime),
       testId: "header-clock-out",
     },
     {

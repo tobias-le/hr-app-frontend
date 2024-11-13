@@ -18,6 +18,7 @@ import EmployeeDetailsModal from "./EmployeeDetailsModal";
 import EmployeeRow from "./EmployeeRow";
 import { useProjectStore } from "../store/projectStore";
 import { LoadingSpinner } from "../components/common/LoadingSpinner";
+import { EmptyState } from "./common/EmptyState";
 
 interface EmployeeTableProps {
   projectId: number;
@@ -75,14 +76,10 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({ projectId }) => {
 
   if (!employees.length) {
     return (
-      <div
-        className="flex justify-center items-center h-64"
-        data-testid="empty-state"
-      >
-        <Typography variant="h6" color="textSecondary">
-          No employees are on this team yet
-        </Typography>
-      </div>
+      <EmptyState
+        message="No employees are on this team yet"
+        testId="empty-state"
+      />
     );
   }
 

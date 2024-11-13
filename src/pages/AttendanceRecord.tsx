@@ -15,20 +15,23 @@ import { useSnackbarStore } from "../components/GlobalSnackbar";
 import { DataTable } from "../components/common/DataTable";
 import { FormField } from "../components/common/FormField";
 import { PageLayout } from "../components/common/PageLayout";
+import { handleApiError } from "../utils/errorUtils";
+import { useForm } from "../hooks/useForm";
 
 const WorkTime: React.FC = () => {
+  const { formData, handleChange, isSubmitting, setIsSubmitting, setFormData } =
+    useForm({
+      project: "",
+      date: format(new Date(), "yyyy-MM-dd"),
+      startTime: "",
+      endTime: "",
+      description: "",
+    });
+
   const [projects, setProjects] = useState<Project[]>([]);
   const [pastEntries, setPastEntries] = useState<AttendanceRecord[]>([]);
   const [loading, setLoading] = useState(true);
-  const [formData, setFormData] = useState({
-    project: "",
-    date: format(new Date(), "yyyy-MM-dd"),
-    startTime: "",
-    endTime: "",
-    description: "",
-  });
   const { selectedEmployee } = useEmployeeStore();
-  const [submitting, setSubmitting] = useState(false);
   const { showMessage } = useSnackbarStore();
   const [editingEntry, setEditingEntry] = useState<AttendanceRecord | null>(
     null
@@ -81,18 +84,14 @@ const WorkTime: React.FC = () => {
       | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
       | SelectChangeEvent
   ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name as string]: value,
-    }));
+    handleChange(e);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedEmployee?.id || !isFormValid || submitting) return;
+    if (!selectedEmployee?.id || !isFormValid || isSubmitting) return;
 
-    setSubmitting(true);
+    setIsSubmitting(true);
     try {
       const dateStr = formData.date;
       const clockInDateTime = `${dateStr}T${formData.startTime}:00`;
@@ -134,10 +133,9 @@ const WorkTime: React.FC = () => {
         });
       }
     } catch (error) {
-      console.error("Error creating work time entry:", error);
-      showMessage("Failed to create work time entry");
+      handleApiError(error, "Failed to create work time entry");
     } finally {
-      setSubmitting(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -188,7 +186,7 @@ const WorkTime: React.FC = () => {
     e.preventDefault();
     if (!selectedEmployee?.id || !editingEntry?.attendanceId) return;
 
-    setSubmitting(true);
+    setIsSubmitting(true);
     try {
       const dateStr = formData.date;
       const clockInDateTime = `${dateStr}T${formData.startTime}:00`;
@@ -200,7 +198,7 @@ const WorkTime: React.FC = () => {
 
       if (!selectedProject) {
         showMessage("Please select a valid project");
-        setSubmitting(false);
+        setIsSubmitting(false);
         return;
       }
 
@@ -241,7 +239,7 @@ const WorkTime: React.FC = () => {
       console.error("Error updating entry:", error);
       showMessage("Failed to update entry");
     } finally {
-      setSubmitting(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -382,12 +380,18 @@ const WorkTime: React.FC = () => {
             variant="contained"
             color="primary"
             type="submit"
-            disabled={submitting || !isFormValid}
+            disabled={isSubmitting || !isFormValid}
             startIcon={
-              submitting ? <CircularProgress size={20} color="inherit" /> : null
+              isSubmitting ? (
+                <CircularProgress size={20} color="inherit" />
+              ) : null
             }
           >
-            {submitting ? "Submitting..." : editingEntry ? "Update" : "Submit"}
+            {isSubmitting
+              ? "Submitting..."
+              : editingEntry
+              ? "Update"
+              : "Submit"}
           </Button>
         </div>
       </form>

@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 
-interface BaseModalProps {
+export interface BaseModalProps {
   open: boolean;
   onClose: () => void;
   title: string;

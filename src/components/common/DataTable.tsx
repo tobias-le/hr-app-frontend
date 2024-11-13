@@ -11,6 +11,7 @@ import {
   Typography,
 } from "@mui/material";
 import { LoadingSpinner } from "./LoadingSpinner";
+import { EmptyState } from "./EmptyState";
 
 interface DataTableProps<T> {
   data: T[];
@@ -38,16 +39,7 @@ export function DataTable<T>({
   }
 
   if (!data.length) {
-    return (
-      <div
-        className="flex justify-center items-center h-64"
-        data-testid={`${testId}-empty`}
-      >
-        <Typography variant="h6" color="textSecondary">
-          {emptyMessage}
-        </Typography>
-      </div>
-    );
+    return <EmptyState message={emptyMessage} testId={`${testId}-empty`} />;
   }
 
   return (

@@ -26,6 +26,9 @@ import { DataTable } from "../components/common/DataTable";
 import { BaseModal } from "../components/common/BaseModal";
 import { FormField } from "../components/common/FormField";
 import { LoadingSpinner } from "../components/common/LoadingSpinner";
+import { handleApiError } from "../utils/errorUtils";
+import { useForm } from "../hooks/useForm";
+import { useProjectSelection } from "../hooks/useProjectSelection";
 
 interface ProjectFormData {
   name: string;
@@ -34,14 +37,16 @@ interface ProjectFormData {
 }
 
 const ProjectManagement: React.FC = () => {
+  const { formData, setFormData, isSubmitting, setIsSubmitting } =
+    useForm<ProjectFormData>({
+      name: "",
+      managerId: 0,
+      members: [],
+    });
+
   const [projects, setProjects] = useState<Project[]>([]);
   const [openDialog, setOpenDialog] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
-  const [formData, setFormData] = useState<ProjectFormData>({
-    name: "",
-    managerId: 0,
-    members: [],
-  });
   const { showMessage } = useSnackbarStore();
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [selectedProjectDetails, setSelectedProjectDetails] =
@@ -53,16 +58,16 @@ const ProjectManagement: React.FC = () => {
   const [memberOptions, setMemberOptions] = useState<EmployeeNameWithId[]>([]);
   const [managerLoading, setManagerLoading] = useState(false);
   const [memberLoading, setMemberLoading] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { handleProjectSelect } = useProjectSelection();
 
   const fetchProjects = useCallback(async () => {
     try {
       const response = await ApiService.getAllProjects();
       setProjects(response);
     } catch (error) {
-      showMessage("Failed to fetch projects");
+      handleApiError(error, "Failed to fetch projects");
     }
-  }, [showMessage]);
+  }, []);
 
   useEffect(() => {
     fetchProjects();
@@ -71,38 +76,31 @@ const ProjectManagement: React.FC = () => {
   const handleOpenDialog = async (project?: Project) => {
     if (project) {
       setEditingProject(project);
-      try {
-        const projectDetails = await ApiService.getProjectDetails(
-          project.projectId
-        );
+      const projectDetails = await handleProjectSelect(project);
 
-        // First set the form data with project details
+      if (projectDetails) {
         setFormData({
           name: projectDetails.name,
           managerId: projectDetails.managerId,
           members: projectDetails.members || [],
         });
 
-        // Then fetch manager options including the current manager
+        // Fetch manager options including the current manager
         const managerData = await ApiService.autocompleteEmployees(
           projectDetails.managerName || "",
-          [] // No exclusions for managers
+          []
         );
         setManagerOptions(managerData);
 
-        // Also fetch member options excluding the current manager
-        const memberData = await ApiService.autocompleteEmployees(
-          "",
-          [projectDetails.managerId] // Exclude the manager from member options
-        );
+        // Fetch member options excluding the current manager
+        const memberData = await ApiService.autocompleteEmployees("", [
+          projectDetails.managerId,
+        ]);
         setMemberOptions(memberData);
-      } catch (error) {
-        showMessage("Failed to fetch project details");
       }
     } else {
       setEditingProject(null);
       setFormData({ name: "", managerId: 0, members: [] });
-      // Reset options
       setManagerOptions([]);
       setMemberOptions([]);
     }
