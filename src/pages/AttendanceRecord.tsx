@@ -25,8 +25,8 @@ const WorkTime: React.FC = () => {
     useForm({
       project: "",
       date: format(new Date(), "yyyy-MM-dd"),
-      startTime: "",
-      endTime: "",
+      startTime: "09:00",
+      endTime: "17:00",
       description: "",
     });
 
@@ -129,8 +129,8 @@ const WorkTime: React.FC = () => {
         setFormData({
           project: "",
           date: format(new Date(), "yyyy-MM-dd"),
-          startTime: "",
-          endTime: "",
+          startTime: "09:00",
+          endTime: "17:00",
           description: "",
         });
       }
@@ -233,8 +233,8 @@ const WorkTime: React.FC = () => {
       setFormData({
         project: "",
         date: format(new Date(), "yyyy-MM-dd"),
-        startTime: "",
-        endTime: "",
+        startTime: "09:00",
+        endTime: "17:00",
         description: "",
       });
     } catch (error) {
@@ -377,8 +377,8 @@ const WorkTime: React.FC = () => {
                   setFormData({
                     project: "",
                     date: format(new Date(), "yyyy-MM-dd"),
-                    startTime: "",
-                    endTime: "",
+                    startTime: "09:00",
+                    endTime: "17:00",
                     description: "",
                   });
                 }}
