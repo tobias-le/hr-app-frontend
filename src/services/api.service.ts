@@ -4,10 +4,10 @@ import {
   AttendanceDetail,
   AttendanceSummaryType,
   Team,
-  TeamAttendanceDetail,
+  AttendanceRecord,
+  Project,
 } from "../types/attendance";
 import { Employee, EmployeeNameWithId } from "../types/employee";
-import { AttendanceRecord, Project } from "../types/attendance";
 
 class ApiService {
   private static async fetchWithConfig(
@@ -139,10 +139,10 @@ class ApiService {
 
   public static async getProjectAttendanceDetails(
     projectId: number
-  ): Promise<TeamAttendanceDetail[]> {
+  ): Promise<AttendanceRecord[]> {
     return this.fetchWithConfig(
       `${API_CONFIG.ENDPOINTS.ATTENDANCE}/project/${projectId}`
-    ) as Promise<TeamAttendanceDetail[]>;
+    ) as Promise<AttendanceRecord[]>;
   }
 
   public static async getAttendanceSummaryType(

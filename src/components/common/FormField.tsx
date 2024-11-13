@@ -14,7 +14,11 @@ interface FormFieldProps {
   label: string;
   type?: string;
   value: any;
-  onChange: (e: React.ChangeEvent<any> | SelectChangeEvent<any>) => void;
+  onChange?: (
+    event:
+      | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+      | SelectChangeEvent<any>
+  ) => void;
   options?: { value: string | number; label: string }[];
   multiline?: boolean;
   rows?: number;
@@ -53,7 +57,7 @@ export const FormField: React.FC<FormFieldProps> = ({
 
   if (options) {
     return (
-      <FormControl fullWidth error={isError}>
+      <FormControl fullWidth error={isError} sx={{ my: 0.5 }}>
         <InputLabel>{label}</InputLabel>
         <Select
           name={name}
@@ -94,6 +98,7 @@ export const FormField: React.FC<FormFieldProps> = ({
       InputLabelProps={
         type === "date" || type === "time" ? { shrink: true } : undefined
       }
+      sx={{ my: 0.5 }}
     />
   );
 };

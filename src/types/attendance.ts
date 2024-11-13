@@ -22,6 +22,12 @@ export interface AttendanceDetail {
   present: boolean;
 }
 
+export enum Status {
+  PENDING = "PENDING",
+  APPROVED = "APPROVED",
+  REJECTED = "REJECTED",
+}
+
 export interface AttendanceRecord {
   attendanceId: number;
   memberId: number;
@@ -31,6 +37,7 @@ export interface AttendanceRecord {
   clockOutTime: string;
   project: string;
   description: string;
+  status: Status;
 }
 
 export interface AttendanceDetailsModalProps {
@@ -46,13 +53,14 @@ export interface Team {
   members: string[];
 }
 
-export interface TeamAttendanceDetail {
+export interface AttendanceRecord {
   attendanceId: number;
   member: string;
   date: string;
   clockInTime: string;
   clockOutTime: string;
   project: string;
+  status: Status;
 }
 
 export interface Project {

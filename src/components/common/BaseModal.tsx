@@ -37,6 +37,12 @@ export const BaseModal: React.FC<BaseModalProps> = ({
       maxWidth={maxWidth}
       fullWidth
       data-testid={testId}
+      PaperProps={{
+        sx: {
+          minHeight: "80vh",
+          maxHeight: "90vh",
+        },
+      }}
     >
       <DialogTitle>
         <div className="flex justify-between items-center">
@@ -51,7 +57,21 @@ export const BaseModal: React.FC<BaseModalProps> = ({
           )}
         </div>
       </DialogTitle>
-      <DialogContent>{children}</DialogContent>
+      <DialogContent
+        sx={{
+          overflow: "auto",
+          padding: "24px",
+          "&::-webkit-scrollbar": {
+            width: "8px",
+          },
+          "&::-webkit-scrollbar-thumb": {
+            backgroundColor: "#bdbdbd",
+            borderRadius: "4px",
+          },
+        }}
+      >
+        {children}
+      </DialogContent>
       {actions && <DialogActions>{actions}</DialogActions>}
     </Dialog>
   );

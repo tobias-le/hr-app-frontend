@@ -12,7 +12,7 @@ import { format, parseISO } from "date-fns";
 import { createProjectChip } from "../utils/chipUtils";
 import ApiService from "../services/api.service";
 import { useEmployeeStore } from "../store/employeeStore";
-import { AttendanceRecord, Project } from "../types/attendance";
+import { AttendanceRecord, Project, Status } from "../types/attendance";
 import { useSnackbarStore } from "../components/GlobalSnackbar";
 import { DataTable } from "../components/common/DataTable";
 import { FormField } from "../components/common/FormField";
@@ -109,7 +109,7 @@ const WorkTime: React.FC = () => {
       }
 
       const workTimeEntry: AttendanceRecord = {
-        attendanceId: 0, // This will be set by the API
+        attendanceId: 0,
         memberId: selectedEmployee.id,
         member: selectedEmployee.name,
         date: formData.date,
@@ -117,6 +117,7 @@ const WorkTime: React.FC = () => {
         clockOutTime: clockOutDateTime,
         project: selectedProject.name,
         description: formData.description,
+        status: Status.PENDING,
       };
 
       const response = await ApiService.createAttendanceRecord(workTimeEntry);
@@ -214,6 +215,7 @@ const WorkTime: React.FC = () => {
         clockOutTime: clockOutDateTime,
         project: selectedProject.name,
         description: formData.description,
+        status: Status.PENDING,
       };
 
       const response = await ApiService.updateAttendanceRecord(
@@ -262,6 +264,22 @@ const WorkTime: React.FC = () => {
         `${formatDateTime(entry.clockInTime)} - ${formatDateTime(
           entry.clockOutTime
         )}`,
+    },
+    {
+      header: "Status",
+      accessor: (entry: AttendanceRecord) => (
+        <Chip
+          label={entry.status}
+          color={
+            entry.status === Status.APPROVED
+              ? "success"
+              : entry.status === Status.REJECTED
+              ? "error"
+              : "warning"
+          }
+          size="small"
+        />
+      ),
     },
     {
       header: "Description",

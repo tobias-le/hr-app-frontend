@@ -3,7 +3,7 @@ import { Typography, Button, TextField } from "@mui/material";
 import EmployeeTable from "../components/EmployeeTable";
 import { format, startOfWeek, addDays } from "date-fns";
 import ApiService from "../services/api.service";
-import { TeamAttendanceDetail } from "../types/attendance";
+import { AttendanceRecord } from "../types/attendance";
 import AttendanceDetailsModal from "../components/AttendanceDetailsModal";
 import ProjectAttendanceSummary from "../components/ProjectAttendanceSummary";
 import { PageLayout } from "../components/common/PageLayout";
@@ -14,7 +14,7 @@ const Dashboard: React.FC = () => {
   const sundayDate = format(addDays(monday, 6), "EEEE, d MMMM");
   const weekDates = `${mondayDate} - ${sundayDate}`;
 
-  const [details, setDetails] = useState<TeamAttendanceDetail[]>([]);
+  const [details, setDetails] = useState<AttendanceRecord[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [detailsLoading, setDetailsLoading] = useState(false);
   const [selectedProjectId, setSelectedProjectId] = useState<number>(1);

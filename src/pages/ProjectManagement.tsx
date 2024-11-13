@@ -1,21 +1,11 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import {
-  Typography,
   Button,
   TextField,
   Grid,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  IconButton,
   Autocomplete,
   CircularProgress,
 } from "@mui/material";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
 import ApiService from "../services/api.service";
 import { Project } from "../types/attendance";
 import { Employee, EmployeeNameWithId } from "../types/employee";
@@ -29,6 +19,7 @@ import { LoadingSpinner } from "../components/common/LoadingSpinner";
 import { handleApiError } from "../utils/errorUtils";
 import { useForm } from "../hooks/useForm";
 import { useProjectSelection } from "../hooks/useProjectSelection";
+import { useNavigate } from "react-router-dom";
 
 interface ProjectFormData {
   name: string;
@@ -45,13 +36,7 @@ const ProjectManagement: React.FC = () => {
     });
 
   const [projects, setProjects] = useState<Project[]>([]);
-  const [openDialog, setOpenDialog] = useState(false);
-  const [editingProject, setEditingProject] = useState<Project | null>(null);
   const { showMessage } = useSnackbarStore();
-  const [detailsOpen, setDetailsOpen] = useState(false);
-  const [selectedProjectDetails, setSelectedProjectDetails] =
-    useState<Project | null>(null);
-  const [detailsLoading, setDetailsLoading] = useState(false);
   const [managerOptions, setManagerOptions] = useState<EmployeeNameWithId[]>(
     []
   );
@@ -60,6 +45,8 @@ const ProjectManagement: React.FC = () => {
   const [memberLoading, setMemberLoading] = useState(false);
   const { handleProjectSelect } = useProjectSelection();
   const [projectsLoading, setProjectsLoading] = useState(true);
+  const navigate = useNavigate();
+  const [openDialog, setOpenDialog] = useState(false);
 
   const fetchProjects = useCallback(async () => {
     setProjectsLoading(true);
@@ -78,8 +65,8 @@ const ProjectManagement: React.FC = () => {
   }, [fetchProjects]);
 
   const handleOpenDialog = async (project?: Project) => {
+    setOpenDialog(true);
     if (project) {
-      setEditingProject(project);
       const projectDetails = await handleProjectSelect(project);
 
       if (projectDetails) {
@@ -103,17 +90,14 @@ const ProjectManagement: React.FC = () => {
         setMemberOptions(memberData);
       }
     } else {
-      setEditingProject(null);
       setFormData({ name: "", managerId: 0, members: [] });
       setManagerOptions([]);
       setMemberOptions([]);
     }
-    setOpenDialog(true);
   };
 
   const handleCloseDialog = () => {
     setOpenDialog(false);
-    setEditingProject(null);
     setFormData({ name: "", managerId: 0, members: [] });
   };
 
@@ -128,59 +112,22 @@ const ProjectManagement: React.FC = () => {
         return;
       }
 
-      if (editingProject) {
-        await ApiService.updateProject(editingProject.projectId, {
-          ...editingProject,
-          name: formData.name,
-          managerId: formData.managerId,
-          managerName: selectedManager.name,
-          members: formData.members.map((member) => ({
-            id: member.id,
-            name: member.name,
-          })),
-        });
-        showMessage("Project updated successfully");
-      } else {
-        await ApiService.createProject({
-          ...formData,
-          managerName: selectedManager.name,
-        });
-        showMessage("Project created successfully");
-      }
+      await ApiService.createProject({
+        ...formData,
+        managerName: selectedManager.name,
+      });
+      showMessage("Project created successfully");
       fetchProjects();
       handleCloseDialog();
     } catch (error) {
-      showMessage(
-        editingProject ? "Failed to update project" : "Failed to create project"
-      );
+      showMessage("Failed to create project");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleDelete = async (projectId: number) => {
-    if (window.confirm("Are you sure you want to delete this project?")) {
-      try {
-        await ApiService.deleteProject(projectId);
-        showMessage("Project deleted successfully");
-        fetchProjects();
-      } catch (error) {
-        showMessage("Failed to delete project");
-      }
-    }
-  };
-
-  const handleRowClick = async (projectId: number) => {
-    setDetailsOpen(true);
-    setDetailsLoading(true);
-    try {
-      const details = await ApiService.getProjectDetails(projectId);
-      setSelectedProjectDetails(details);
-    } catch (error) {
-      showMessage("Failed to fetch project details");
-    } finally {
-      setDetailsLoading(false);
-    }
+  const handleRowClick = (projectId: number) => {
+    navigate(`/projects/${projectId}`);
   };
 
   const fetchManagerOptions = useCallback(
@@ -238,29 +185,6 @@ const ProjectManagement: React.FC = () => {
   const columns = [
     { header: "Project Name", accessor: "name" as keyof Project },
     { header: "Manager", accessor: "managerName" as keyof Project },
-    {
-      header: "Actions",
-      accessor: (project: Project) => (
-        <>
-          <IconButton
-            onClick={(e) => {
-              e.stopPropagation();
-              handleOpenDialog(project);
-            }}
-          >
-            <EditIcon />
-          </IconButton>
-          <IconButton
-            onClick={(e) => {
-              e.stopPropagation();
-              handleDelete(project.projectId);
-            }}
-          >
-            <DeleteIcon />
-          </IconButton>
-        </>
-      ),
-    },
   ];
 
   return (
@@ -290,7 +214,7 @@ const ProjectManagement: React.FC = () => {
       <BaseModal
         open={openDialog}
         onClose={handleCloseDialog}
-        title={editingProject ? "Edit Project" : "Create Project"}
+        title="Create Project"
         maxWidth="md"
         actions={
           <>
@@ -301,11 +225,7 @@ const ProjectManagement: React.FC = () => {
               color="primary"
               disabled={isSubmitting}
             >
-              {isSubmitting
-                ? "Processing..."
-                : editingProject
-                ? "Update"
-                : "Create"}
+              {isSubmitting ? "Processing..." : "Create"}
             </Button>
           </>
         }
@@ -403,71 +323,6 @@ const ProjectManagement: React.FC = () => {
             />
           </Grid>
         </Grid>
-      </BaseModal>
-
-      <BaseModal
-        open={detailsOpen}
-        onClose={() => setDetailsOpen(false)}
-        title="Project Details"
-        maxWidth="md"
-        actions={<Button onClick={() => setDetailsOpen(false)}>Close</Button>}
-      >
-        {detailsLoading ? (
-          <LoadingSpinner testId="details-loading" />
-        ) : (
-          selectedProjectDetails && (
-            <div className="space-y-4 py-4">
-              <Typography variant="h6">
-                {selectedProjectDetails.name}
-              </Typography>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Typography variant="subtitle2" color="textSecondary">
-                    Project Manager
-                  </Typography>
-                  <Typography>{selectedProjectDetails.managerName}</Typography>
-                </div>
-              </div>
-              <div>
-                <Typography
-                  variant="subtitle2"
-                  color="textSecondary"
-                  className="mb-2"
-                >
-                  Team Members
-                </Typography>
-                {selectedProjectDetails.members ? (
-                  <TableContainer>
-                    <Table size="small">
-                      <TableHead>
-                        <TableRow>
-                          <TableCell>Name</TableCell>
-                          <TableCell>Job Title</TableCell>
-                          <TableCell>Email</TableCell>
-                          <TableCell>Phone</TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {selectedProjectDetails.members.map((member) => (
-                          <TableRow key={member.id}>
-                            <TableCell>{member.name}</TableCell>
-                            <TableCell>{member.jobTitle}</TableCell>
-                            <TableCell>{member.email}</TableCell>
-                            <TableCell>{member.phoneNumber}</TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                ) : (
-                  <Typography color="textSecondary">
-                    No team members assigned yet
-                  </Typography>
-                )}
-              </div>
-            </div>
-          )
-        )}
       </BaseModal>
     </PageLayout>
   );

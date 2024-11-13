@@ -8,6 +8,7 @@ import GlobalSnackbar from "./components/GlobalSnackbar";
 import ProjectManagement from "./pages/ProjectManagement";
 import { ThemeProvider } from "@mui/material/styles";
 import { theme } from "./styles/theme";
+import ProjectDetails from "./pages/ProjectDetails";
 
 const App: React.FC = () => {
   return (
@@ -19,6 +20,7 @@ const App: React.FC = () => {
           <Route path="/time-off" element={<TimeOff />} />
           <Route path="/employee-details" element={<EmployeeDetailsForm />} />
           <Route path="/project-management" element={<ProjectManagement />} />
+          <Route path="/projects/:projectId" element={<ProjectDetails />} />
         </Routes>
         <GlobalSnackbar />
       </Router>

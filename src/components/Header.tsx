@@ -125,12 +125,13 @@ const Header: React.FC = () => {
           className="header-icon"
           onClick={handleClick}
           data-testid="profile-button"
+          sx={{ padding: 1.5 }}
         >
           <Avatar
             alt={selectedEmployee?.name || "User"}
             sx={{
-              width: 32,
-              height: 32,
+              width: 40,
+              height: 40,
               bgcolor: stringToColor(selectedEmployee?.name || ""),
             }}
             data-testid="profile-avatar"
@@ -153,8 +154,13 @@ const Header: React.FC = () => {
           MenuListProps={{
             "aria-labelledby": "profile-button",
           }}
+          PaperProps={{
+            sx: {
+              minWidth: "200px",
+            },
+          }}
         >
-          <MenuItem data-testid="profile-menu-item">
+          <MenuItem data-testid="profile-menu-item" sx={{ py: 1 }}>
             <Link
               to="/employee-details"
               style={{ textDecoration: "none", color: "inherit" }}
