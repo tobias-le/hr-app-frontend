@@ -10,17 +10,20 @@ import {
   CircularProgress,
   Alert,
   Typography,
+  Chip,
 } from "@mui/material";
 import { Employee } from "../types/employee";
 import ApiService from "../services/api.service";
 import EmployeeDetailsModal from "./EmployeeDetailsModal";
 import EmployeeRow from "./EmployeeRow";
+import { useProjectStore } from "../store/projectStore";
 
 interface EmployeeTableProps {
-  teamId: number;
+  projectId: number;
 }
 
-const EmployeeTable: React.FC<EmployeeTableProps> = ({ teamId }) => {
+const EmployeeTable: React.FC<EmployeeTableProps> = ({ projectId }) => {
+  const { selectedProject } = useProjectStore();
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -30,14 +33,18 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({ teamId }) => {
 
   const fetchEmployees = useCallback(async () => {
     try {
-      const data = await ApiService.getEmployees(teamId);
+      if (!projectId) {
+        setError("Project ID is required");
+        return;
+      }
+      const data = await ApiService.getEmployees(projectId);
       setEmployees(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setLoading(false);
     }
-  }, [teamId]);
+  }, [projectId]);
 
   useEffect(() => {
     setLoading(true);
@@ -97,6 +104,23 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({ teamId }) => {
         data-testid="employee-table"
       >
         <TableHead>
+          <TableRow className="bg-gray-50">
+            <TableCell colSpan={5}>
+              <div className="flex items-center gap-2">
+                <Typography variant="subtitle1">Project Manager:</Typography>
+                <Chip
+                  label={selectedProject?.managerName || "Not assigned"}
+                  color="primary"
+                  size="small"
+                  sx={{
+                    backgroundColor: "#1e293b",
+                    color: "#f5c816",
+                  }}
+                  data-testid="project-manager-chip"
+                />
+              </div>
+            </TableCell>
+          </TableRow>
           <TableRow className="bg-gray-50">
             <TableCell data-testid="header-employee">Employee</TableCell>
             <TableCell data-testid="header-job-title">Job Title</TableCell>

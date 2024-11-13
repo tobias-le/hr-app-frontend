@@ -2,7 +2,7 @@ import API_CONFIG from "../config/api.config";
 import {
   SummaryItemProps,
   AttendanceDetail,
-  TeamSummary,
+  AttendanceSummaryType,
   Team,
   TeamAttendanceDetail,
 } from "../types/attendance";
@@ -32,9 +32,9 @@ class ApiService {
     }
   }
 
-  public static async getEmployees(teamId: number): Promise<Employee[]> {
+  public static async getEmployees(projectId: number): Promise<Employee[]> {
     const response = await this.fetchWithConfig(
-      `${API_CONFIG.ENDPOINTS.EMPLOYEES}?teamId=${teamId}`
+      `${API_CONFIG.ENDPOINTS.EMPLOYEES}?projectId=${projectId}`
     );
     return response.content as Employee[];
   }
@@ -51,24 +51,8 @@ class ApiService {
     ) as Promise<AttendanceDetail[]>;
   }
 
-  public static async getTeamAttendanceSummary(
-    teamId: number
-  ): Promise<TeamSummary> {
-    return this.fetchWithConfig(
-      `/api/attendance/team/${teamId}/summary`
-    ) as Promise<TeamSummary>;
-  }
-
   public static async getTeams(): Promise<Team[]> {
     return this.fetchWithConfig("/api/teams") as Promise<Team[]>;
-  }
-
-  public static async getTeamAttendanceDetails(
-    teamId: number
-  ): Promise<TeamAttendanceDetail[]> {
-    return this.fetchWithConfig(`/api/attendance/team/${teamId}`) as Promise<
-      TeamAttendanceDetail[]
-    >;
   }
 
   public static async getEmployeeById(id: number): Promise<any> {
@@ -149,6 +133,28 @@ class ApiService {
         "Content-Type": "application/json",
       },
     });
+  }
+
+  public static async getProjects(): Promise<Project[]> {
+    return this.fetchWithConfig(`${API_CONFIG.ENDPOINTS.PROJECTS}`) as Promise<
+      Project[]
+    >;
+  }
+
+  public static async getProjectAttendanceDetails(
+    projectId: number
+  ): Promise<TeamAttendanceDetail[]> {
+    return this.fetchWithConfig(
+      `${API_CONFIG.ENDPOINTS.ATTENDANCE}/project/${projectId}`
+    ) as Promise<TeamAttendanceDetail[]>;
+  }
+
+  public static async getAttendanceSummaryType(
+    projectId: number
+  ): Promise<AttendanceSummaryType> {
+    return this.fetchWithConfig(
+      `${API_CONFIG.ENDPOINTS.ATTENDANCE}/project/${projectId}/summary`
+    ) as Promise<AttendanceSummaryType>;
   }
 }
 

@@ -5,7 +5,7 @@ export interface SummaryItemProps {
   changeText: string;
 }
 
-export interface TeamSummary {
+export interface AttendanceSummaryType {
   teamName: string;
   totalHours: number;
   expectedHours: number;
@@ -54,13 +54,8 @@ export interface TeamAttendanceDetail {
 }
 
 export interface Project {
-  id: number;
-  name: string;
-  description?: string;
-  status?: string;
-}
-
-export interface Project {
   projectId: number;
   name: string;
+  managerName: string;
+  managerId: number;
 }

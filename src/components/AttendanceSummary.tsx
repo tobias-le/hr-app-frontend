@@ -9,7 +9,7 @@ import {
   InputLabel,
 } from "@mui/material";
 import ApiService from "../services/api.service"; // Import ApiService
-import { TeamSummary, Team } from "../types/attendance"; // Import from the new location
+import { AttendanceSummaryType, Team } from "../types/attendance"; // Import from the new location
 import CircularProgress from "@mui/material/CircularProgress";
 
 interface AttendanceSummaryProps {
@@ -19,9 +19,11 @@ interface AttendanceSummaryProps {
 const AttendanceSummary: React.FC<AttendanceSummaryProps> = ({
   onTeamChange,
 }) => {
-  const [teamId, setTeamId] = useState<number>(1);
+  const [projectId, setProjectId] = useState<number>(1);
   const [teams, setTeams] = useState<Team[]>([]);
-  const [summaryData, setSummaryData] = useState<TeamSummary | null>(null);
+  const [summaryData, setSummaryData] = useState<AttendanceSummaryType | null>(
+    null
+  );
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
 
@@ -30,16 +32,16 @@ const AttendanceSummary: React.FC<AttendanceSummaryProps> = ({
       .then((data) => {
         setTeams(data);
         if (data.length > 0) {
-          setTeamId(data[0].teamId);
+          setProjectId(data[0].teamId);
         }
       })
       .catch((error) => console.error("Error fetching teams:", error));
   }, []);
 
   useEffect(() => {
-    if (teamId) {
+    if (projectId) {
       setIsDisabled(true);
-      onTeamChange(teamId);
+      onTeamChange(projectId);
       setSummaryLoading(true);
       setSummaryData(null);
 
@@ -49,10 +51,10 @@ const AttendanceSummary: React.FC<AttendanceSummaryProps> = ({
 
       const fetchData = async () => {
         try {
-          const data = await ApiService.getTeamAttendanceSummary(teamId);
+          const data = await ApiService.getAttendanceSummaryType(projectId);
           setSummaryData(data);
         } catch (error) {
-          console.error("Error fetching summary data:", error);
+          console.error("Error fetching project summary data:", error);
         } finally {
           setSummaryLoading(false);
           setIsDisabled(false);
@@ -64,7 +66,7 @@ const AttendanceSummary: React.FC<AttendanceSummaryProps> = ({
 
       return () => clearTimeout(timeoutId);
     }
-  }, [teamId, onTeamChange]);
+  }, [projectId, onTeamChange]);
 
   //   const handleTeamChange = (event: any) => {
   //     setTeamId(event.target.value);
@@ -75,8 +77,8 @@ const AttendanceSummary: React.FC<AttendanceSummaryProps> = ({
       <FormControl fullWidth data-testid="team-select-container">
         <InputLabel data-testid="team-select-label">Select Team</InputLabel>
         <Select
-          value={teamId}
-          onChange={(e) => setTeamId(e.target.value as number)}
+          value={projectId}
+          onChange={(e) => setProjectId(e.target.value as number)}
           disabled={isDisabled}
           data-testid="team-select"
         >

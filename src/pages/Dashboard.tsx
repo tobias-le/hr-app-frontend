@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { Box, Paper, Typography, Button, TextField } from "@mui/material";
-import AttendanceSummary from "../components/AttendanceSummary";
 import EmployeeTable from "../components/EmployeeTable";
 import { format, startOfWeek, addDays } from "date-fns";
 import ApiService from "../services/api.service";
 import { TeamAttendanceDetail } from "../types/attendance";
 import AttendanceDetailsModal from "../components/AttendanceDetailsModal";
 import Header from "../components/Header"; // Import the new Header component
+import ProjectAttendanceSummary from "../components/ProjectAttendanceSummary";
 
 const Dashboard: React.FC = () => {
   const monday = startOfWeek(new Date(), { weekStartsOn: 1 });
@@ -17,12 +17,12 @@ const Dashboard: React.FC = () => {
   const [details, setDetails] = useState<TeamAttendanceDetail[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [detailsLoading, setDetailsLoading] = useState(false);
-  const [selectedTeamId, setSelectedTeamId] = useState<number>(1);
+  const [selectedProjectId, setSelectedProjectId] = useState<number>(1);
 
   const handleAttendanceReportClick = () => {
     setModalOpen(true);
     setDetailsLoading(true);
-    ApiService.getTeamAttendanceDetails(selectedTeamId)
+    ApiService.getProjectAttendanceDetails(selectedProjectId)
       .then((data) => {
         setDetails(data);
       })
@@ -32,8 +32,8 @@ const Dashboard: React.FC = () => {
       .finally(() => setDetailsLoading(false));
   };
 
-  const handleTeamChange = (teamId: number) => {
-    setSelectedTeamId(teamId);
+  const handleProjectChange = (projectId: number) => {
+    setSelectedProjectId(projectId);
   };
 
   return (
@@ -73,7 +73,10 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
 
-          <AttendanceSummary onTeamChange={handleTeamChange} />
+          <ProjectAttendanceSummary
+            onProjectChange={handleProjectChange}
+            data-testid="project-attendance-summary"
+          />
 
           <div className="mt-6 flex space-x-4">
             <TextField
@@ -91,7 +94,7 @@ const Dashboard: React.FC = () => {
             </Button>
           </div>
 
-          <EmployeeTable teamId={selectedTeamId} />
+          <EmployeeTable projectId={selectedProjectId} />
 
           <AttendanceDetailsModal
             open={modalOpen}

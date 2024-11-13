@@ -6,6 +6,7 @@ export interface Employee {
   email?: string;
   phoneNumber?: string;
   currentProjects?: string[];
+  managedProjects?: number[];
 }
 
 export interface EmployeeNameWithId {
