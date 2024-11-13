@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import ApiService from "../services/api.service";
 import { AttendanceDetail } from "../types/attendance";
+import { DataTable } from "./common/DataTable";
 
 const AttendanceDetails: React.FC = () => {
   const [details, setDetails] = useState<AttendanceDetail[]>([]);
@@ -22,50 +23,31 @@ const AttendanceDetails: React.FC = () => {
       );
   }, []);
 
+  const columns = [
+    {
+      header: "Employee Name",
+      accessor: "employeeName" as keyof AttendanceDetail,
+      testId: "header-employee-name",
+    },
+    {
+      header: "Date",
+      accessor: "date" as keyof AttendanceDetail,
+      testId: "header-date",
+    },
+    {
+      header: "Present",
+      accessor: (detail: AttendanceDetail) => (detail.present ? "Yes" : "No"),
+      testId: "header-present",
+    },
+  ];
+
   return (
-    <TableContainer component={Paper} data-testid="attendance-table-container">
-      <Table data-testid="attendance-table">
-        <TableHead>
-          <TableRow>
-            <TableCell data-testid="header-employee-name">
-              Employee Name
-            </TableCell>
-            <TableCell data-testid="header-date">Date</TableCell>
-            <TableCell data-testid="header-present">Present</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {details.length === 0 ? (
-            <TableRow>
-              <TableCell
-                colSpan={3}
-                align="center"
-                data-testid="no-records-message"
-              >
-                No records found this week
-              </TableCell>
-            </TableRow>
-          ) : (
-            details.map((detail) => (
-              <TableRow
-                key={detail.id}
-                data-testid={`attendance-row-${detail.id}`}
-              >
-                <TableCell data-testid={`employee-name-${detail.id}`}>
-                  {detail.employeeName}
-                </TableCell>
-                <TableCell data-testid={`date-${detail.id}`}>
-                  {detail.date}
-                </TableCell>
-                <TableCell data-testid={`present-${detail.id}`}>
-                  {detail.present ? "Yes" : "No"}
-                </TableCell>
-              </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
-    </TableContainer>
+    <DataTable
+      data={details}
+      columns={columns}
+      emptyMessage="No records found this week"
+      testId="attendance-table"
+    />
   );
 };
 

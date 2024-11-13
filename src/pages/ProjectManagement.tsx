@@ -1,7 +1,5 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import {
-  Box,
-  Paper,
   Typography,
   Button,
   TextField,
@@ -13,21 +11,20 @@ import {
   TableHead,
   TableRow,
   IconButton,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
   Autocomplete,
   CircularProgress,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import Header from "../components/Header";
 import ApiService from "../services/api.service";
 import { Project } from "../types/attendance";
 import { Employee, EmployeeNameWithId } from "../types/employee";
 import { useSnackbarStore } from "../components/GlobalSnackbar";
 import { debounce } from "lodash";
+import { PageLayout } from "../components/common/PageLayout";
+import { DataTable } from "../components/common/DataTable";
+import { BaseModal } from "../components/common/BaseModal";
+import { FormField } from "../components/common/FormField";
 
 interface ProjectFormData {
   name: string;
@@ -37,7 +34,6 @@ interface ProjectFormData {
 
 const ProjectManagement: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
-  const [employees, setEmployees] = useState<Employee[]>([]);
   const [openDialog, setOpenDialog] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [formData, setFormData] = useState<ProjectFormData>({
@@ -50,9 +46,6 @@ const ProjectManagement: React.FC = () => {
   const [selectedProjectDetails, setSelectedProjectDetails] =
     useState<Project | null>(null);
   const [detailsLoading, setDetailsLoading] = useState(false);
-  const [employeeOptions, setEmployeeOptions] = useState<EmployeeNameWithId[]>(
-    []
-  );
   const [managerOptions, setManagerOptions] = useState<EmployeeNameWithId[]>(
     []
   );
@@ -61,37 +54,18 @@ const ProjectManagement: React.FC = () => {
   const [memberLoading, setMemberLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    fetchProjects();
-    fetchEmployees();
-    const fetchEmployeeOptions = async () => {
-      try {
-        const response = await ApiService.getEmployeeNamesWithIds();
-        setEmployeeOptions(response);
-      } catch (error) {
-        showMessage("Failed to fetch employees");
-      }
-    };
-    fetchEmployeeOptions();
-  }, [showMessage]);
-
-  const fetchProjects = async () => {
+  const fetchProjects = useCallback(async () => {
     try {
       const response = await ApiService.getAllProjects();
       setProjects(response);
     } catch (error) {
       showMessage("Failed to fetch projects");
     }
-  };
+  }, [showMessage]);
 
-  const fetchEmployees = async () => {
-    try {
-      const response = await ApiService.getAllEmployees();
-      setEmployees(response);
-    } catch (error) {
-      showMessage("Failed to fetch employees");
-    }
-  };
+  useEffect(() => {
+    fetchProjects();
+  }, [fetchProjects]);
 
   const handleOpenDialog = async (project?: Project) => {
     if (project) {
@@ -206,35 +180,40 @@ const ProjectManagement: React.FC = () => {
     }
   };
 
-  const fetchManagerOptions = async (query: string) => {
-    setManagerLoading(true);
-    try {
-      // Don't exclude any IDs for manager options
-      const response = await ApiService.autocompleteEmployees(query, []);
-      setManagerOptions(response);
-    } catch (error) {
-      showMessage("Failed to fetch manager options");
-    } finally {
-      setManagerLoading(false);
-    }
-  };
+  const fetchManagerOptions = useCallback(
+    async (query: string) => {
+      setManagerLoading(true);
+      try {
+        const response = await ApiService.autocompleteEmployees(query, []);
+        setManagerOptions(response);
+      } catch (error) {
+        showMessage("Failed to fetch manager options");
+      } finally {
+        setManagerLoading(false);
+      }
+    },
+    [showMessage]
+  );
 
-  const fetchMemberOptions = async (query: string) => {
-    setMemberLoading(true);
-    try {
-      const excludeIds = [...formData.members.map((m) => m.id)];
-      if (formData.managerId) excludeIds.push(formData.managerId);
-      const response = await ApiService.autocompleteEmployees(
-        query,
-        excludeIds
-      );
-      setMemberOptions(response);
-    } catch (error) {
-      showMessage("Failed to fetch member options");
-    } finally {
-      setMemberLoading(false);
-    }
-  };
+  const fetchMemberOptions = useCallback(
+    async (query: string) => {
+      setMemberLoading(true);
+      try {
+        const excludeIds = [...formData.members.map((m) => m.id)];
+        if (formData.managerId) excludeIds.push(formData.managerId);
+        const response = await ApiService.autocompleteEmployees(
+          query,
+          excludeIds
+        );
+        setMemberOptions(response);
+      } catch (error) {
+        showMessage("Failed to fetch member options");
+      } finally {
+        setMemberLoading(false);
+      }
+    },
+    [formData.members, formData.managerId, showMessage]
+  );
 
   const debouncedFetchManagerOptions = useMemo(
     () => debounce(fetchManagerOptions, 300),
@@ -253,261 +232,239 @@ const ProjectManagement: React.FC = () => {
     };
   }, [debouncedFetchManagerOptions, debouncedFetchMemberOptions]);
 
+  const columns = [
+    { header: "Project Name", accessor: "name" as keyof Project },
+    { header: "Manager", accessor: "managerName" as keyof Project },
+    {
+      header: "Actions",
+      accessor: (project: Project) => (
+        <>
+          <IconButton
+            onClick={(e) => {
+              e.stopPropagation();
+              handleOpenDialog(project);
+            }}
+          >
+            <EditIcon />
+          </IconButton>
+          <IconButton
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDelete(project.projectId);
+            }}
+          >
+            <DeleteIcon />
+          </IconButton>
+        </>
+      ),
+    },
+  ];
+
   return (
-    <div className="flex flex-col h-screen bg-gray-100">
-      <Header />
-      <Box className="flex-grow p-6">
-        <Paper className="p-6">
-          <div className="flex justify-between items-center mb-6">
-            <Typography variant="h5" className="font-bold">
-              Project Management
-            </Typography>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => handleOpenDialog()}
-              data-testid="add-project-button"
-            >
-              Add Project
-            </Button>
-          </div>
+    <PageLayout title="Project Management">
+      <div className="flex justify-between items-center mb-6">
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => handleOpenDialog()}
+          data-testid="add-project-button"
+        >
+          Add Project
+        </Button>
+      </div>
 
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Project Name</TableCell>
-                  <TableCell>Manager</TableCell>
-                  <TableCell>Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {projects.map((project) => (
-                  <TableRow
-                    key={project.projectId}
-                    onClick={() => handleRowClick(project.projectId)}
-                    className="cursor-pointer hover:bg-gray-50"
-                  >
-                    <TableCell>{project.name}</TableCell>
-                    <TableCell>{project.managerName}</TableCell>
-                    <TableCell>
-                      <IconButton
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleOpenDialog(project);
-                        }}
-                      >
-                        <EditIcon />
-                      </IconButton>
-                      <IconButton
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDelete(project.projectId);
-                        }}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Paper>
-      </Box>
+      <DataTable
+        data={projects}
+        columns={columns}
+        onRowClick={(project: Project) => handleRowClick(project.projectId)}
+        testId="projects-table"
+      />
 
-      <Dialog
+      <BaseModal
         open={openDialog}
         onClose={handleCloseDialog}
+        title={editingProject ? "Edit Project" : "Create Project"}
         maxWidth="md"
-        fullWidth
+        actions={
+          <>
+            <Button onClick={handleCloseDialog}>Cancel</Button>
+            <Button
+              onClick={handleSubmit}
+              variant="contained"
+              color="primary"
+              disabled={isSubmitting}
+            >
+              {isSubmitting
+                ? "Processing..."
+                : editingProject
+                ? "Update"
+                : "Create"}
+            </Button>
+          </>
+        }
       >
-        <DialogTitle>
-          {editingProject ? "Edit Project" : "Create New Project"}
-        </DialogTitle>
-        <DialogContent>
-          <Grid container spacing={3} className="mt-2">
-            <Grid item xs={12}>
-              <TextField
-                label="Project Name"
-                fullWidth
-                value={formData.name}
-                onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <Autocomplete
-                options={managerOptions}
-                getOptionLabel={(option) => option.name}
-                value={
-                  managerOptions.find((emp) => emp.id === formData.managerId) ||
-                  null
-                }
-                onChange={(_, newValue) =>
-                  setFormData({
-                    ...formData,
-                    managerId: newValue?.id || 0,
-                  })
-                }
-                onInputChange={(_, newInputValue) => {
-                  debouncedFetchManagerOptions(newInputValue);
-                }}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Project Manager"
-                    required
-                    InputProps={{
-                      ...params.InputProps,
-                      endAdornment: (
-                        <>
-                          {managerLoading ? (
-                            <CircularProgress color="inherit" size={20} />
-                          ) : null}
-                          {params.InputProps.endAdornment}
-                        </>
-                      ),
-                    }}
-                  />
-                )}
-                loading={managerLoading}
-                isOptionEqualToValue={(option, value) => option.id === value.id}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <Autocomplete
-                multiple
-                options={memberOptions}
-                getOptionLabel={(option) => option.name}
-                value={formData.members}
-                onChange={(_, newValue) =>
-                  setFormData({
-                    ...formData,
-                    members: newValue.map((v) => ({
-                      id: v.id,
-                      name: v.name,
-                    })),
-                  })
-                }
-                onInputChange={(_, newInputValue) => {
-                  debouncedFetchMemberOptions(newInputValue);
-                }}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Project Members"
-                    InputProps={{
-                      ...params.InputProps,
-                      endAdornment: (
-                        <>
-                          {memberLoading ? (
-                            <CircularProgress color="inherit" size={20} />
-                          ) : null}
-                          {params.InputProps.endAdornment}
-                        </>
-                      ),
-                    }}
-                  />
-                )}
-                loading={memberLoading}
-                isOptionEqualToValue={(option, value) => option.id === value.id}
-              />
-            </Grid>
+        <Grid container spacing={3} className="mt-2">
+          <Grid item xs={12}>
+            <FormField
+              name="name"
+              label="Project Name"
+              value={formData.name}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
+              required
+              validateNotEmpty
+              testId="project-name-input"
+            />
           </Grid>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDialog}>Cancel</Button>
-          <Button
-            onClick={handleSubmit}
-            variant="contained"
-            color="primary"
-            disabled={isSubmitting}
-          >
-            {isSubmitting
-              ? "Processing..."
-              : editingProject
-              ? "Update"
-              : "Create"}
-          </Button>
-        </DialogActions>
-      </Dialog>
+          <Grid item xs={12}>
+            <Autocomplete
+              options={managerOptions}
+              getOptionLabel={(option) => option.name}
+              value={
+                managerOptions.find((emp) => emp.id === formData.managerId) ||
+                null
+              }
+              onChange={(_, newValue) =>
+                setFormData({
+                  ...formData,
+                  managerId: newValue?.id || 0,
+                })
+              }
+              onInputChange={(_, newInputValue) => {
+                debouncedFetchManagerOptions(newInputValue);
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Project Manager"
+                  required
+                  InputProps={{
+                    ...params.InputProps,
+                    endAdornment: (
+                      <>
+                        {managerLoading ? (
+                          <CircularProgress color="inherit" size={20} />
+                        ) : null}
+                        {params.InputProps.endAdornment}
+                      </>
+                    ),
+                  }}
+                />
+              )}
+              loading={managerLoading}
+              isOptionEqualToValue={(option, value) => option.id === value.id}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <Autocomplete
+              multiple
+              options={memberOptions}
+              getOptionLabel={(option) => option.name}
+              value={formData.members}
+              onChange={(_, newValue) =>
+                setFormData({
+                  ...formData,
+                  members: newValue.map((v) => ({
+                    id: v.id,
+                    name: v.name,
+                  })),
+                })
+              }
+              onInputChange={(_, newInputValue) => {
+                debouncedFetchMemberOptions(newInputValue);
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Project Members"
+                  InputProps={{
+                    ...params.InputProps,
+                    endAdornment: (
+                      <>
+                        {memberLoading ? (
+                          <CircularProgress color="inherit" size={20} />
+                        ) : null}
+                        {params.InputProps.endAdornment}
+                      </>
+                    ),
+                  }}
+                />
+              )}
+              loading={memberLoading}
+              isOptionEqualToValue={(option, value) => option.id === value.id}
+            />
+          </Grid>
+        </Grid>
+      </BaseModal>
 
-      <Dialog
+      <BaseModal
         open={detailsOpen}
         onClose={() => setDetailsOpen(false)}
+        title="Project Details"
         maxWidth="md"
-        fullWidth
+        actions={<Button onClick={() => setDetailsOpen(false)}>Close</Button>}
       >
-        <DialogTitle>Project Details</DialogTitle>
-        <DialogContent>
-          {detailsLoading ? (
-            <div className="flex justify-center items-center h-64">
-              <CircularProgress />
-            </div>
-          ) : (
-            selectedProjectDetails && (
-              <div className="space-y-4 py-4">
-                <Typography variant="h6">
-                  {selectedProjectDetails.name}
-                </Typography>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Typography variant="subtitle2" color="textSecondary">
-                      Project Manager
-                    </Typography>
-                    <Typography>
-                      {selectedProjectDetails.managerName}
-                    </Typography>
-                  </div>
-                </div>
+        {detailsLoading ? (
+          <div className="flex justify-center items-center h-64">
+            <CircularProgress />
+          </div>
+        ) : (
+          selectedProjectDetails && (
+            <div className="space-y-4 py-4">
+              <Typography variant="h6">
+                {selectedProjectDetails.name}
+              </Typography>
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Typography
-                    variant="subtitle2"
-                    color="textSecondary"
-                    className="mb-2"
-                  >
-                    Team Members
+                  <Typography variant="subtitle2" color="textSecondary">
+                    Project Manager
                   </Typography>
-                  {selectedProjectDetails.members ? (
-                    <TableContainer>
-                      <Table size="small">
-                        <TableHead>
-                          <TableRow>
-                            <TableCell>Name</TableCell>
-                            <TableCell>Job Title</TableCell>
-                            <TableCell>Email</TableCell>
-                            <TableCell>Phone</TableCell>
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          {selectedProjectDetails.members.map((member) => (
-                            <TableRow key={member.id}>
-                              <TableCell>{member.name}</TableCell>
-                              <TableCell>{member.jobTitle}</TableCell>
-                              <TableCell>{member.email}</TableCell>
-                              <TableCell>{member.phoneNumber}</TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </TableContainer>
-                  ) : (
-                    <Typography color="textSecondary">
-                      No team members assigned yet
-                    </Typography>
-                  )}
+                  <Typography>{selectedProjectDetails.managerName}</Typography>
                 </div>
               </div>
-            )
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDetailsOpen(false)}>Close</Button>
-        </DialogActions>
-      </Dialog>
-    </div>
+              <div>
+                <Typography
+                  variant="subtitle2"
+                  color="textSecondary"
+                  className="mb-2"
+                >
+                  Team Members
+                </Typography>
+                {selectedProjectDetails.members ? (
+                  <TableContainer>
+                    <Table size="small">
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>Name</TableCell>
+                          <TableCell>Job Title</TableCell>
+                          <TableCell>Email</TableCell>
+                          <TableCell>Phone</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {selectedProjectDetails.members.map((member) => (
+                          <TableRow key={member.id}>
+                            <TableCell>{member.name}</TableCell>
+                            <TableCell>{member.jobTitle}</TableCell>
+                            <TableCell>{member.email}</TableCell>
+                            <TableCell>{member.phoneNumber}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                ) : (
+                  <Typography color="textSecondary">
+                    No team members assigned yet
+                  </Typography>
+                )}
+              </div>
+            </div>
+          )
+        )}
+      </BaseModal>
+    </PageLayout>
   );
 };
 
