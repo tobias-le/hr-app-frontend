@@ -11,6 +11,7 @@ export const theme = createTheme({
     background: {
       default: "#f3f4f6",
     },
+
   },
   typography: {
     fontFamily: [
