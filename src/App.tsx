@@ -5,22 +5,30 @@ import WorkTime from "./pages/AttendanceRecord";
 import TimeOff from "./pages/TimeOff";
 import EmployeeDetailsForm from "./pages/EmployeeDetailsForm";
 import GlobalSnackbar from "./components/GlobalSnackbar";
-import OrganisationStructure from "./pages/OrganisationStructure";
-import Learning from "./pages/Learning";
+import ProjectManagement from "./pages/ProjectManagement";
+import { ThemeProvider } from "@mui/material/styles";
+import { theme } from "./styles/theme";
+import ProjectDetails from "./pages/ProjectDetails";
+import TeamManagement from "./pages/TeamManagement";
+import TeamDetails from "./pages/TeamDetails";
 
 const App: React.FC = () => {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/work-time" element={<WorkTime />} />
-        <Route path="/time-off" element={<TimeOff />} />
-        <Route path="/employee-details" element={<EmployeeDetailsForm />} />
-          <Route path="/organisation" element={<OrganisationStructure />} />
-          <Route path="/learning" element={<Learning />} />
-      </Routes>
-      <GlobalSnackbar />
-    </Router>
+    <ThemeProvider theme={theme}>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/work-time" element={<WorkTime />} />
+          <Route path="/time-off" element={<TimeOff />} />
+          <Route path="/employee-details" element={<EmployeeDetailsForm />} />
+          <Route path="/project-management" element={<ProjectManagement />} />
+          <Route path="/projects/:projectId" element={<ProjectDetails />} />
+          <Route path="/team-management" element={<TeamManagement />} />
+          <Route path="/teams/:teamId" element={<TeamDetails />} />
+        </Routes>
+        <GlobalSnackbar />
+      </Router>
+    </ThemeProvider>
   );
 };
 

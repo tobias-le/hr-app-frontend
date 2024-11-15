@@ -5,7 +5,7 @@ export interface SummaryItemProps {
   changeText: string;
 }
 
-export interface TeamSummary {
+export interface AttendanceSummaryType {
   teamName: string;
   totalHours: number;
   expectedHours: number;
@@ -20,6 +20,12 @@ export interface AttendanceDetail {
   present: boolean;
 }
 
+export enum Status {
+  PENDING = "PENDING",
+  APPROVED = "APPROVED",
+  REJECTED = "REJECTED",
+}
+
 export interface AttendanceRecord {
   attendanceId: number;
   memberId: number;
@@ -29,6 +35,7 @@ export interface AttendanceRecord {
   clockOutTime: string;
   project: string;
   description: string;
+  status: Status;
 }
 
 export interface AttendanceDetailsModalProps {
@@ -37,30 +44,12 @@ export interface AttendanceDetailsModalProps {
   details: AttendanceDetail[];
 }
 
-export interface Team {
-  teamId: number;
-  name: string;
-  manager: string;
-  members: string[];
-}
-
-export interface TeamAttendanceDetail {
+export interface AttendanceRecord {
   attendanceId: number;
   member: string;
   date: string;
   clockInTime: string;
   clockOutTime: string;
   project: string;
-}
-
-export interface Project {
-  id: number;
-  name: string;
-  description?: string;
-  status?: string;
-}
-
-export interface Project {
-  projectId: number;
-  name: string;
+  status: Status;
 }
