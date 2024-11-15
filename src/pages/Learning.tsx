@@ -1,106 +1,98 @@
-import Header from "../components/Header";
-import {Box, Button, Paper, TextField, Typography} from "@mui/material";
+import {Box, Button, Divider, Paper, TextField, Typography} from "@mui/material";
 import React, {useEffect, useState} from "react";
-import {Course} from "../types/learning";
-import CourseEntry from "../components/CourseEntry";
+import {Learning} from "../types/learning";
 import {useEmployeeStore} from "../store/employeeStore";
+import {PageLayout} from "../components/common/PageLayout";
+import ApiService from "../services/api.service";
+import LearningEntry from "../components/LearningEntry";
 
-const Learning :React.FC = () => {
-    const employee = useEmployeeStore(state => state.selectedEmployee);
-
-    const [filter, setFilter] = useState<string>("");
-    const [courses, setCourses] = useState<Course[]>([]);
+const Learn :React.FC = () => {
+    const selectedEmployee = useEmployeeStore(state => state.selectedEmployee);
+    const [filter, setFilter] = useState<string | null>(null);
+    const [courses, setCourses] = useState<Learning[]>([]);
+    const [viewedCourses, setViewedCourses] = useState<Learning[]>([]);
 
     const updateFilter = (event : React.MouseEvent) => {
         if (event.currentTarget.id === filter) {
-            setFilter("");
+            setFilter(null);
         } else {
             setFilter(event.currentTarget.id);
         }
     }
 
     useEffect(() => {
-        const fetchCourses = () => {
-            //api call to be done here
-
-            const mockedCourses: Course[] = [
-                {
-                    id:1,
+        /*
+        if (employee) {
+            ApiService.getCoursesByEmployee(employee.id).then(
+                courses => setCourses(courses)
+            ).catch(e => console.log(e));
+        }
+        */
+        const mockedCourses: Learning[] = [
+            {
+                    learningId:1,
                     link:"https://seznam.cz",
-                    completionDate:new Date(),
+                    name:"Seznam",
+                    enrolledEmployees:[
+                        {
+                            id:1,
+                            employee:1,
+                            date: new Date(),
+                            learning:1,
+                        }
+                    ]
                 },
                 {
-                    id:2,
+                    learningId:2,
                     link:"https://google.com",
-                    completionDate:null,
+                    name:"Google",
+                    enrolledEmployees:[]
                 },
                 {
-                    id:3,
+                    learningId:3,
                     link:"https://youtube.com",
-                    completionDate:new Date(),
+                    name:"YouTube",
+                    enrolledEmployees:[]
                 },
             ]
 
             setCourses(mockedCourses);
-        }
-        fetchCourses();
-    }, [employee]);
+            setViewedCourses(courses);
+    }, [selectedEmployee]);
+
+    useEffect(() => {
+        setViewedCourses( courses.filter( course => {
+            if (filter) {
+                const enrolled = course.enrolledEmployees.find(employeeLearning => selectedEmployee? selectedEmployee.id === employeeLearning.employee : true);
+                return enrolled? filter === "complete" : filter==="waiting";
+            } else {
+                return true;
+            }
+        }))
+    }, [filter]);
 
 
     return (
-        <div
-            className="flex flex-col h-screen bg-gray-100"
-            data-testid="learning-container"
-        >
-            <Header/>
-            <Box className="flex-grow p-6">
-                <Paper className="p-6">
-                    <Typography
-                        variant="h5"
-                        className="font-bold mb-6"
-                        data-testid="learning-title"
-                    >
-                        Required Learning
-                    </Typography>
+        <PageLayout data-testid="learning-page" title="Required Learning">
+            <Box sx={{display: "flex", flexDirection: "row", justifyContent: "flex-end", alignItems:"center"}}>
+                <Typography variant="body2">filter:</Typography>
 
-                    <Paper>
-                        <>
-                        {/*filter buttons*/}
-                        <Box sx={{display: "flex", flexDirection: "row", justifyContent: "flex-end", alignItems:"center", marginBottom:"20px"}}>
-                            <Typography variant="body2">filter:</Typography>
+                <Button id="complete" onClick={updateFilter} variant={filter==="complete"? "contained" : "text"} data-testid="complted-filter-button">
+                    Completed
+                </Button>
 
-                            <Button id="complete" onClick={updateFilter} variant={filter==="complete"? "contained" : "text"}>
-                                Completed
-                            </Button>
+                <Button id="waiting" onClick={updateFilter} variant={filter==="waiting"? "contained" : "text"} data-testid="waiting-filter-button">
+                    Waiting
+                </Button>
 
-                            <Button id="waiting" onClick={updateFilter} variant={filter==="waiting"? "contained" : "text"}>
-                                Waiting
-                            </Button>
-
-                        </Box>
-                        {
-                            courses.filter(course => {
-                                    if (filter==="complete") {
-                                        return course.completionDate !==null;
-                                    }
-                                    if (filter==="waiting") {
-                                        return course.completionDate === null;
-                                    }
-                                    return true;
-                                }
-                            ).map(course =>
-                            {
-                                return <CourseEntry course={course}/>
-                            }
-                            )
-                        }
-                        </>
-                    </Paper>
-
-                </Paper>
             </Box>
-        </div>
+            <Paper>
+                {viewedCourses.map(
+                    course => <LearningEntry course={course}/>
+                )}
+            </Paper>
+        </PageLayout>
     );
 }
 
-export default Learning;
+export default Learn;

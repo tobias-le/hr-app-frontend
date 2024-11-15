@@ -11,6 +11,7 @@ import { theme } from "./styles/theme";
 import ProjectDetails from "./pages/ProjectDetails";
 import TeamManagement from "./pages/TeamManagement";
 import TeamDetails from "./pages/TeamDetails";
+import Learn from "./pages/Learning";
 
 const App: React.FC = () => {
   return (
@@ -25,6 +26,7 @@ const App: React.FC = () => {
           <Route path="/projects/:projectId" element={<ProjectDetails />} />
           <Route path="/team-management" element={<TeamManagement />} />
           <Route path="/teams/:teamId" element={<TeamDetails />} />
+            <Route path="/learning" element={<Learn />} />
         </Routes>
         <GlobalSnackbar />
       </Router>

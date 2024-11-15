@@ -8,6 +8,7 @@ import {
 import { Employee, EmployeeNameWithId } from "../types/employee";
 import { Project } from "../types/project";
 import { Team } from "../types/team";
+import {Learning} from "../types/learning";
 
 class ApiService {
   private static async fetchWithConfig(
@@ -252,6 +253,16 @@ class ApiService {
   public static async deleteTeam(teamId: number): Promise<boolean> {
     return this.fetchWithConfig(`${API_CONFIG.ENDPOINTS.TEAMS}/${teamId}`, {
       method: "DELETE",
+    });
+  }
+
+  public static async getCoursesByEmployee( employeeId: number): Promise<Learning[]> {
+    return this.fetchWithConfig(`${API_CONFIG.ENDPOINTS.LEARNINGS}/${employeeId}`);
+  }
+
+  public static async submitLearning( employeeId: number, learningId:number): Promise<Learning> {
+    return this.fetchWithConfig(`${API_CONFIG.ENDPOINTS.LEARNINGS}/${employeeId}/${learningId}`, {
+      method: "POST",
     });
   }
 }

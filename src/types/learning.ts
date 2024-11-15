@@ -1,5 +1,13 @@
-export interface Course {
-    id: number;
+export interface Learning {
+    learningId: number;
+    name: string;
     link:string;
-    completionDate: Date | null
+    enrolledEmployees: EmployeeLearning[];
+}
+
+export interface EmployeeLearning {
+    id: number;
+    employee: number;
+    learning:number;
+    date: Date;
 }
