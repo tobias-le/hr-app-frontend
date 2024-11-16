@@ -65,7 +65,7 @@ class ApiService {
   }
 
   public static async getRecentTimeOffRequests(employeeId:number) :Promise<Leave[]> {
-    return this.fetchWithConfig(`/leave/${employeeId}`) as Promise<Leave[]>;
+    return this.fetchWithConfig(`/leave/requests/${employeeId}`) as Promise<Leave[]>;
   }
 
   //to create new time off request, returns 1 if ok and 0 if not??
