@@ -37,6 +37,7 @@ export const theme = createTheme({
       primary: colors.slate[900],
       secondary: colors.gray[500],
     },
+
   },
   typography: {
     fontFamily: [

@@ -5,6 +5,7 @@ import {
   AttendanceSummaryType,
   AttendanceRecord,
 } from "../types/attendance";
+import {EmployeeLeaveBalance, Leave, LeaveDto} from "../types/timeoff";
 import { Employee, EmployeeNameWithId } from "../types/employee";
 import { Project } from "../types/project";
 import { Team } from "../types/team";
@@ -57,6 +58,22 @@ class ApiService {
 
   public static async getTeams(): Promise<Team[]> {
     return this.fetchWithConfig(API_CONFIG.ENDPOINTS.TEAMS) as Promise<Team[]>;
+  }
+
+  public static async getTimeOffSummary(employeeId:number) :Promise<EmployeeLeaveBalance> {
+    return this.fetchWithConfig(`/leave/${employeeId}/balance`) as Promise<EmployeeLeaveBalance>;
+  }
+
+  public static async getRecentTimeOffRequests(employeeId:number) :Promise<Leave[]> {
+    return this.fetchWithConfig(`/leave/${employeeId}`) as Promise<Leave[]>;
+  }
+
+  //to create new time off request, returns 1 if ok and 0 if not??
+  public static async createNewTimeOffRequest(timeOffRequest: LeaveDto):Promise<Leave> {
+    return this.fetchWithConfig(`/leave`, {
+      method: 'POST',
+      body: JSON.stringify(timeOffRequest),
+    });
   }
 
   public static async getEmployeeById(id: number): Promise<any> {
