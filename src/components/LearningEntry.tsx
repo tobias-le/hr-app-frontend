@@ -1,15 +1,16 @@
 import {Learning} from "../types/learning";
-import {Box, Button, Icon, Typography, Link, Divider} from "@mui/material";
+import {Box, Button, Typography, Link, Divider, CircularProgress} from "@mui/material";
 import {useEmployeeStore} from "../store/employeeStore";
 import CheckIcon from '@mui/icons-material/Check';
 import {format} from "date-fns";
 import React, {useEffect, useState} from "react";
 import ApiService from "../services/api.service";
 interface CourseEntryProps {
-    course: Learning
+    course: Learning;
+    updateFunction:(courseId:number, employeeId:number) => void;
 }
 
-const LearningEntry = ({course}: CourseEntryProps) => {
+const LearningEntry = ({course, updateFunction}: CourseEntryProps) => {
     const employee = useEmployeeStore( state => state.selectedEmployee);
     const [finished, setFinished] = useState<boolean>(false);
     const [date, setDate] = useState<string>("");
@@ -17,7 +18,7 @@ const LearningEntry = ({course}: CourseEntryProps) => {
 
     useEffect(() => {
         if (employee) {
-            const learning = course.enrolledEmployees.find( enroll => enroll.employee === employee.id);
+            const learning = course.enrolledEmployees.find( enroll => enroll.id.employeeId === employee.id);
             if (learning) {
                 setFinished(true);
                 setDate(format(learning.date, "dd.MM.yyyy"));
@@ -26,13 +27,17 @@ const LearningEntry = ({course}: CourseEntryProps) => {
                 setDate("");
             }
         }
-    }, [employee]);
+    }, [employee, course]);
 
     const submitLearning = () => {
         if (employee) {
             setLoading(true);
-            ApiService.submitLearning(employee? employee.id : 0, course.learningId)
-                .then( learning  => {
+            ApiService.submitLearning( {
+                learningId: course.learningId,
+                employeeId: employee.id
+            })
+                .then(() => {
+                    updateFunction(course.learningId, employee.id);
                     setLoading(false);
                 })
                 .catch();
@@ -48,7 +53,7 @@ const LearningEntry = ({course}: CourseEntryProps) => {
                 {employee?
                     !finished?
                         <Button variant="outlined" data-testid="submit-learning" onClick={submitLearning} disabled={loading}>
-                            Mark as completed
+                            Mark as completed {loading? <CircularProgress/> : null}
                         </Button> :
                         <Typography>
                             completed on {date}<CheckIcon/>

@@ -5,9 +5,21 @@ export interface Learning {
     enrolledEmployees: EmployeeLearning[];
 }
 
+export interface LearningDto {
+    learningId: number;
+    name: string;
+    link: string;
+}
+
+export interface LearningAssignmentDto {
+    learningId: number;
+    employeeId: number;
+}
+
 export interface EmployeeLearning {
-    id: number;
-    employee: number;
-    learning:number;
+    id: {
+        employeeId: number;
+        learningId: number;
+    }
     date: Date;
 }

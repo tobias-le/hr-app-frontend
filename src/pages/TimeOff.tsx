@@ -79,7 +79,6 @@ const TimeOff: React.FC = () => {
         employeeId: employee.id,
         reason: description
       }
-      console.log(request);
       setFormLocked(true);
       ApiService.createNewTimeOffRequest(request).then(
         createdRequest => {
@@ -111,7 +110,6 @@ const TimeOff: React.FC = () => {
     setSummaryError(null);
     setRequests([]);
     setRequestsError("");
-    console.log(employee?.id);
     try {
         ApiService.getRecentTimeOffRequests(employee? employee.id :0)
             .then( reqs => setRequests(reqs))
