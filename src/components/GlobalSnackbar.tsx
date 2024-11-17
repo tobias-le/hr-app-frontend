@@ -1,5 +1,5 @@
 import React from "react";
-import { Snackbar } from "@mui/material";
+import { Snackbar, Alert } from "@mui/material";
 import { create } from "zustand";
 
 interface SnackbarStore {
@@ -24,11 +24,17 @@ const GlobalSnackbar: React.FC = () => {
       open={open}
       autoHideDuration={6000}
       onClose={() => setOpen(false)}
-      message={message}
       anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-      data-testid="global-snackbar"
     >
-      <div data-testid="snackbar-message">{message}</div>
+      <Alert
+        onClose={() => setOpen(false)}
+        severity="info"
+        elevation={6}
+        variant="filled"
+        data-testid="global-snackbar"
+      >
+        {message}
+      </Alert>
     </Snackbar>
   );
 };

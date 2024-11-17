@@ -1,27 +1,16 @@
 import React from "react";
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Chip,
-} from "@mui/material";
-import { TeamAttendanceDetail } from "../types/attendance";
-import CircularProgress from "@mui/material/CircularProgress";
+import { Button, Chip } from "@mui/material";
+import { AttendanceRecord } from "../types/attendance";
 import { createProjectChip } from "../utils/chipUtils";
+import { DataTable } from "../components/common/DataTable";
+import { BaseModal } from "./common/BaseModal";
+import { LoadingSpinner } from "../components/common/LoadingSpinner";
+import dateUtils from "../utils/dateUtils";
 
 interface AttendanceDetailsModalProps {
   open: boolean;
   onClose: () => void;
-  details: TeamAttendanceDetail[];
+  details: AttendanceRecord[];
   loading: boolean;
 }
 
@@ -31,85 +20,60 @@ const AttendanceDetailsModal: React.FC<AttendanceDetailsModalProps> = ({
   details,
   loading,
 }) => {
-  const formatDateTime = (dateTime: string) => {
-    return new Date(dateTime).toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
+  const columns = [
+    {
+      header: "Employee Name",
+      accessor: (detail: AttendanceRecord) => detail.member,
+      testId: "header-employee",
+    },
+    {
+      header: "Date",
+      accessor: (detail: AttendanceRecord) => dateUtils.formatDate(detail.date),
+      testId: "header-date",
+    },
+    {
+      header: "Clock In",
+      accessor: (detail: AttendanceRecord) =>
+        dateUtils.formatTime(detail.clockInTime),
+      testId: "header-clock-in",
+    },
+    {
+      header: "Clock Out",
+      accessor: (detail: AttendanceRecord) =>
+        dateUtils.formatTime(detail.clockOutTime),
+      testId: "header-clock-out",
+    },
+    {
+      header: "Project",
+      accessor: (detail: AttendanceRecord) => (
+        <Chip {...createProjectChip(detail.project)} />
+      ),
+      testId: "header-project",
+    },
+  ];
 
   return (
-    <Dialog
+    <BaseModal
       open={open}
       onClose={onClose}
+      title="Team Attendance Details"
       maxWidth="md"
-      fullWidth
-      data-testid="attendance-details-modal"
-    >
-      <DialogTitle data-testid="modal-title">
-        Team Attendance Details
-      </DialogTitle>
-      <DialogContent>
-        {loading ? (
-          <div
-            className="flex justify-center p-4"
-            data-testid="loading-spinner"
-          >
-            <CircularProgress />
-          </div>
-        ) : (
-          <TableContainer
-            component={Paper}
-            data-testid="attendance-details-table"
-          >
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell data-testid="header-employee">
-                    Employee Name
-                  </TableCell>
-                  <TableCell data-testid="header-date">Date</TableCell>
-                  <TableCell data-testid="header-clock-in">Clock In</TableCell>
-                  <TableCell data-testid="header-clock-out">
-                    Clock Out
-                  </TableCell>
-                  <TableCell data-testid="header-project">Project</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {details.map((detail) => (
-                  <TableRow
-                    key={detail.attendanceId}
-                    data-testid={`attendance-row-${detail.attendanceId}`}
-                  >
-                    <TableCell data-testid={`employee-${detail.attendanceId}`}>
-                      {detail.member}
-                    </TableCell>
-                    <TableCell data-testid={`date-${detail.attendanceId}`}>
-                      {new Date(detail.date).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell data-testid={`clock-in-${detail.attendanceId}`}>
-                      {formatDateTime(detail.clockInTime)}
-                    </TableCell>
-                    <TableCell data-testid={`clock-out-${detail.attendanceId}`}>
-                      {formatDateTime(detail.clockOutTime)}
-                    </TableCell>
-                    <TableCell data-testid={`project-${detail.attendanceId}`}>
-                      <Chip {...createProjectChip(detail.project)} />
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        )}
-      </DialogContent>
-      <DialogActions>
+      testId="attendance-details-modal"
+      actions={
         <Button onClick={onClose} color="primary" data-testid="close-button">
           Close
         </Button>
-      </DialogActions>
-    </Dialog>
+      }
+    >
+      <DataTable
+        data={details}
+        columns={columns}
+        loading={loading}
+        emptyMessage="No records for this week"
+        testId="attendance-details-table"
+      />
+      {loading && <LoadingSpinner testId="details-loading" />}
+    </BaseModal>
   );
 };
 

@@ -1,23 +1,28 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import {
   AppBar,
   Toolbar,
   Typography,
   IconButton,
-  Button,
-  Menu,
-  MenuItem,
   Autocomplete,
   TextField,
   Avatar,
+  Tooltip,
+  Divider,
+  Box,
 } from "@mui/material";
-import { Notifications } from "@mui/icons-material";
+import {
+  Dashboard,
+  EventNote,
+  Timer,
+  FolderSpecial,
+  Groups,
+} from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import { stringToColor } from "../utils/colorUtils";
 import { useEmployeeStore } from "../store/employeeStore";
 
 const Header: React.FC = () => {
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const { employees, selectedEmployee, fetchEmployees, setSelectedEmployee } =
     useEmployeeStore();
 
@@ -25,16 +30,8 @@ const Header: React.FC = () => {
     fetchEmployees();
   }, [fetchEmployees]);
 
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
   return (
-    <AppBar position="static" className="bg-gray-900" data-testid="header">
+    <AppBar position="static" data-testid="header">
       <Toolbar>
         <Autocomplete
           sx={{ width: 300, mr: 2 }}
@@ -50,129 +47,105 @@ const Header: React.FC = () => {
               size="small"
               placeholder="Search employee"
               data-testid="employee-search-input"
-              sx={{
-                backgroundColor: "white",
-                borderRadius: 1,
-                "& .MuiOutlinedInput-root": {
-                  "& fieldset": {
-                    borderColor: "white",
-                  },
-                },
-              }}
             />
           )}
         />
-        <Typography variant="h6" className="flex-grow" data-testid="app-title">
+        <Typography variant="h6" sx={{ flexGrow: 1 }} data-testid="app-title">
           <Link
             to="/"
-            className="no-underline text-white"
+            style={{ textDecoration: "none", color: "white" }}
             data-testid="home-link"
           >
-            <span className="font-bold text-yellow-400">time.ly</span> Time
-            Management
+            <Box
+              component="span"
+              sx={{ fontWeight: "bold", color: "secondary.main" }}
+            >
+              time.ly
+            </Box>
+            {" Time Management"}
           </Link>
         </Typography>
-        <div className="flex items-center space-x-4" data-testid="nav-buttons">
-          <Button
-            color="inherit"
-            className="text-yellow-400"
-            component={Link}
-            to="/"
-            data-testid="attendance-link"
-          >
-            Attendance
-          </Button>
-          <Button
-            color="inherit"
-            className="text-yellow-400"
-            component={Link}
-            to="/time-off"
-            data-testid="time-off-link"
-          >
-            Time Off{" "}
-            <span
-              className="ml-1 px-1 bg-red-500 rounded-full text-xs"
-              data-testid="time-off-badge"
+        <Box
+          sx={{ display: "flex", alignItems: "center", gap: 2 }}
+          data-testid="nav-buttons"
+        >
+          <Tooltip title="Dashboard">
+            <IconButton
+              className="header-icon"
+              component={Link}
+              to="/"
+              data-testid="dashboard-link"
             >
-              50
-            </span>
-          </Button>
-          <Button
-            color="inherit"
-            className="text-yellow-400"
-            component={Link}
-            to="/work-time"
-            data-testid="work-time-link"
-          >
-            Work Time
-          </Button>
-        </div>
-        <IconButton color="inherit" data-testid="notifications-button">
-          <Notifications />
-        </IconButton>
+              <Dashboard />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Time Off">
+            <IconButton
+              className="header-icon"
+              component={Link}
+              to="/time-off"
+              data-testid="time-off-link"
+            >
+              <EventNote />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Work Time">
+            <IconButton
+              className="header-icon"
+              component={Link}
+              to="/work-time"
+              data-testid="work-time-link"
+            >
+              <Timer />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Projects">
+            <IconButton
+              className="header-icon"
+              component={Link}
+              to="/project-management"
+              data-testid="project-management-link"
+            >
+              <FolderSpecial />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Team Management">
+            <IconButton
+              className="header-icon"
+              component={Link}
+              to="/team-management"
+              data-testid="team-management-link"
+            >
+              <Groups />
+            </IconButton>
+          </Tooltip>
+        </Box>
+        <Divider orientation="vertical" flexItem className="header-divider" />
         <IconButton
-          color="inherit"
-          onClick={handleClick}
+          className="header-icon"
+          component={Link}
+          to="/employee-details"
           data-testid="profile-button"
+          sx={{ padding: 1.5 }}
         >
           <Avatar
-            alt={useEmployeeStore.getState().selectedEmployee?.name || "User"}
-            className="w-8 h-8"
-            data-testid="profile-avatar"
+            alt={selectedEmployee?.name || "User"}
             sx={{
-              bgcolor: stringToColor(
-                useEmployeeStore.getState().selectedEmployee?.name || ""
-              ),
+              width: 40,
+              height: 40,
+              bgcolor: stringToColor(selectedEmployee?.name || ""),
             }}
+            data-testid="profile-avatar"
           >
-            {useEmployeeStore.getState().selectedEmployee?.name
-              ? useEmployeeStore
-                  .getState()
-                  .selectedEmployee?.name.split(" ")
+            {selectedEmployee?.name
+              ? selectedEmployee.name
+                  .split(" ")
                   .map((n) => n[0])
                   .join("")
                   .toUpperCase()
               : ""}
           </Avatar>
         </IconButton>
-        <Menu
-          id="profile-menu"
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={handleClose}
-          data-testid="profile-menu"
-          MenuListProps={{
-            "aria-labelledby": "profile-button",
-          }}
-          anchorOrigin={{
-            vertical: "bottom",
-            horizontal: "right",
-          }}
-          transformOrigin={{
-            vertical: "top",
-            horizontal: "right",
-          }}
-          slotProps={{
-            paper: {
-              elevation: 0,
-              sx: {
-                overflow: "visible",
-                filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
-                mt: 1.5,
-              },
-            },
-          }}
-        >
-          <MenuItem data-testid="profile-menu-item">
-            <Link
-              to="/employee-details"
-              style={{ textDecoration: "none", color: "inherit" }}
-              data-testid="profile-link"
-            >
-              Profile
-            </Link>
-          </MenuItem>
-        </Menu>
       </Toolbar>
     </AppBar>
   );

@@ -1,49 +1,55 @@
 import React, { useState, useEffect } from "react";
 import {
-  Box,
-  Paper,
   Typography,
-  TextField,
   Button,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   Chip,
   SelectChangeEvent,
   CircularProgress,
+  Grid,
+  Stack,
 } from "@mui/material";
-import Header from "../components/Header";
 import { format, parseISO } from "date-fns";
 import { createProjectChip } from "../utils/chipUtils";
 import ApiService from "../services/api.service";
 import { useEmployeeStore } from "../store/employeeStore";
-import { AttendanceRecord, Project } from "../types/attendance";
+import { AttendanceRecord, Status } from "../types/attendance";
+import { Project } from "../types/project";
 import { useSnackbarStore } from "../components/GlobalSnackbar";
+import { DataTable } from "../components/common/DataTable";
+import { FormField } from "../components/common/FormField";
+import { PageLayout } from "../components/common/PageLayout";
+import { handleApiError } from "../utils/errorUtils";
+import { useForm } from "../hooks/useForm";
 
 const WorkTime: React.FC = () => {
+  const { formData, handleChange, isSubmitting, setIsSubmitting, setFormData } =
+    useForm({
+      project: "",
+      date: format(new Date(), "yyyy-MM-dd"),
+      startTime: "09:00",
+      endTime: "17:00",
+      description: "",
+    });
+
   const [projects, setProjects] = useState<Project[]>([]);
   const [pastEntries, setPastEntries] = useState<AttendanceRecord[]>([]);
   const [loading, setLoading] = useState(true);
-  const [formData, setFormData] = useState({
-    project: "",
-    date: format(new Date(), "yyyy-MM-dd"),
-    startTime: "",
-    endTime: "",
-    description: "",
-  });
   const { selectedEmployee } = useEmployeeStore();
-  const [submitting, setSubmitting] = useState(false);
   const { showMessage } = useSnackbarStore();
   const [editingEntry, setEditingEntry] = useState<AttendanceRecord | null>(
     null
   );
+  const [isFormValid, setIsFormValid] = useState(false);
+
+  useEffect(() => {
+    const valid = Boolean(
+      formData.project &&
+        formData.date &&
+        formData.startTime &&
+        formData.endTime
+    );
+    setIsFormValid(valid);
+  }, [formData]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -81,18 +87,14 @@ const WorkTime: React.FC = () => {
       | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
       | SelectChangeEvent
   ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name as string]: value,
-    }));
+    handleChange(e);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedEmployee?.id) return;
+    if (!selectedEmployee?.id || !isFormValid || isSubmitting) return;
 
-    setSubmitting(true);
+    setIsSubmitting(true);
     try {
       const dateStr = formData.date;
       const clockInDateTime = `${dateStr}T${formData.startTime}:00`;
@@ -104,12 +106,11 @@ const WorkTime: React.FC = () => {
 
       if (!selectedProject) {
         showMessage("Please select a valid project");
-        setSubmitting(false);
         return;
       }
 
       const workTimeEntry: AttendanceRecord = {
-        attendanceId: 0, // This will be set by the API
+        attendanceId: 0,
         memberId: selectedEmployee.id,
         member: selectedEmployee.name,
         date: formData.date,
@@ -117,6 +118,7 @@ const WorkTime: React.FC = () => {
         clockOutTime: clockOutDateTime,
         project: selectedProject.name,
         description: formData.description,
+        status: Status.PENDING,
       };
 
       const response = await ApiService.createAttendanceRecord(workTimeEntry);
@@ -129,16 +131,15 @@ const WorkTime: React.FC = () => {
         setFormData({
           project: "",
           date: format(new Date(), "yyyy-MM-dd"),
-          startTime: "",
-          endTime: "",
+          startTime: "09:00",
+          endTime: "17:00",
           description: "",
         });
       }
     } catch (error) {
-      console.error("Error creating work time entry:", error);
-      showMessage("Failed to create work time entry");
+      handleApiError(error, "Failed to create work time entry");
     } finally {
-      setSubmitting(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -149,8 +150,6 @@ const WorkTime: React.FC = () => {
   const formatDate = (dateStr: string) => {
     return format(new Date(dateStr), "MMM dd, yyyy");
   };
-
-  console.log("Current projects:", projects);
 
   const handleDelete = async (attendanceId: number) => {
     if (!window.confirm("Are you sure you want to delete this entry?")) return;
@@ -191,7 +190,7 @@ const WorkTime: React.FC = () => {
     e.preventDefault();
     if (!selectedEmployee?.id || !editingEntry?.attendanceId) return;
 
-    setSubmitting(true);
+    setIsSubmitting(true);
     try {
       const dateStr = formData.date;
       const clockInDateTime = `${dateStr}T${formData.startTime}:00`;
@@ -203,7 +202,7 @@ const WorkTime: React.FC = () => {
 
       if (!selectedProject) {
         showMessage("Please select a valid project");
-        setSubmitting(false);
+        setIsSubmitting(false);
         return;
       }
 
@@ -217,6 +216,7 @@ const WorkTime: React.FC = () => {
         clockOutTime: clockOutDateTime,
         project: selectedProject.name,
         description: formData.description,
+        status: Status.PENDING,
       };
 
       const response = await ApiService.updateAttendanceRecord(
@@ -236,101 +236,158 @@ const WorkTime: React.FC = () => {
       setFormData({
         project: "",
         date: format(new Date(), "yyyy-MM-dd"),
-        startTime: "",
-        endTime: "",
+        startTime: "09:00",
+        endTime: "17:00",
         description: "",
       });
     } catch (error) {
       console.error("Error updating entry:", error);
       showMessage("Failed to update entry");
     } finally {
-      setSubmitting(false);
+      setIsSubmitting(false);
     }
   };
 
-  return (
-    <div className="flex flex-col h-screen bg-gray-100">
-      <Header />
-      <Box className="flex-grow p-6">
-        <Paper className="p-6">
-          <Typography variant="h5" className="font-bold mb-6">
-            Work Time Entry
-          </Typography>
-
-          <form
-            data-testid="work-time-form"
-            onSubmit={editingEntry ? handleUpdate : handleSubmit}
-            className="space-y-4 mb-8"
+  const columns = [
+    {
+      header: "Date",
+      accessor: (entry: AttendanceRecord) => formatDate(entry.date),
+    },
+    {
+      header: "Project",
+      accessor: (entry: AttendanceRecord) => (
+        <Chip {...createProjectChip(entry.project)} />
+      ),
+    },
+    {
+      header: "Time",
+      accessor: (entry: AttendanceRecord) =>
+        `${formatDateTime(entry.clockInTime)} - ${formatDateTime(
+          entry.clockOutTime
+        )}`,
+    },
+    {
+      header: "Status",
+      accessor: (entry: AttendanceRecord) => (
+        <Chip
+          label={entry.status}
+          color={
+            entry.status === Status.APPROVED
+              ? "success"
+              : entry.status === Status.REJECTED
+              ? "error"
+              : "warning"
+          }
+          size="small"
+        />
+      ),
+    },
+    {
+      header: "Description",
+      accessor: (entry: AttendanceRecord) => entry.description || "",
+    },
+    {
+      header: "Actions",
+      accessor: (entry: AttendanceRecord) => (
+        <div className="flex space-x-2">
+          <Button
+            data-testid={`edit-button-${entry.attendanceId}`}
+            size="small"
+            color="primary"
+            onClick={() => handleEdit(entry)}
           >
-            <div className="grid grid-cols-2 gap-4">
-              <FormControl fullWidth>
-                <InputLabel>Project</InputLabel>
-                <Select
-                  data-testid="project-select"
-                  name="project"
-                  value={formData.project}
-                  onChange={handleInputChange}
-                  label="Project"
-                >
-                  {projects.map((project) => (
-                    <MenuItem
-                      data-testid={`project-option-${project.projectId}`}
-                      key={project.projectId}
-                      value={project.projectId}
-                    >
-                      {project.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+            Edit
+          </Button>
+          <Button
+            data-testid={`delete-button-${entry.attendanceId}`}
+            size="small"
+            color="error"
+            onClick={() => handleDelete(entry.attendanceId)}
+          >
+            Delete
+          </Button>
+        </div>
+      ),
+    },
+  ];
 
-              <TextField
-                data-testid="date-input"
-                name="date"
-                label="Date"
-                type="date"
-                value={formData.date}
-                onChange={handleInputChange}
-                InputLabelProps={{ shrink: true }}
-                fullWidth
-              />
+  return (
+    <PageLayout title="Work Time Entry">
+      <form
+        data-testid="work-time-form"
+        onSubmit={editingEntry ? handleUpdate : handleSubmit}
+        noValidate
+      >
+        <Grid container spacing={3}>
+          <Grid item xs={6}>
+            <FormField
+              name="project"
+              label="Project"
+              value={formData.project}
+              onChange={handleInputChange}
+              options={projects.map((project) => ({
+                value: project.projectId.toString(),
+                label: project.name,
+              }))}
+              required
+              validateNotEmpty
+              testId="project-select"
+            />
+          </Grid>
 
-              <TextField
-                data-testid="start-time-input"
-                name="startTime"
-                label="Start Time"
-                type="time"
-                value={formData.startTime}
-                onChange={handleInputChange}
-                InputLabelProps={{ shrink: true }}
-                fullWidth
-              />
+          <Grid item xs={6}>
+            <FormField
+              name="date"
+              label="Date"
+              type="date"
+              value={formData.date}
+              onChange={handleInputChange}
+              required
+              validateNotEmpty
+              testId="date-input"
+            />
+          </Grid>
 
-              <TextField
-                data-testid="end-time-input"
-                name="endTime"
-                label="End Time"
-                type="time"
-                value={formData.endTime}
-                onChange={handleInputChange}
-                InputLabelProps={{ shrink: true }}
-                fullWidth
-              />
+          <Grid item xs={6}>
+            <FormField
+              name="startTime"
+              label="Start Time"
+              type="time"
+              value={formData.startTime}
+              onChange={handleInputChange}
+              required
+              validateNotEmpty
+              testId="start-time-input"
+            />
+          </Grid>
 
-              <TextField
-                data-testid="description-input"
-                name="description"
-                label="Description"
-                multiline
-                rows={4}
-                value={formData.description}
-                fullWidth
-                className="col-span-2"
-                onChange={handleInputChange}
-              />
-            </div>
+          <Grid item xs={6}>
+            <FormField
+              name="endTime"
+              label="End Time"
+              type="time"
+              value={formData.endTime}
+              onChange={handleInputChange}
+              required
+              validateNotEmpty
+              testId="end-time-input"
+            />
+          </Grid>
 
-            <div className="flex justify-end space-x-2">
+          <Grid item xs={12}>
+            <FormField
+              name="description"
+              label="Description"
+              value={formData.description}
+              onChange={handleInputChange}
+              multiline
+              rows={4}
+              testId="description-input"
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <Stack direction="row" spacing={2} justifyContent="flex-end">
               <Button
                 data-testid="cancel-button"
                 variant="outlined"
@@ -339,8 +396,8 @@ const WorkTime: React.FC = () => {
                   setFormData({
                     project: "",
                     date: format(new Date(), "yyyy-MM-dd"),
-                    startTime: "",
-                    endTime: "",
+                    startTime: "09:00",
+                    endTime: "17:00",
                     description: "",
                   });
                 }}
@@ -352,86 +409,36 @@ const WorkTime: React.FC = () => {
                 variant="contained"
                 color="primary"
                 type="submit"
-                disabled={submitting}
+                disabled={isSubmitting || !isFormValid}
                 startIcon={
-                  submitting ? (
+                  isSubmitting ? (
                     <CircularProgress size={20} color="inherit" />
                   ) : null
                 }
               >
-                {submitting
+                {isSubmitting
                   ? "Submitting..."
                   : editingEntry
                   ? "Update"
                   : "Submit"}
               </Button>
-            </div>
-          </form>
+            </Stack>
+          </Grid>
+        </Grid>
+      </form>
 
-          <Typography variant="h6" className="font-bold mb-4">
-            Past Work Time Entries
-          </Typography>
+      <Typography variant="h6" className="font-bold mb-4">
+        Past Work Time Entries
+      </Typography>
 
-          {loading ? (
-            <div className="flex justify-center p-8">
-              <CircularProgress />
-            </div>
-          ) : (
-            <TableContainer data-testid="entries-table">
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Date</TableCell>
-                    <TableCell>Project</TableCell>
-                    <TableCell>Time</TableCell>
-                    <TableCell>Description</TableCell>
-                    <TableCell>Actions</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {pastEntries.map((entry) => (
-                    <TableRow
-                      data-testid={`entry-row-${entry.attendanceId}`}
-                      key={entry.attendanceId}
-                    >
-                      <TableCell>{formatDate(entry.date)}</TableCell>
-                      <TableCell>
-                        <Chip {...createProjectChip(entry.project)} />
-                      </TableCell>
-                      <TableCell>
-                        {formatDateTime(entry.clockInTime)} -{" "}
-                        {formatDateTime(entry.clockOutTime)}
-                      </TableCell>
-                      <TableCell>{entry.description}</TableCell>
-                      <TableCell>
-                        <div className="flex space-x-2">
-                          <Button
-                            data-testid={`edit-button-${entry.attendanceId}`}
-                            size="small"
-                            color="primary"
-                            onClick={() => handleEdit(entry)}
-                          >
-                            Edit
-                          </Button>
-                          <Button
-                            data-testid={`delete-button-${entry.attendanceId}`}
-                            size="small"
-                            color="error"
-                            onClick={() => handleDelete(entry.attendanceId)}
-                          >
-                            Delete
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          )}
-        </Paper>
-      </Box>
-    </div>
+      <DataTable
+        data={pastEntries}
+        columns={columns}
+        loading={loading}
+        emptyMessage="No entries found"
+        testId="entries-table"
+      />
+    </PageLayout>
   );
 };
 

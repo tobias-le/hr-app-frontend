@@ -4,6 +4,9 @@ const API_CONFIG = {
 
   ENDPOINTS: {
     EMPLOYEES: "/api/employees",
+    ATTENDANCE: "/api/attendance",
+    PROJECTS: "/api/projects",
+    TEAMS: "/api/teams",
     ATTENDANCE_SUMMARY: "/api/attendance/summary",
     ATTENDANCE_DETAILS: "/api/attendance/details",
   },
