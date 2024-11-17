@@ -1,16 +1,42 @@
-export interface TimeOffRequest {
+import {Employee} from "./employee";
+
+export interface Leave {
   id: number;
-  employeeName: string;
+  employeeId: number;
   startDate: string;
   endDate: string;
-  type: "VACATION" | "SICK" | "PERSONAL";
-  status: "PENDING" | "APPROVED" | "REJECTED";
+  leaveType: LeaveType
+  status: LeaveStatus
   reason: string;
+  leaveAmount:number;
 }
 
-export interface TimeOffSummary {
+export enum LeaveType {
+  Vacation = "VACATION_LEAVE",
+  Sick = "SICK_LEAVE",
+  Personal = "PERSONAL_LEAVE"
+}
+
+export enum LeaveStatus {
+  Pending = "PENDING",
+  Approved = "APPROVED",
+  Rejected = "REJECTED"
+}
+
+export interface EmployeeLeaveBalance {
+  id: number;
+  employeeId: Employee | null;
   vacationDaysLeft: number;
   sickDaysLeft: number;
   personalDaysLeft: number;
-  pendingRequests: number;
+}
+
+export interface LeaveDto {
+  employeeId: number;
+  leaveType: LeaveType;
+  startDate: string;
+  endDate: string;
+  leaveStatus: LeaveStatus;
+  leaveAmount: number;
+  reason: string;
 }
