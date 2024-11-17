@@ -53,8 +53,6 @@ const TimeOff: React.FC = () => {
 
   //users recent requests, fetched
   const [requests, setRequests] = useState<Leave[]>([]);
-  const [requestsError, setRequestsError] = useState<string >("");
-
   const employee = useEmployeeStore(state => state.selectedEmployee);
 
   //submitting form, checks for required fields
@@ -109,7 +107,6 @@ const TimeOff: React.FC = () => {
     setSummary(null);
     setSummaryError(null);
     setRequests([]);
-    setRequestsError("");
     try {
         ApiService.getRecentTimeOffRequests(employee? employee.id :0)
             .then( reqs => setRequests(reqs))
