@@ -207,7 +207,7 @@ const TeamDetails: React.FC = () => {
       <div className="flex justify-between items-center mb-4">
         <Button
           variant="outlined"
-          onClick={() => navigate("/teams")}
+          onClick={() => navigate("/team-management")}
           data-testid="back-button"
         >
           Back to Teams

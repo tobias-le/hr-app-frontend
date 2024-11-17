@@ -1,46 +1,77 @@
-# Getting Started with Create React App
+# Timely Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Overview
 
-## Available Scripts
+Timely Frontend is a React-based web application designed to interact with the Timely Backend. It provides a user-friendly interface for managing employee attendance, projects, teams, and leave requests. The application leverages modern web technologies to deliver a responsive and intuitive user experience.
 
-In the project directory, you can run:
+## Deployment
 
-### `npm start`
+The frontend is deployed at [https://hr-app-frontend-test.up.railway.app/](https://hr-app-frontend-test.up.railway.app/). This is where you can interact with the live application.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## Key Features
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+- **Dashboard**: Overview of employee attendance and project statuses.
+- **Employee Management**: Interface for adding, updating, and viewing employee details.
+- **Project Management**: Tools to create, update, and manage project details and assignments.
+- **Team Management**: Functionality to organize employees into teams and manage team information.
+- **Attendance Tracking**: Capabilities to log and review attendance records for employees.
+- **Leave Management**: System to handle leave requests and monitor leave balances.
 
-### `npm test`
+## Development
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app) and utilizes several key technologies:
 
-### `npm run build`
+- **React**: A JavaScript library for building user interfaces.
+- **Material-UI**: A popular React UI framework.
+- **React Router**: For navigation within the application.
+- **Axios**: For HTTP communications with the backend.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Running the Project Locally
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+To run the project locally, follow these steps:
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+1. Clone the repository.
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Start the development server:
+   ```bash
+   npm start
+   ```
 
-### `npm run eject`
+This will run the app in development mode. Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+## Testing
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+The application includes unit and integration tests using Jest and React Testing Library.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+### Running Tests
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+To execute tests, run:
 
-## Learn More
+```bash
+npm test
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Configuration
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+The frontend configuration can be found in `src/config`, which includes settings for API endpoints and other operational parameters.
+
+## Continuous Integration
+
+The project uses GitHub Actions for continuous integration, which automates the process of testing and deployment.
+
+## Contributing
+
+Contributions are welcome. Please ensure to adhere to the existing coding standards and include tests for new features or changes. For major changes, please open an issue first to discuss what you would like to change.
+
+## API Interaction
+
+The frontend interacts with the Timely Backend, whose API documentation is available at [backend-test-7dda.up.railway.app/swagger-ui.html](https://backend-test-7dda.up.railway.app/swagger-ui.html). This documentation provides a detailed view of all backend endpoints, expected parameters, and responses.
+
+## Links
+
+- **Frontend Deployment**: [https://hr-app-frontend-test.up.railway.app/](https://hr-app-frontend-test.up.railway.app/)
+- **Backend Repository**: [https://github.com/tobias-le/hr-app](https://github.com/tobias-le/hr-app)
+- **API Documentation**: [https://backend-test-7dda.up.railway.app/swagger-ui.html](https://backend-test-7dda.up.railway.app/swagger-ui.html)

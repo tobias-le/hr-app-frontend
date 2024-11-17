@@ -7,12 +7,14 @@ import { AttendanceRecord } from "../types/attendance";
 import AttendanceDetailsModal from "../components/AttendanceDetailsModal";
 import ProjectAttendanceSummary from "../components/ProjectAttendanceSummary";
 import { PageLayout } from "../components/common/PageLayout";
+import {useNavigate} from "react-router-dom";
 
 const Dashboard: React.FC = () => {
   const monday = startOfWeek(new Date(), { weekStartsOn: 1 });
   const mondayDate = format(monday, "EEEE, d MMMM");
   const sundayDate = format(addDays(monday, 6), "EEEE, d MMMM");
   const weekDates = `${mondayDate} - ${sundayDate}`;
+  const navigate = useNavigate();
 
   const [details, setDetails] = useState<AttendanceRecord[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
@@ -54,6 +56,7 @@ const Dashboard: React.FC = () => {
             variant="outlined"
             className="addAttendance"
             data-testid="add-attendance-btn"
+            onClick={() => navigate("/work-time")}
           >
             Add Attendance
           </Button>

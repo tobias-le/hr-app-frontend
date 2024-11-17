@@ -17,7 +17,7 @@ import {
   Timer,
   FolderSpecial,
   Groups,
-    School
+  School
 } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import { stringToColor } from "../utils/colorUtils";

@@ -26,7 +26,7 @@ const App: React.FC = () => {
           <Route path="/projects/:projectId" element={<ProjectDetails />} />
           <Route path="/team-management" element={<TeamManagement />} />
           <Route path="/teams/:teamId" element={<TeamDetails />} />
-            <Route path="/learning" element={<Learn />} />
+          <Route path="/learning" element={<Learn />} />
         </Routes>
         <GlobalSnackbar />
       </Router>

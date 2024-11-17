@@ -296,6 +296,7 @@ class ApiService {
     });
   }
 
+
   public static async getCourses(): Promise<Learning[]> {
     return this.fetchWithConfig(`${API_CONFIG.ENDPOINTS.LEARNINGS}`);
   }
@@ -313,6 +314,7 @@ class ApiService {
       body : JSON.stringify(learningAssignment),
     });
   }
+
 }
 
 
