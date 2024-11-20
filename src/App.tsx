@@ -12,6 +12,7 @@ import ProjectDetails from "./pages/ProjectDetails";
 import TeamManagement from "./pages/TeamManagement";
 import TeamDetails from "./pages/TeamDetails";
 import Learn from "./pages/Learning";
+import HrBoard from "./pages/HrBoard";
 
 const App: React.FC = () => {
   return (
@@ -27,6 +28,7 @@ const App: React.FC = () => {
           <Route path="/team-management" element={<TeamManagement />} />
           <Route path="/teams/:teamId" element={<TeamDetails />} />
           <Route path="/learning" element={<Learn />} />
+          <Route path="/requests" element={<HrBoard/>} />
         </Routes>
         <GlobalSnackbar />
       </Router>
