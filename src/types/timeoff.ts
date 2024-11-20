@@ -52,3 +52,11 @@ export interface PendingRequest {
   currentDaysLeft?: number;
   message: string;
 }
+
+export interface GeneralRequest {
+  messageId:number;
+  employeeId : number;
+  datetime : Date;
+  status: LeaveStatus;
+  message: string;
+}

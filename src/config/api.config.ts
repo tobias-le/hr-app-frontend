@@ -10,6 +10,8 @@ const API_CONFIG = {
     ATTENDANCE_SUMMARY: "/api/attendance/summary",
     ATTENDANCE_DETAILS: "/api/attendance/details",
     LEARNINGS: "/learning",
+    GENERAL_REQUESTS: "/api/request",
+    LEAVE_REQUESTS: "/leave"
   },
   TIMEOUT: 5000,
   HEADERS: {

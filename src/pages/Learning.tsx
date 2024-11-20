@@ -7,6 +7,7 @@ import ApiService from "../services/api.service";
 import LearningEntry from "../components/LearningEntry";
 import {BaseModal} from "../components/common/BaseModal";
 import {FormField} from "../components/common/FormField";
+import {EmptyState} from "../components/common/EmptyState";
 
 function isValid(url: string): boolean {
     try {
@@ -145,11 +146,14 @@ const Learn :React.FC = () => {
                 </Button>
 
             </Box>
-            <Paper>
-                {viewedCourses.map(
-                    course => <LearningEntry course={course} updateFunction={update}/>
-                )}
-            </Paper>
+            {viewedCourses.length > 0?
+                <Paper>
+                    {viewedCourses.map(
+                        course => <LearningEntry course={course} updateFunction={update}/>
+                    )}
+                </Paper>:
+                <EmptyState message={courses.length===0? "No courses yet": "Nothing to show"}/>
+            }
 
             {/*hide this later, so only hr can add new learnings*/}
             <Box sx={{display: "flex", flexDirection: "row", justifyContent: "flex-end", alignItems:"center", padding:"16px"}}>

@@ -5,7 +5,7 @@ import {
   AttendanceSummaryType,
   AttendanceRecord,
 } from "../types/attendance";
-import {EmployeeLeaveBalance, Leave, LeaveDto} from "../types/timeoff";
+import {EmployeeLeaveBalance, GeneralRequest, Leave, LeaveDto, PendingRequest} from "../types/timeoff";
 import { Employee, EmployeeNameWithId } from "../types/employee";
 import { Project } from "../types/project";
 import { Team } from "../types/team";
@@ -313,6 +313,32 @@ class ApiService {
       method: "POST",
       body : JSON.stringify(learningAssignment),
     });
+  }
+
+  public static async createNewGeneralRequest(employeeId: number, message:string): Promise<GeneralRequest> {
+    return this.fetchWithConfig(`${API_CONFIG.ENDPOINTS.GENERAL_REQUESTS}`, {
+      method: "POST",
+      body: JSON.stringify({
+        employeeId: employeeId,
+        message: message,
+      })
+    })
+  }
+
+  public static async getPendingLeaveRequests() : Promise<PendingRequest[]> {
+    return this.fetchWithConfig(`${API_CONFIG.ENDPOINTS.LEAVE_REQUESTS}/pending`);
+  }
+
+  public static async getPendingGeneralRequests() : Promise<PendingRequest[]> {
+    return this.fetchWithConfig(`${API_CONFIG.ENDPOINTS.GENERAL_REQUESTS}/pending`);
+  }
+
+  public static async resolveRequest(pendingRequest: PendingRequest, action: string): Promise<void> {
+    if (pendingRequest.startDate) {
+      return this.fetchWithConfig(`${API_CONFIG.ENDPOINTS.LEAVE_REQUESTS}/request/${pendingRequest.id}/${action}`, {method: "PATCH"});
+    }
+    action = action==="approve"? "APPROVED" : "REJECTED";
+    return this.fetchWithConfig(`${API_CONFIG.ENDPOINTS.GENERAL_REQUESTS}/${pendingRequest.id}/${action}/`, {method: "PATCH"});
   }
 
 }
