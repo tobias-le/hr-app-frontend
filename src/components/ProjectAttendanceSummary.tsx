@@ -19,10 +19,18 @@ import { startOfWeek, endOfWeek, format } from "date-fns";
 
 interface ProjectAttendanceSummaryProps {
   onProjectChange: (projectId: number) => void;
+  startDate: string;
+  endDate: string;
+  onStartDateChange: (date: string) => void;
+  onEndDateChange: (date: string) => void;
 }
 
 const ProjectAttendanceSummary: React.FC<ProjectAttendanceSummaryProps> = ({
   onProjectChange,
+  startDate,
+  endDate,
+  onStartDateChange,
+  onEndDateChange,
 }) => {
   const { projects, selectedProject, fetchProjects, setSelectedProject } =
     useProjectStore();
@@ -30,12 +38,6 @@ const ProjectAttendanceSummary: React.FC<ProjectAttendanceSummaryProps> = ({
     null
   );
   const [loading, setLoading] = useState(true);
-  const [startDate, setStartDate] = useState(
-    format(startOfWeek(new Date(), { weekStartsOn: 1 }), "yyyy-MM-dd")
-  );
-  const [endDate, setEndDate] = useState(
-    format(endOfWeek(new Date(), { weekStartsOn: 1 }), "yyyy-MM-dd")
-  );
 
   useEffect(() => {
     fetchProjects();
@@ -89,29 +91,6 @@ const ProjectAttendanceSummary: React.FC<ProjectAttendanceSummaryProps> = ({
           ))}
         </Select>
       </FormControl>
-
-      <Grid container spacing={2} className="mb-4">
-        <Grid item xs={6}>
-          <TextField
-            label="Start Date"
-            type="date"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            fullWidth
-            InputLabelProps={{ shrink: true }}
-          />
-        </Grid>
-        <Grid item xs={6}>
-          <TextField
-            label="End Date"
-            type="date"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-            fullWidth
-            InputLabelProps={{ shrink: true }}
-          />
-        </Grid>
-      </Grid>
 
       {loading ? (
         <LoadingSpinner testId="summary-loading" />

@@ -10,10 +10,6 @@ import { PageLayout } from "../components/common/PageLayout";
 import { useNavigate } from "react-router-dom";
 
 const Dashboard: React.FC = () => {
-  const monday = startOfWeek(new Date(), { weekStartsOn: 1 });
-  const mondayDate = format(monday, "EEEE, d MMMM");
-  const sundayDate = format(addDays(monday, 6), "EEEE, d MMMM");
-  const weekDates = `${mondayDate} - ${sundayDate}`;
   const navigate = useNavigate();
 
   const [details, setDetails] = useState<AttendanceRecord[]>([]);
@@ -26,6 +22,12 @@ const Dashboard: React.FC = () => {
   const [endDate, setEndDate] = useState(
     format(endOfWeek(new Date(), { weekStartsOn: 1 }), "yyyy-MM-dd")
   );
+  const [dateRangeText, setDateRangeText] = useState(() => {
+    const monday = startOfWeek(new Date(), { weekStartsOn: 1 });
+    const mondayDate = format(monday, "EEEE, d MMMM");
+    const sundayDate = format(addDays(monday, 6), "EEEE, d MMMM");
+    return `${mondayDate} - ${sundayDate}`;
+  });
 
   const handleAttendanceReportClick = () => {
     setModalOpen(true);
@@ -48,13 +50,49 @@ const Dashboard: React.FC = () => {
     setSelectedProjectId(projectId);
   };
 
+  const handleStartDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newStartDate = e.target.value;
+    setStartDate(newStartDate);
+    updateDateRangeText(newStartDate, endDate);
+  };
+
+  const handleEndDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newEndDate = e.target.value;
+    setEndDate(newEndDate);
+    updateDateRangeText(startDate, newEndDate);
+  };
+
+  const updateDateRangeText = (start: string, end: string) => {
+    const startDateText = format(new Date(start), "EEEE, d MMMM");
+    const endDateText = format(new Date(end), "EEEE, d MMMM");
+    setDateRangeText(`${startDateText} - ${endDateText}`);
+  };
+
   return (
     <PageLayout title="Attendance">
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center space-x-4">
-          <Typography data-testid="week-dates">{weekDates}</Typography>
+          <Typography data-testid="week-dates">{dateRangeText}</Typography>
         </div>
-        <div className="flex space-x-2">
+        <div className="flex space-x-4">
+          <TextField
+            type="date"
+            size="small"
+            label="Start Date"
+            value={startDate}
+            onChange={handleStartDateChange}
+            InputLabelProps={{ shrink: true }}
+            data-testid="start-date-input"
+          />
+          <TextField
+            type="date"
+            size="small"
+            label="End Date"
+            value={endDate}
+            onChange={handleEndDateChange}
+            InputLabelProps={{ shrink: true }}
+            data-testid="end-date-input"
+          />
           <Button
             variant="outlined"
             onClick={handleAttendanceReportClick}
@@ -75,6 +113,10 @@ const Dashboard: React.FC = () => {
 
       <ProjectAttendanceSummary
         onProjectChange={handleProjectChange}
+        startDate={startDate}
+        endDate={endDate}
+        onStartDateChange={setStartDate}
+        onEndDateChange={setEndDate}
         data-testid="project-attendance-summary"
       />
 
@@ -85,24 +127,6 @@ const Dashboard: React.FC = () => {
           placeholder="Search employee"
           className="flex-grow"
           data-testid="employee-search"
-        />
-        <TextField
-          type="date"
-          size="small"
-          label="Start Date"
-          value={startDate}
-          onChange={(e) => setStartDate(e.target.value)}
-          InputLabelProps={{ shrink: true }}
-          data-testid="start-date-input"
-        />
-        <TextField
-          type="date"
-          size="small"
-          label="End Date"
-          value={endDate}
-          onChange={(e) => setEndDate(e.target.value)}
-          InputLabelProps={{ shrink: true }}
-          data-testid="end-date-input"
         />
         <Button variant="outlined" data-testid="advance-filter-btn">
           Advance Filter
