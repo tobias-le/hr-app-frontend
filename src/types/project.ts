@@ -7,3 +7,8 @@ export interface Project {
   managerId: number;
   members?: Employee[];
 }
+
+export interface ProjectNameWithId {
+  projectId: number;
+  name: string;
+}

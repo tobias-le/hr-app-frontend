@@ -9,11 +9,13 @@ import {
   Paper,
   Typography,
   SelectChangeEvent,
+  TextField,
 } from "@mui/material";
 import ApiService from "../services/api.service";
 import { AttendanceSummaryType } from "../types/attendance";
 import { useProjectStore } from "../store/projectStore";
 import { LoadingSpinner } from "./common/LoadingSpinner";
+import { startOfWeek, endOfWeek, format } from "date-fns";
 
 interface ProjectAttendanceSummaryProps {
   onProjectChange: (projectId: number) => void;
@@ -28,6 +30,12 @@ const ProjectAttendanceSummary: React.FC<ProjectAttendanceSummaryProps> = ({
     null
   );
   const [loading, setLoading] = useState(true);
+  const [startDate, setStartDate] = useState(
+    format(startOfWeek(new Date(), { weekStartsOn: 1 }), "yyyy-MM-dd")
+  );
+  const [endDate, setEndDate] = useState(
+    format(endOfWeek(new Date(), { weekStartsOn: 1 }), "yyyy-MM-dd")
+  );
 
   useEffect(() => {
     fetchProjects();
@@ -36,7 +44,11 @@ const ProjectAttendanceSummary: React.FC<ProjectAttendanceSummaryProps> = ({
   useEffect(() => {
     setLoading(true);
     if (selectedProject) {
-      ApiService.getAttendanceSummaryType(selectedProject.projectId)
+      ApiService.getAttendanceSummaryType(
+        selectedProject.projectId,
+        startDate,
+        endDate
+      )
         .then((data) => setSummaryData(data))
         .catch((error) => {
           console.error("Error fetching project summary:", error);
@@ -47,7 +59,7 @@ const ProjectAttendanceSummary: React.FC<ProjectAttendanceSummaryProps> = ({
     } else {
       setLoading(false);
     }
-  }, [selectedProject, onProjectChange]);
+  }, [selectedProject, startDate, endDate, onProjectChange]);
 
   const handleProjectChange = (event: SelectChangeEvent) => {
     const project = projects.find(
@@ -77,6 +89,29 @@ const ProjectAttendanceSummary: React.FC<ProjectAttendanceSummaryProps> = ({
           ))}
         </Select>
       </FormControl>
+
+      <Grid container spacing={2} className="mb-4">
+        <Grid item xs={6}>
+          <TextField
+            label="Start Date"
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            fullWidth
+            InputLabelProps={{ shrink: true }}
+          />
+        </Grid>
+        <Grid item xs={6}>
+          <TextField
+            label="End Date"
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            fullWidth
+            InputLabelProps={{ shrink: true }}
+          />
+        </Grid>
+      </Grid>
 
       {loading ? (
         <LoadingSpinner testId="summary-loading" />

@@ -13,6 +13,7 @@ import {
   Tab,
   IconButton,
   Tooltip,
+  TextField,
 } from "@mui/material";
 import { Status } from "../types/attendance";
 import { Project } from "../types/project";
@@ -29,6 +30,7 @@ import { StatusBadge } from "../components/common/StatusBadge";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
 import { Employee } from "../types/employee";
+import { endOfWeek, format, startOfWeek } from "date-fns";
 
 const ProjectDetails: React.FC = () => {
   const { projectId } = useParams();
@@ -41,6 +43,12 @@ const ProjectDetails: React.FC = () => {
   const [activeTab, setActiveTab] = useState(0);
   const [attendanceData, setAttendanceData] = useState<AttendanceRecord[]>([]);
   const [loadingAttendance, setLoadingAttendance] = useState(false);
+  const [startDate, setStartDate] = useState(
+    format(startOfWeek(new Date(), { weekStartsOn: 1 }), "yyyy-MM-dd")
+  );
+  const [endDate, setEndDate] = useState(
+    format(endOfWeek(new Date(), { weekStartsOn: 1 }), "yyyy-MM-dd")
+  );
 
   useEffect(() => {
     const fetchProjectDetails = async () => {
@@ -64,9 +72,10 @@ const ProjectDetails: React.FC = () => {
         setLoadingAttendance(true);
         try {
           const data = await ApiService.getProjectAttendanceDetails(
-            project.projectId
+            project.projectId,
+            startDate,
+            endDate
           );
-          console.log("Attendance Data:", data);
           setAttendanceData(data);
         } catch (error) {
           handleApiError(error, "Failed to fetch attendance details");
@@ -77,7 +86,7 @@ const ProjectDetails: React.FC = () => {
     };
 
     fetchAttendance();
-  }, [activeTab, project]);
+  }, [activeTab, project, startDate, endDate]);
 
   const handleEdit = () => {
     setIsEditModalOpen(true);
@@ -258,6 +267,26 @@ const ProjectDetails: React.FC = () => {
               </div>
             ) : (
               <div className="space-y-4">
+                <div className="flex gap-4 mb-4">
+                  <TextField
+                    type="date"
+                    label="Start Date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    InputLabelProps={{ shrink: true }}
+                    size="small"
+                    data-testid="start-date-input"
+                  />
+                  <TextField
+                    type="date"
+                    label="End Date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    InputLabelProps={{ shrink: true }}
+                    size="small"
+                    data-testid="end-date-input"
+                  />
+                </div>
                 <DataTable
                   data={attendanceData}
                   loading={loadingAttendance}

@@ -8,3 +8,8 @@ export interface Team {
   members: Employee[];
   parentTeam?: Team;
 }
+
+export interface TeamNameWithId {
+  teamId: number;
+  name: string;
+}

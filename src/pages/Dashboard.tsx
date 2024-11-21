@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import { Typography, Button, TextField } from "@mui/material";
 import EmployeeTable from "../components/EmployeeTable";
-import { format, startOfWeek, addDays } from "date-fns";
+import { format, startOfWeek, addDays, endOfWeek } from "date-fns";
 import ApiService from "../services/api.service";
 import { AttendanceRecord } from "../types/attendance";
 import AttendanceDetailsModal from "../components/AttendanceDetailsModal";
 import ProjectAttendanceSummary from "../components/ProjectAttendanceSummary";
 import { PageLayout } from "../components/common/PageLayout";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard: React.FC = () => {
   const monday = startOfWeek(new Date(), { weekStartsOn: 1 });
@@ -20,11 +20,21 @@ const Dashboard: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [detailsLoading, setDetailsLoading] = useState(false);
   const [selectedProjectId, setSelectedProjectId] = useState<number>(1);
+  const [startDate, setStartDate] = useState(
+    format(startOfWeek(new Date(), { weekStartsOn: 1 }), "yyyy-MM-dd")
+  );
+  const [endDate, setEndDate] = useState(
+    format(endOfWeek(new Date(), { weekStartsOn: 1 }), "yyyy-MM-dd")
+  );
 
   const handleAttendanceReportClick = () => {
     setModalOpen(true);
     setDetailsLoading(true);
-    ApiService.getProjectAttendanceDetails(selectedProjectId)
+    ApiService.getProjectAttendanceDetails(
+      selectedProjectId,
+      startDate,
+      endDate
+    )
       .then((data) => {
         setDetails(data);
       })
@@ -76,9 +86,24 @@ const Dashboard: React.FC = () => {
           className="flex-grow"
           data-testid="employee-search"
         />
-        <Button variant="outlined" data-testid="date-range-btn">
-          Date Range
-        </Button>
+        <TextField
+          type="date"
+          size="small"
+          label="Start Date"
+          value={startDate}
+          onChange={(e) => setStartDate(e.target.value)}
+          InputLabelProps={{ shrink: true }}
+          data-testid="start-date-input"
+        />
+        <TextField
+          type="date"
+          size="small"
+          label="End Date"
+          value={endDate}
+          onChange={(e) => setEndDate(e.target.value)}
+          InputLabelProps={{ shrink: true }}
+          data-testid="end-date-input"
+        />
         <Button variant="outlined" data-testid="advance-filter-btn">
           Advance Filter
         </Button>
