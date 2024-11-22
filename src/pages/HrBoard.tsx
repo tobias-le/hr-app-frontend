@@ -4,15 +4,13 @@ import {LeaveType, PendingRequest} from "../types/timeoff";
 import {
     Avatar,
     Box,
-    Button, CircularProgress, FormControl, FormControlLabel, Grid,
-    Paper, Switch,
-    Table,
+    Button, CircularProgress, Grid,
+    Paper, Table,
     TableBody,
     TableCell,
     TableContainer,
     TableHead,
-    TableRow, TextField,
-    Typography
+    TableRow, Typography
 } from "@mui/material";
 import {BaseModal} from "../components/common/BaseModal";
 import {stringToColor} from "../utils/colorUtils";
@@ -29,6 +27,7 @@ const HrBoard:React.FC =()=> {
     const [timeOffs, setTimeOffs] = useState<boolean>(true);
     const [lockedButton, setLockedButton] = useState<number>(0);
 
+    //mocked data
     const reqs: PendingRequest[] = [
         {
             id:1,

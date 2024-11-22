@@ -15,6 +15,9 @@ import {useEmployeeStore} from "../store/employeeStore";
 import {DataTable} from "../components/common/DataTable";
 import { PageLayout } from "../components/common/PageLayout";
 import {FormField} from "../components/common/FormField";
+import {getStatusColor} from "../utils/colorUtils";
+import {RequestPage} from "@mui/icons-material";
+import RequestModal from "../components/RequestModal";
 
 function calculateDaysBetween (date1: Date, date2: Date): number {
   return Math.round((date1.getTime() - date2.getTime())/(3600*1000*24))+1;
@@ -53,6 +56,7 @@ const TimeOff: React.FC = () => {
 
   //users recent requests, fetched
   const [requests, setRequests] = useState<Leave[]>([]);
+  const [currentRequest, setCurrentRequest] = useState<Leave | null>(null);
   const employee = useEmployeeStore(state => state.selectedEmployee);
 
   //submitting form, checks for required fields
@@ -164,25 +168,12 @@ const TimeOff: React.FC = () => {
     }
   }, [startDate,endDate]);
 
-  //returns color in which chip is displayed
-  const getStatusColor = (status: LeaveStatus) => {
-       switch (status) {
-         case LeaveStatus.Approved:
-           return "success";
-         case LeaveStatus.Rejected:
-           return "error";
-         default:
-           return "warning";
-       }
-  };
-
   const columns = [
     { header: "Type", accessor: "leaveType" as keyof Leave },
     { header: "Start Date", accessor: "startDate" as keyof Leave },
     { header: "End Date", accessor: "endDate" as keyof Leave },
     { header: "Reason", accessor: "reason" as keyof Leave },
-    {
-      header: "Status",
+    {header: "Status",
       accessor: (request: Leave) => (
         <Chip
           label={request.status}
@@ -361,7 +352,9 @@ const TimeOff: React.FC = () => {
         columns={columns}
         emptyMessage="Nothing to show"
         testId="requests-table"
+        onRowClick={(item)=> setCurrentRequest(item)}
       />
+        <RequestModal onClose={() => setCurrentRequest(null)} request={currentRequest}/>
     </PageLayout>
   );
 };

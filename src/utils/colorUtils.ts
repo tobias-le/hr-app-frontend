@@ -1,3 +1,5 @@
+import {LeaveStatus} from "../types/timeoff";
+
 export function stringToColor(string: string): string {
   let hash = 0;
   for (let i = 0; i < string.length; i++) {
@@ -9,4 +11,16 @@ export function stringToColor(string: string): string {
     color += ("00" + value.toString(16)).slice(-2);
   }
   return color;
+}
+
+//returns color in which chip is displayed
+export function getStatusColor (status: LeaveStatus) :"success" | "warning" | "error" {
+  switch (status) {
+    case LeaveStatus.Approved:
+      return "success";
+    case LeaveStatus.Rejected:
+      return "error";
+    default:
+      return "warning";
+  }
 }
