@@ -1,4 +1,4 @@
-import {Box, Button, CircularProgress, Paper, Typography} from "@mui/material";
+import {Box, Button, CircularProgress, Paper, ToggleButton, ToggleButtonGroup, Typography} from "@mui/material";
 import React, {FormEvent, useEffect, useState} from "react";
 import {Learning} from "../types/learning";
 import {useEmployeeStore} from "../store/employeeStore";
@@ -31,25 +31,19 @@ const Learn :React.FC = () => {
     const [validName, setValidName] = useState<string | null>(null);
     const [formLocked, setFormLocked] = useState<boolean>(false);
 
-    const updateFilter = (event : React.MouseEvent) => {
-        if (event.currentTarget.id === filter) {
-            setFilter(null);
-        } else {
-            setFilter(event.currentTarget.id);
-        }
-    }
-
     const update = (learningId: number, employeeId: number) : void => {
         setCourses( prevState => {
             return prevState.map(learning => {
                     if (learning.learningId === learningId) {
                         const newArray = Array.from(learning.enrolledEmployees);
+                        const date = new Date();
+                        date.setDate(date.getDate() + 7);
                         newArray.push({
                             id: {
                                 learningId: learningId,
                                 employeeId: employeeId
                             },
-                            date: new Date(),
+                            date: date,
                         });
                         return {
                             ...learning,
@@ -136,14 +130,20 @@ const Learn :React.FC = () => {
         <PageLayout data-testid="learning-page" title="Required Learning">
             <Box sx={{display: "flex", flexDirection: "row", justifyContent: "flex-end", alignItems:"center", padding:"16px"}}>
                 <Typography variant="body2">filter:</Typography>
+                <ToggleButtonGroup
+                    value={filter}
+                    onChange={(event, newFilter) => {setFilter(newFilter);console.log(newFilter)}}
+                    exclusive
+                    size="small"
+                >
+                    <ToggleButton value="complete" data-testid="complted-filter-button">
+                        Completed
+                    </ToggleButton>
 
-                <Button id="complete" onClick={updateFilter} variant={filter==="complete"? "contained" : "text"} data-testid="complted-filter-button">
-                    Completed
-                </Button>
-
-                <Button id="waiting" onClick={updateFilter} variant={filter==="waiting"? "contained" : "text"} data-testid="waiting-filter-button">
-                    Waiting
-                </Button>
+                    <ToggleButton value="waiting" data-testid="waiting-filter-button">
+                        Waiting
+                    </ToggleButton>
+                </ToggleButtonGroup>
 
             </Box>
             {viewedCourses.length > 0?

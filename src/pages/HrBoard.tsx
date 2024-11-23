@@ -10,7 +10,7 @@ import {
     TableCell,
     TableContainer,
     TableHead,
-    TableRow, Typography
+    TableRow, ToggleButton, ToggleButtonGroup, Typography
 } from "@mui/material";
 import {BaseModal} from "../components/common/BaseModal";
 import {stringToColor} from "../utils/colorUtils";
@@ -103,9 +103,15 @@ const HrBoard:React.FC =()=> {
     return (
         <PageLayout data-testid="hrBoard" title="Resolve requests">
             <div className="w-full flex justify-end">
-                <Button onClick={()=> {setTimeOffs(prevState => !prevState)}} variant="outlined">
-                    {!timeOffs? "Time-Off requests": "General requests"}
-                </Button>
+                <ToggleButtonGroup
+                    size="small"
+                    value={timeOffs? "timeoffs":"general"}
+                    onChange={(event, newValue)=> newValue && setTimeOffs(prevState => !prevState)}
+                    exclusive
+                >
+                    <ToggleButton value="general">General</ToggleButton>
+                    <ToggleButton value="timeoffs">Time-Off</ToggleButton>
+                </ToggleButtonGroup>
             </div>
 
             {currentRequests.length>0?
