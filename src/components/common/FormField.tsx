@@ -25,7 +25,7 @@ interface FormFieldProps {
   required?: boolean;
   testId?: string;
   error?: boolean;
-  helperText?: string;
+  helperText?: string | null;
   validateNotEmpty?: boolean;
   emptyErrorMessage?: string;
   className?: string;

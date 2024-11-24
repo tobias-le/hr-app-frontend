@@ -1,30 +1,20 @@
-import React, {useEffect, useState} from "react";
+import React, {ChangeEvent, useEffect, useState} from "react";
 import {
   Alert,
-  Box,
   Button,
   Chip,
-  FormControl,
   Grid,
-  InputLabel,
-  MenuItem,
   Paper,
-  Select,
   SelectChangeEvent,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TextField,
   Typography,
 } from "@mui/material";
-import Header from "../components/Header";
 import {EmployeeLeaveBalance, Leave, LeaveStatus, LeaveType} from "../types/timeoff";
 import CircularProgress from "@mui/material/CircularProgress";
 import ApiService from "../services/api.service";
 import {useEmployeeStore} from "../store/employeeStore";
+import {DataTable} from "../components/common/DataTable";
+import { PageLayout } from "../components/common/PageLayout";
+import {FormField} from "../components/common/FormField";
 
 function calculateDaysBetween (date1: Date, date2: Date): number {
   return Math.round((date1.getTime() - date2.getTime())/(3600*1000*24))+1;
@@ -40,38 +30,36 @@ const TimeOff: React.FC = () => {
   const[formLocked,setFormLocked] = useState(false);
 
   const [startDate, setStartDate] = useState<string>("");
-  const updateStartDate = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const updateStartDate = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent<any>) => {
     setStartDate(event.target.value);
   }
   const [startDateInValid, setStartDateInvalid] = useState<string |  null>(null);
 
   const [endDate, setEndDate] = useState<string>("");
-  const updateEndDate = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const updateEndDate = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent<any>) => {
     setEndDate(event.target.value);
   }
   const [endDateInvalid, setEndDateInvalid] = useState<string | null>(null);
 
-  const [requestType, setRequestType] = useState<LeaveType>(LeaveType.Sick);
-  const updateRequestType = (event: SelectChangeEvent) => {
+  const [requestType, setRequestType] = useState<LeaveType>(LeaveType.Vacation);
+  const updateRequestType = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent<any>) => {
     setRequestType(event.target.value as LeaveType);
   }
 
   const [description, setDescription] = useState<string>("");
-  const updateDescription = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const updateDescription = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent<any>) => {
     setDescription(event.target.value);
   }
 
   //users recent requests, fetched
   const [requests, setRequests] = useState<Leave[]>([]);
-  const [requestsError, setRequestsError] = useState<string | null>(null);
-
   const employee = useEmployeeStore(state => state.selectedEmployee);
 
   //submitting form, checks for required fields
   const submitRequestForm = (event : React.FormEvent) => {
     event.preventDefault();
     event.stopPropagation();
-    if (requestType && !startDateInValid && !endDateInvalid && employee) {
+    if (!startDateInValid && !endDateInvalid && employee) {
       if (startDate==="" || endDate==="") {
         if (startDate==="") {
           setStartDateInvalid("you must insert a date");
@@ -89,7 +77,6 @@ const TimeOff: React.FC = () => {
         employeeId: employee.id,
         reason: description
       }
-      console.log(request);
       setFormLocked(true);
       ApiService.createNewTimeOffRequest(request).then(
         createdRequest => {
@@ -120,13 +107,10 @@ const TimeOff: React.FC = () => {
     setSummary(null);
     setSummaryError(null);
     setRequests([]);
-    setRequestsError(null);
-    console.log(employee?.id);
     try {
         ApiService.getRecentTimeOffRequests(employee? employee.id :0)
             .then( reqs => setRequests(reqs))
             .catch(error => {
-              setRequestsError("Failed to load your requests");
               setRequests([]);
             });
         ApiService.getTimeOffSummary(employee? employee.id :0)
@@ -192,21 +176,31 @@ const TimeOff: React.FC = () => {
        }
   };
 
-  return (
-    <div className="flex flex-col h-screen bg-gray-100" data-testid="timeoff-container">
-      <Header />
-      <Box className="flex-grow p-6">
-        <Paper className="p-6">
-          <Typography variant="h5" className="font-bold mb-6" data-testid="timeoff-title">
-            Time Off Management
-          </Typography>
+  const columns = [
+    { header: "Type", accessor: "leaveType" as keyof Leave },
+    { header: "Start Date", accessor: "startDate" as keyof Leave },
+    { header: "End Date", accessor: "endDate" as keyof Leave },
+    { header: "Reason", accessor: "reason" as keyof Leave },
+    {
+      header: "Status",
+      accessor: (request: Leave) => (
+        <Chip
+          label={request.status}
+          color={getStatusColor(request.status)}
+          size="small"
+          data-testid="status-chip"
+        />
+      ),
+    },
+  ];
 
+  return (
+      <PageLayout data-testid="timeoff-container" title="Time Off Management">
           {summaryError?
               <Alert severity="error">{summaryError}</Alert>
               :
               null
           }
-
           {/* Summary Cards */}
           <Grid container spacing={3} className="mb-6" data-testid="summary-cards">
               <Grid item xs={12} md={3}>
@@ -220,7 +214,7 @@ const TimeOff: React.FC = () => {
                           {summary.vacationDaysLeft}
                         </Typography>
                         {(requestType===LeaveType.Vacation && daysBetween>0)?
-                            <Typography variant="h4" sx={{color: (summary.vacationDaysLeft-daysBetween)>=0? "#1976d2" : "red"}}>
+                            <Typography variant="h4" color={summary.vacationDaysLeft-daysBetween >=0? "success": "error"}>
                               ↓{summary.vacationDaysLeft - daysBetween}
                             </Typography> :
                             null
@@ -242,7 +236,7 @@ const TimeOff: React.FC = () => {
                           {summary.sickDaysLeft}
                         </Typography>
                         {(requestType===LeaveType.Sick && daysBetween>0)?
-                            <Typography variant="h4" sx={{color: (summary.sickDaysLeft-daysBetween)>=0? "#1976d2" : "red"}} >
+                            <Typography variant="h4" color={summary.sickDaysLeft-daysBetween >=0? "success": "error"} >
                               ↓{summary.sickDaysLeft - daysBetween}
                             </Typography> :
                             null
@@ -264,7 +258,7 @@ const TimeOff: React.FC = () => {
                           {summary.personalDaysLeft}
                         </Typography>
                         {(requestType===LeaveType.Personal && daysBetween>0)?
-                            <Typography variant="h4" sx={{color: summary.personalDaysLeft-daysBetween>=0? "#1976d2" : "red"}} >
+                            <Typography variant="h4" color={summary.personalDaysLeft-daysBetween >=0? "success": "error"} >
                               ↓{summary.personalDaysLeft - daysBetween}
                             </Typography> :
                             null
@@ -296,45 +290,56 @@ const TimeOff: React.FC = () => {
             </Typography>
             <form className="space-y-4 mt-5" onSubmit={submitRequestForm} data-testid="timeoff-request-form">
               <div className="grid grid-cols-2 gap-4">
-                <TextField
+                <FormField
+                    name="startDate"
                     error={!!startDateInValid}
                     helperText={startDateInValid}
                     data-testid="start-date-input"
-                  label="Start Date"
-                  type="date"
-                  onChange={updateStartDate}
-                  InputLabelProps={{ shrink: true }}
-                  value={startDate}
-                  fullWidth
+                    label="Start Date"
+                    type="date"
+                    onChange={updateStartDate}
+                    value={startDate}
                 />
-                <TextField
-                  label="End Date (included)"
-                  type="date"
-                  data-testid="end-date-input"
-                  onChange={updateEndDate}
-                  error={!!endDateInvalid}
-                  helperText={endDateInvalid}
-                  InputLabelProps={{ shrink: true }}
-                  value={endDate}
-                  fullWidth
+                <FormField
+                    name="endDate"
+                    label="End Date (included)"
+                    type="date"
+                    data-testid="end-date-input"
+                    onChange={updateEndDate}
+                    error={!!endDateInvalid}
+                    helperText={endDateInvalid}
+                    value={endDate}
                 />
-                <FormControl fullWidth>
-                  <InputLabel>Type</InputLabel>
-                  <Select label="Type" onChange={updateRequestType} value={requestType} data-testid="leave-type-select">
-                    <MenuItem value={LeaveType.Vacation} selected={requestType===LeaveType.Vacation} data-testid="vacation-option">Vacation</MenuItem>
-                    <MenuItem value={LeaveType.Sick} selected={requestType===LeaveType.Sick} data-testid="sick-option">Sick Leave</MenuItem>
-                    <MenuItem value={LeaveType.Personal} selected={requestType===LeaveType.Personal} data-testid="personal-option">Personal Leave</MenuItem>
-                  </Select>
-                </FormControl>
-                <TextField
-                  label="Reason"
-                  multiline
-                  rows={4}
-                  fullWidth
-                  className="col-span-2"
-                  value={description}
-                  onChange={updateDescription}
-                  data-testid="reason-input"
+              </div>
+              <div className="w-full">
+                <FormField
+                    name="type"
+                    label="Type"
+                    onChange={updateRequestType}
+                    value={requestType}
+                    data-testid="leave-type-select"
+                    options={[{
+                      value: LeaveType.Vacation,
+                      label: "Vacation"
+                    }, {
+                      value: LeaveType.Sick,
+                      label: "Sick Leave"
+                    }, {
+                      value: LeaveType.Personal,
+                      label: "Personal Leave",
+                    }]}
+                />
+              </div>
+              <div className="w-full">
+                <FormField
+                    name="reason"
+                    label="Reason"
+                    multiline
+                    rows={4}
+                    className="col-span-2"
+                    value={description}
+                    onChange={updateDescription}
+                    data-testid="reason-input"
                 />
               </div>
               <div className="flex justify-end space-x-2">
@@ -347,44 +352,17 @@ const TimeOff: React.FC = () => {
             </form>
           </Paper>
 
-          {/* Requests Table */}
-          <Typography variant="h6" className="mb-4">
-            Recent Requests
-          </Typography>
-          <TableContainer component={Paper} data-testid="requests-table">
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Type</TableCell>
-                  <TableCell>Start Date</TableCell>
-                  <TableCell>End Date</TableCell>
-                  <TableCell>Reason</TableCell>
-                  <TableCell>Status</TableCell>
-                </TableRow>
-              </TableHead>
-
-              {requests.length>0?
-                <TableBody>
-                  {requests.map(request => (
-                  <TableRow data-testid="request-row">
-                    <TableCell>{request.leaveType}</TableCell>
-                    <TableCell>{request.startDate}</TableCell>
-                    <TableCell>{request.endDate}</TableCell>
-                    <TableCell>{request.reason}</TableCell>
-                    <TableCell>
-                      <Chip label={request.status} color={getStatusColor(request.status)} size="small" data-testid="status-chip"/>
-                    </TableCell>
-                  </TableRow>))}
-                </TableBody> : null
-              }
-            </Table>
-            {requests.length ===0?
-              <Alert severity={requestsError? "error": "info"}>{requestsError? requestsError : "Nothing to show"}</Alert> : null
-            }
-          </TableContainer>
-        </Paper>
-      </Box>
-    </div>
+      {/* Requests Table */}
+      <Typography variant="h6" className="mb-4">
+        Recent Requests
+      </Typography>
+      <DataTable
+        data={requests}
+        columns={columns}
+        emptyMessage="Nothing to show"
+        testId="requests-table"
+      />
+    </PageLayout>
   );
 };
 

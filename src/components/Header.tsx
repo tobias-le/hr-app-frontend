@@ -17,6 +17,7 @@ import {
   Timer,
   FolderSpecial,
   Groups,
+  School
 } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import { stringToColor } from "../utils/colorUtils";
@@ -117,6 +118,16 @@ const Header: React.FC = () => {
               data-testid="team-management-link"
             >
               <Groups />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Learning">
+            <IconButton
+                className="header-icon"
+                component={Link}
+                to="/learning"
+                data-testid="learning-link"
+            >
+              <School />
             </IconButton>
           </Tooltip>
         </Box>

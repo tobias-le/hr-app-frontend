@@ -9,6 +9,7 @@ import {EmployeeLeaveBalance, Leave, LeaveDto} from "../types/timeoff";
 import { Employee, EmployeeNameWithId } from "../types/employee";
 import { Project } from "../types/project";
 import { Team } from "../types/team";
+import {Learning, LearningAssignmentDto, LearningDto} from "../types/learning";
 
 class ApiService {
   private static async fetchWithConfig(
@@ -34,6 +35,29 @@ class ApiService {
       console.error("API call failed:", error);
       throw error;
     }
+  }
+
+  private static async fetchWithoutBody(
+      endpoint: string,
+      options?: RequestInit
+  ): Promise<any> {
+    const url = `${API_CONFIG.BASE_URL}${endpoint}`;
+    const defaultOptions: RequestInit = {
+      headers: API_CONFIG.HEADERS,
+      ...options,
+    }
+
+    try {
+      const response = await fetch(url, defaultOptions);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.ok;
+    } catch (error) {
+      console.error("API call failed:", error);
+      throw error;
+    }
+
   }
 
   public static async getEmployees(projectId: number): Promise<Employee[]> {
@@ -64,7 +88,7 @@ class ApiService {
   }
 
   public static async getRecentTimeOffRequests(employeeId:number) :Promise<Leave[]> {
-    return this.fetchWithConfig(`/leave/${employeeId}`) as Promise<Leave[]>;
+    return this.fetchWithConfig(`/leave/requests/${employeeId}`) as Promise<Leave[]>;
   }
 
   //to create new time off request, returns 1 if ok and 0 if not??
@@ -271,6 +295,27 @@ class ApiService {
       method: "DELETE",
     });
   }
+
+
+  public static async getCourses(): Promise<Learning[]> {
+    return this.fetchWithConfig(`${API_CONFIG.ENDPOINTS.LEARNINGS}`);
+  }
+
+  public static async createLearning( learning: LearningDto): Promise<Learning> {
+    return this.fetchWithConfig(`${API_CONFIG.ENDPOINTS.LEARNINGS}`, {
+      method: "POST",
+      body : JSON.stringify(learning),
+    });
+  }
+
+  public static async submitLearning( learningAssignment: LearningAssignmentDto): Promise<void> {
+    return this.fetchWithoutBody(`${API_CONFIG.ENDPOINTS.LEARNINGS}/assign`, {
+      method: "POST",
+      body : JSON.stringify(learningAssignment),
+    });
+  }
+
 }
+
 
 export default ApiService;
