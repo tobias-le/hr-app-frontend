@@ -202,7 +202,7 @@ const TimeOff: React.FC = () => {
         setStartDateInvalid(null);
       }
     }
-  }, [requestType, startDate]);
+  }, [requestType, startDate, setStartDateInvalid]);
 
   //if end date changes, checks if it's later than start date and alerts user if necessary
   useEffect(() => {
@@ -215,7 +215,7 @@ const TimeOff: React.FC = () => {
       setEndDateInvalid(null);
       setDaysBetween(calculateDaysBetween(endDateAsDate, startDateAsDate));
     }
-  }, [startDate, endDate]);
+  }, [startDate, endDate, setEndDateInvalid]);
 
   //returns color in which chip is displayed
   const getStatusColor = (status: LeaveStatus) => {

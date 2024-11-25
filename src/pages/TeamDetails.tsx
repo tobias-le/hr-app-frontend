@@ -26,7 +26,6 @@ const useTeamData = (teamId: string | undefined) => {
   const [team, setTeam] = useState<Team | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const { showMessage } = useSnackbarStore();
 
   useEffect(() => {
     const fetchTeamDetails = async () => {
