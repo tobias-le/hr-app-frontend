@@ -1,11 +1,9 @@
-import React, { useEffect } from "react";
+import React from "react";
 import {
   AppBar,
   Toolbar,
   Typography,
   IconButton,
-  Autocomplete,
-  TextField,
   Avatar,
   Tooltip,
   Divider,
@@ -26,7 +24,7 @@ import { useEmployeeStore } from "../store/employeeStore";
 import { useAuth } from "../contexts/AuthContext";
 
 const Header: React.FC = () => {
-  const { selectedEmployee } = useEmployeeStore();
+  const currentEmployee = useEmployeeStore((state) => state.currentEmployee);
   const { logout } = useAuth();
 
   return (
@@ -130,18 +128,18 @@ const Header: React.FC = () => {
           sx={{ padding: 1.5 }}
         >
           <Avatar
-            alt={selectedEmployee?.name || "User"}
+            alt={currentEmployee?.name || "User"}
             sx={{
               width: 40,
               height: 40,
-              bgcolor: stringToColor(selectedEmployee?.name || ""),
+              bgcolor: stringToColor(currentEmployee?.name || ""),
             }}
             data-testid="profile-avatar"
           >
-            {selectedEmployee?.name
-              ? selectedEmployee.name
+            {currentEmployee?.name
+              ? currentEmployee.name
                   .split(" ")
-                  .map((n) => n[0])
+                  .map((n: string) => n[0])
                   .join("")
                   .toUpperCase()
               : ""}

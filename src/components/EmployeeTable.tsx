@@ -28,9 +28,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({ projectId }) => {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
-    null
-  );
+  const [currentEmployee, setcurrentEmployee] = useState<Employee | null>(null);
 
   const fetchEmployees = useCallback(async () => {
     try {
@@ -54,11 +52,11 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({ projectId }) => {
   }, [fetchEmployees]);
 
   const handleEmployeeClick = (employee: Employee) => {
-    setSelectedEmployee(employee);
+    setcurrentEmployee(employee);
   };
 
   const handleCloseModal = () => {
-    setSelectedEmployee(null);
+    setcurrentEmployee(null);
   };
 
   if (loading) {
@@ -124,7 +122,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({ projectId }) => {
         </TableBody>
       </Table>
       <EmployeeDetailsModal
-        selectedEmployee={selectedEmployee}
+        currentEmployee={currentEmployee}
         handleCloseModal={handleCloseModal}
       />
     </TableContainer>

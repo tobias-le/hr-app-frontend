@@ -7,56 +7,46 @@ import { FormField } from "../components/common/FormField";
 import { PageLayout } from "../components/common/PageLayout";
 import { LoadingSpinner } from "../components/common/LoadingSpinner";
 import { useForm } from "../hooks/useForm";
-
+import { Employee } from "../types/employee";
 const EmployeeDetailsForm: React.FC = () => {
-  const { selectedEmployee, updateEmployee } = useEmployeeStore();
+  const { currentEmployee, updateEmployee } = useEmployeeStore();
   const { showMessage } = useSnackbarStore();
   const [loading, setLoading] = useState(false);
 
-  const { formData, handleChange, setFormData } = useForm(
-    selectedEmployee || {
-      name: "",
-      jobTitle: "",
-      email: "",
-      phoneNumber: "",
-    }
-  );
+  const { formData, handleChange, setFormData } = useForm({
+    id: 0,
+    name: "",
+    jobTitle: "",
+    employmentStatus: "",
+    email: "",
+    phoneNumber: "",
+    currentProjects: [],
+    annualSalary: 0,
+    annualLearningBudget: 0,
+    annualBusinessPerformanceBonusMax: 0,
+    annualPersonalPerformanceBonusMax: 0,
+  } as Employee);
 
   useEffect(() => {
-    if (selectedEmployee) {
-      setFormData(selectedEmployee);
+    if (currentEmployee) {
+      setFormData(currentEmployee);
     }
-  }, [selectedEmployee, setFormData]);
-
-  useEffect(() => {
-    const fetchEmployeeDetails = async () => {
-      if (!selectedEmployee?.id) return;
-
-      setLoading(true);
-      try {
-        const employeeData = await ApiService.getEmployeeById(
-          selectedEmployee.id
-        );
-        updateEmployee(employeeData);
-      } catch (error) {
-        console.error("Failed to fetch employee details:", error);
-        showMessage("Failed to fetch employee details");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchEmployeeDetails();
-  }, [selectedEmployee?.id, updateEmployee, showMessage]);
+  }, [currentEmployee, setFormData]);
 
   const handleUpdateEmployee = async () => {
-    if (!selectedEmployee?.id) return;
+    if (!currentEmployee?.id) return;
 
     setLoading(true);
     try {
+      const updatedData = {
+        ...currentEmployee,
+        email: formData.email,
+        phoneNumber: formData.phoneNumber,
+      };
+
       const updatedEmployee = await ApiService.updateEmployee(
-        selectedEmployee.id,
-        selectedEmployee
+        currentEmployee.id,
+        updatedData
       );
       updateEmployee(updatedEmployee);
       showMessage("Employee updated successfully.");
@@ -71,7 +61,11 @@ const EmployeeDetailsForm: React.FC = () => {
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const isValidPhone = (phone: string) => /^\d{9}$/.test(phone);
 
-  if (!selectedEmployee) {
+  const formatCurrency = (amount: number) => {
+    return `${amount.toLocaleString("cs-CZ")} Kč`;
+  };
+
+  if (!currentEmployee) {
     return (
       <PageLayout>
         <Typography variant="h6">
@@ -82,7 +76,7 @@ const EmployeeDetailsForm: React.FC = () => {
   }
 
   return (
-    <PageLayout title={`Employee Details - ${selectedEmployee.name}`}>
+    <PageLayout title={`Employee Details - ${currentEmployee.name}`}>
       <form noValidate autoComplete="off" data-testid="employee-details-form">
         <Grid container spacing={2}>
           <Grid item xs={12}>
@@ -91,8 +85,7 @@ const EmployeeDetailsForm: React.FC = () => {
               label="Name"
               value={formData.name}
               onChange={handleChange}
-              required
-              validateNotEmpty
+              disabled={true}
               testId="employee-name-input"
             />
           </Grid>
@@ -102,8 +95,7 @@ const EmployeeDetailsForm: React.FC = () => {
               label="Job Title"
               value={formData.jobTitle}
               onChange={handleChange}
-              required
-              validateNotEmpty
+              disabled={true}
               testId="employee-job-title-input"
             />
           </Grid>
@@ -134,6 +126,70 @@ const EmployeeDetailsForm: React.FC = () => {
             />
           </Grid>
           <Grid item xs={12}>
+            <FormField
+              name="employmentStatus"
+              label="Employment Status"
+              value={formData.employmentStatus}
+              onChange={handleChange}
+              disabled={true}
+              testId="employee-status-input"
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <FormField
+              name="currentProjects"
+              label="Current Projects"
+              value={formData.currentProjects?.join(", ") || ""}
+              onChange={handleChange}
+              disabled={true}
+              testId="employee-projects-input"
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <FormField
+              name="annualSalary"
+              label="Annual Salary"
+              value={formatCurrency(formData.annualSalary || 0)}
+              onChange={handleChange}
+              disabled={true}
+              testId="employee-salary-input"
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <FormField
+              name="annualLearningBudget"
+              label="Annual Learning Budget"
+              value={formatCurrency(formData.annualLearningBudget || 0)}
+              onChange={handleChange}
+              disabled={true}
+              testId="employee-learning-budget-input"
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <FormField
+              name="annualBusinessPerformanceBonusMax"
+              label="Annual Business Performance Bonus Max"
+              value={formatCurrency(
+                formData.annualBusinessPerformanceBonusMax || 0
+              )}
+              onChange={handleChange}
+              disabled={true}
+              testId="employee-business-bonus-input"
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <FormField
+              name="annualPersonalPerformanceBonusMax"
+              label="Annual Personal Performance Bonus Max"
+              value={formatCurrency(
+                formData.annualPersonalPerformanceBonusMax || 0
+              )}
+              onChange={handleChange}
+              disabled={true}
+              testId="employee-personal-bonus-input"
+            />
+          </Grid>
+          <Grid item xs={12}>
             <Button
               onClick={handleUpdateEmployee}
               disabled={
@@ -145,7 +201,7 @@ const EmployeeDetailsForm: React.FC = () => {
               fullWidth
               data-testid="update-employee-button"
             >
-              Update Employee
+              Update Contact Information
             </Button>
           </Grid>
         </Grid>

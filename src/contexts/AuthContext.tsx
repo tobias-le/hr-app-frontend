@@ -1,10 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import ApiService from "../services/api.service";
-import API_CONFIG from "../config/api.config";
 import { useEmployeeStore } from "../store/employeeStore";
 import { Employee } from "../types/employee";
-import { AuthResponse } from "../types/auth";
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -21,7 +19,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [currentUser, setCurrentUser] = useState<Employee | undefined>();
   const navigate = useNavigate();
-  const { setSelectedEmployee } = useEmployeeStore();
+  const setcurrentEmployee = useEmployeeStore(
+    (state) => state.setCurrentEmployee
+  );
 
   useEffect(() => {
     const token = localStorage.getItem("jwt_token");
@@ -36,7 +36,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
       localStorage.setItem("jwt_token", authResponse.token);
       setCurrentUser(authResponse.employee);
-      setSelectedEmployee(authResponse.employee);
+      setcurrentEmployee(authResponse.employee);
       setIsAuthenticated(true);
       navigate("/work-time");
     } catch (error) {
@@ -48,7 +48,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     localStorage.removeItem("jwt_token");
     setIsAuthenticated(false);
     setCurrentUser(undefined);
-    setSelectedEmployee(null);
+    setcurrentEmployee(null);
     navigate("/login");
   };
 

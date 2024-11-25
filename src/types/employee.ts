@@ -6,6 +6,10 @@ export interface Employee {
   email?: string;
   phoneNumber?: string;
   currentProjects?: string[];
+  annualSalary?: number;
+  annualLearningBudget?: number;
+  annualBusinessPerformanceBonusMax?: number;
+  annualPersonalPerformanceBonusMax?: number;
 }
 
 export interface EmployeeNameWithId {

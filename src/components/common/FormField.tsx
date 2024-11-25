@@ -29,6 +29,7 @@ interface FormFieldProps {
   validateNotEmpty?: boolean;
   emptyErrorMessage?: string;
   className?: string;
+  disabled?: boolean;
 }
 
 export const FormField: React.FC<FormFieldProps> = ({
@@ -47,6 +48,7 @@ export const FormField: React.FC<FormFieldProps> = ({
   validateNotEmpty = false,
   emptyErrorMessage = "This field is required",
   className,
+  disabled = false,
 }) => {
   const isError = error || (validateNotEmpty && required && !value);
   const displayHelperText = isError
@@ -67,6 +69,7 @@ export const FormField: React.FC<FormFieldProps> = ({
           required={required}
           data-testid={testId}
           error={isError}
+          disabled={disabled}
         >
           {options.map((option) => (
             <MenuItem key={option.value} value={option.value}>
@@ -95,6 +98,7 @@ export const FormField: React.FC<FormFieldProps> = ({
       data-testid={testId}
       error={isError}
       helperText={displayHelperText}
+      disabled={disabled}
       InputLabelProps={
         type === "date" || type === "time" ? { shrink: true } : undefined
       }
