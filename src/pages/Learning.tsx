@@ -176,24 +176,25 @@ const Learn: React.FC = () => {
         ))}
       </Paper>
 
-      {/*hide this later, so only hr can add new learnings*/}
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: "flex-end",
-          alignItems: "center",
-          padding: "16px",
-        }}
-      >
-        <Button
-          onClick={() => setDialogVisible(true)}
-          variant="contained"
-          data-testid="newlearning-create"
+      {currentEmployee?.hr && (
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "flex-end",
+            alignItems: "center",
+            padding: "16px",
+          }}
         >
-          Add new learning
-        </Button>
-      </Box>
+          <Button
+            onClick={() => setDialogVisible(true)}
+            variant="contained"
+            data-testid="newlearning-create"
+          >
+            Add new learning
+          </Button>
+        </Box>
+      )}
       <BaseModal
         open={dialogVisible}
         onClose={() => {
