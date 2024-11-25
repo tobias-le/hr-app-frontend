@@ -22,10 +22,61 @@ import { PageLayout } from "../components/common/PageLayout";
 import { FormField } from "../components/common/FormField";
 
 function calculateDaysBetween(date1: Date, date2: Date): number {
-  return (
-    Math.round((date1.getTime() - date2.getTime()) / (3600 * 1000 * 24)) + 1
-  );
+  const MS_PER_DAY = 1000 * 60 * 60 * 24;
+  const timeDiff = date1.getTime() - date2.getTime();
+  return Math.round(timeDiff / MS_PER_DAY) + 1;
 }
+
+const useTimeOffForm = () => {
+  const [startDate, setStartDate] = useState<string>("");
+  const [endDate, setEndDate] = useState<string>("");
+  const [requestType, setRequestType] = useState<LeaveType>(LeaveType.Vacation);
+  const [description, setDescription] = useState<string>("");
+  const [formLocked, setFormLocked] = useState(false);
+  const [startDateInValid, setStartDateInvalid] = useState<string | null>(null);
+  const [endDateInvalid, setEndDateInvalid] = useState<string | null>(null);
+
+  const updateStartDate = (
+    event:
+      | ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+      | SelectChangeEvent<any>
+  ) => setStartDate(event.target.value);
+  const updateEndDate = (
+    event:
+      | ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+      | SelectChangeEvent<any>
+  ) => setEndDate(event.target.value);
+  const updateRequestType = (
+    event:
+      | ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+      | SelectChangeEvent<any>
+  ) => setRequestType(event.target.value as LeaveType);
+  const updateDescription = (
+    event:
+      | ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+      | SelectChangeEvent<any>
+  ) => setDescription(event.target.value);
+
+  return {
+    startDate,
+    endDate,
+    requestType,
+    description,
+    formLocked,
+    startDateInValid,
+    endDateInvalid,
+    setStartDateInvalid,
+    setEndDateInvalid,
+    setFormLocked,
+    updateStartDate,
+    updateEndDate,
+    updateRequestType,
+    updateDescription,
+    setStartDate,
+    setEndDate,
+    setDescription,
+  };
+};
 
 const TimeOff: React.FC = () => {
   // summary of users remaining time off, fetched
@@ -34,45 +85,25 @@ const TimeOff: React.FC = () => {
   const [daysBetween, setDaysBetween] = useState<number>(0);
 
   //leave request form variables
-  const [formLocked, setFormLocked] = useState(false);
-
-  const [startDate, setStartDate] = useState<string>("");
-  const updateStartDate = (
-    event:
-      | ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-      | SelectChangeEvent<any>
-  ) => {
-    setStartDate(event.target.value);
-  };
-  const [startDateInValid, setStartDateInvalid] = useState<string | null>(null);
-
-  const [endDate, setEndDate] = useState<string>("");
-  const updateEndDate = (
-    event:
-      | ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-      | SelectChangeEvent<any>
-  ) => {
-    setEndDate(event.target.value);
-  };
-  const [endDateInvalid, setEndDateInvalid] = useState<string | null>(null);
-
-  const [requestType, setRequestType] = useState<LeaveType>(LeaveType.Vacation);
-  const updateRequestType = (
-    event:
-      | ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-      | SelectChangeEvent<any>
-  ) => {
-    setRequestType(event.target.value as LeaveType);
-  };
-
-  const [description, setDescription] = useState<string>("");
-  const updateDescription = (
-    event:
-      | ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-      | SelectChangeEvent<any>
-  ) => {
-    setDescription(event.target.value);
-  };
+  const {
+    startDate,
+    endDate,
+    requestType,
+    description,
+    formLocked,
+    startDateInValid,
+    endDateInvalid,
+    setStartDateInvalid,
+    setEndDateInvalid,
+    setFormLocked,
+    updateStartDate,
+    updateEndDate,
+    updateRequestType,
+    updateDescription,
+    setStartDate,
+    setEndDate,
+    setDescription,
+  } = useTimeOffForm();
 
   //users recent requests, fetched
   const [requests, setRequests] = useState<Leave[]>([]);

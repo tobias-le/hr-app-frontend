@@ -12,31 +12,29 @@ import { Employee } from "../types/employee";
 import PersonIcon from "@mui/icons-material/Person";
 import { isValidEmail, isValidPhone } from "../utils/validation";
 import { createProjectChip } from "../utils/chipUtils";
+import { SelectChangeEvent } from "@mui/material/Select";
 
-const EmployeeDetails: React.FC = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const { currentEmployee, updateEmployee } = useEmployeeStore();
-  const { showMessage } = useSnackbarStore();
-  const [loading, setLoading] = useState(false);
+const INITIAL_EMPLOYEE_STATE: Employee = {
+  id: 0,
+  name: "",
+  jobTitle: "",
+  employmentStatus: "",
+  email: "",
+  phoneNumber: "",
+  currentProjects: [],
+  annualSalary: 0,
+  annualLearningBudget: 0,
+  annualBusinessPerformanceBonusMax: 0,
+  annualPersonalPerformanceBonusMax: 0,
+  hr: false,
+};
+
+const useEmployeeData = (id: string | undefined, isHrView: boolean) => {
+  const { currentEmployee } = useEmployeeStore();
   const [teamManager, setTeamManager] = useState<string>("");
-  const { formData, handleChange, setFormData } = useForm({
-    id: 0,
-    name: "",
-    jobTitle: "",
-    employmentStatus: "",
-    email: "",
-    phoneNumber: "",
-    currentProjects: [],
-    annualSalary: 0,
-    annualLearningBudget: 0,
-    annualBusinessPerformanceBonusMax: 0,
-    annualPersonalPerformanceBonusMax: 0,
-    hr: false,
-  } as Employee);
-
-  const isHrView = Boolean(id);
-  const isOwnProfile = !isHrView;
+  const { formData, setFormData } = useForm(INITIAL_EMPLOYEE_STATE);
+  const navigate = useNavigate();
+  const { showMessage } = useSnackbarStore();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -58,6 +56,23 @@ const EmployeeDetails: React.FC = () => {
 
     fetchData();
   }, [id, currentEmployee, setFormData, navigate, showMessage, isHrView]);
+
+  return { formData, setFormData, teamManager };
+};
+
+const EmployeeDetails: React.FC = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { currentEmployee, updateEmployee } = useEmployeeStore();
+  const { showMessage } = useSnackbarStore();
+  const [loading, setLoading] = useState(false);
+  const { formData, setFormData, teamManager } = useEmployeeData(
+    id,
+    Boolean(id)
+  );
+
+  const isHrView = Boolean(id);
+  const isOwnProfile = !isHrView;
 
   const getFieldPermissions = (fieldName: string) => {
     // HR can edit everything in HR view
@@ -151,6 +166,20 @@ const EmployeeDetails: React.FC = () => {
   };
 
   const formatCurrency = (amount: number) => amount.toLocaleString("cs-CZ");
+
+  const handleChange = (
+    e:
+      | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+      | SelectChangeEvent
+  ) => {
+    const { name, value } = e.target;
+    const type = (e.target as HTMLInputElement).type;
+    const checked = (e.target as HTMLInputElement).checked;
+    setFormData({
+      ...formData,
+      [name]: type === "checkbox" ? checked : value,
+    });
+  };
 
   const renderField = (
     fieldName: keyof Employee,

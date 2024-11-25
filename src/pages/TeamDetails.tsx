@@ -21,15 +21,12 @@ import { Employee } from "../types/employee";
 import { TeamForm } from "../components/TeamForm";
 import { useEmployeeStore } from "../store/employeeStore";
 
-const TeamDetails: React.FC = () => {
-  const { teamId } = useParams();
-  const navigate = useNavigate();
+// Extract team loading logic to a custom hook
+const useTeamData = (teamId: string | undefined) => {
   const [team, setTeam] = useState<Team | null>(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
   const { showMessage } = useSnackbarStore();
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const { currentEmployee } = useEmployeeStore();
 
   useEffect(() => {
     const fetchTeamDetails = async () => {
@@ -46,6 +43,18 @@ const TeamDetails: React.FC = () => {
 
     fetchTeamDetails();
   }, [teamId, navigate]);
+
+  return { team, setTeam, loading };
+};
+
+const TeamDetails: React.FC = () => {
+  const { teamId } = useParams();
+  const { team, setTeam, loading } = useTeamData(teamId);
+  const navigate = useNavigate();
+  const { showMessage } = useSnackbarStore();
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const { currentEmployee } = useEmployeeStore();
 
   const handleEdit = () => {
     setIsEditModalOpen(true);
