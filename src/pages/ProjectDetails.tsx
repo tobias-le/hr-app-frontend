@@ -29,6 +29,7 @@ import { StatusBadge } from "../components/common/StatusBadge";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
 import { Employee } from "../types/employee";
+import { useEmployeeStore } from "../store/employeeStore";
 
 const ProjectDetails: React.FC = () => {
   const { projectId } = useParams();
@@ -41,6 +42,10 @@ const ProjectDetails: React.FC = () => {
   const [activeTab, setActiveTab] = useState(0);
   const [attendanceData, setAttendanceData] = useState<AttendanceRecord[]>([]);
   const [loadingAttendance, setLoadingAttendance] = useState(false);
+  const currentEmployee = useEmployeeStore((state) => state.currentEmployee);
+
+  const isHr = currentEmployee?.hr || false;
+  const isManager = project?.managerId === currentEmployee?.id;
 
   useEffect(() => {
     const fetchProjectDetails = async () => {
@@ -160,35 +165,39 @@ const ProjectDetails: React.FC = () => {
         >
           Back to Projects
         </Button>
-        <div className="space-x-2">
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleEdit}
-            data-testid="edit-button"
-          >
-            Edit Project
-          </Button>
-          <Button
-            variant="contained"
-            color="error"
-            onClick={handleDelete}
-            disabled={isDeleting}
-            data-testid="delete-button"
-          >
-            {isDeleting ? "Processing..." : "Delete Project"}
-          </Button>
-        </div>
+        {isHr && (
+          <div className="space-x-2">
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleEdit}
+              data-testid="edit-button"
+            >
+              Edit Project
+            </Button>
+            <Button
+              variant="contained"
+              color="error"
+              onClick={handleDelete}
+              disabled={isDeleting}
+              data-testid="delete-button"
+            >
+              {isDeleting ? "Processing..." : "Delete Project"}
+            </Button>
+          </div>
+        )}
       </div>
 
-      <Tabs
-        value={activeTab}
-        onChange={(_, newValue) => setActiveTab(newValue)}
-        className="mb-4"
-      >
-        <Tab label="Project Details" />
-        <Tab label="Attendance History" />
-      </Tabs>
+      {(isHr || isManager) && (
+        <Tabs
+          value={activeTab}
+          onChange={(_, newValue) => setActiveTab(newValue)}
+          className="mb-4"
+        >
+          <Tab label="Project Details" />
+          <Tab label="Attendance History" />
+        </Tabs>
+      )}
 
       {loading ? (
         <LoadingSpinner testId="details-loading" />
@@ -293,7 +302,7 @@ const ProjectDetails: React.FC = () => {
                             status={item.status}
                             className="min-w-[90px] text-center"
                           />
-                          {item.status === Status.PENDING && (
+                          {item.status === Status.PENDING && isManager && (
                             <div className="flex gap-1">
                               <Tooltip title="Approve">
                                 <IconButton

@@ -18,6 +18,10 @@ const colors = {
     50: "#f9fafb",
   },
   white: "#ffffff",
+  gradient: {
+    primary: "linear-gradient(135deg, #1e293b 0%, #334155 100%)",
+    accent: "linear-gradient(135deg, #f5c816 0%, #eab308 100%)",
+  },
 } as const;
 
 export const theme = createTheme({
@@ -37,7 +41,6 @@ export const theme = createTheme({
       primary: colors.slate[900],
       secondary: colors.gray[500],
     },
-
   },
   typography: {
     fontFamily: [
@@ -66,17 +69,24 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           textTransform: "none",
-          fontWeight: 500,
-          padding: "8px 16px",
+          fontWeight: 600,
+          padding: "12px 24px",
+          borderRadius: "12px",
+          transition: "all 0.2s ease-in-out",
         },
         contained: {
-          backgroundColor: colors.slate[900],
+          background: colors.gradient.primary,
           color: colors.white,
+          boxShadow: "0 4px 14px rgba(30, 41, 59, 0.15)",
           "&:hover": {
-            backgroundColor: "#334155",
+            transform: "translateY(-2px)",
+            boxShadow: "0 6px 20px rgba(30, 41, 59, 0.25)",
+          },
+          "&:active": {
+            transform: "translateY(0)",
           },
           "&.Mui-disabled": {
-            backgroundColor: colors.gray[400],
+            background: colors.gray[400],
             color: colors.white,
           },
         },
@@ -104,8 +114,13 @@ export const theme = createTheme({
     MuiPaper: {
       styleOverrides: {
         root: {
-          borderRadius: "8px",
-          boxShadow: "0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)",
+          borderRadius: "16px",
+          boxShadow: "0 8px 32px rgba(0, 0, 0, 0.08)",
+          "&.login-paper": {
+            background: "rgba(255, 255, 255, 0.9)",
+            backdropFilter: "blur(10px)",
+            border: "1px solid rgba(255, 255, 255, 0.2)",
+          },
         },
       },
     },
@@ -157,21 +172,48 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           "& .MuiOutlinedInput-root": {
+            backgroundColor: "rgba(255, 255, 255, 0.9)",
+            backdropFilter: "blur(8px)",
+            borderRadius: "12px",
+            transition: "all 0.2s ease-in-out",
             "& fieldset": {
-              borderColor: "#E5E7EB",
+              borderWidth: "1px",
+              borderColor: "rgba(74, 85, 104, 0.2)",
             },
-            "&:hover fieldset": {
-              borderColor: "#1e293b",
+            "&:hover": {
+              transform: "translateY(-2px)",
+              "& fieldset": {
+                borderColor: colors.yellow[400],
+              },
             },
-            "&.Mui-focused fieldset": {
-              borderColor: "#1e293b",
+            "&.Mui-focused": {
+              boxShadow: "0 4px 20px rgba(245, 200, 22, 0.15)",
+              "& fieldset": {
+                borderWidth: "2px",
+                borderColor: `${colors.yellow[400]} !important`,
+              },
+            },
+            "&.Mui-error": {
+              "& fieldset": {
+                borderColor: "#ef4444",
+              },
+            },
+            "& input": {
+              padding: "16px",
             },
           },
           "& .MuiInputLabel-root": {
-            color: "#4B5563",
+            color: colors.slate[600],
             "&.Mui-focused": {
-              color: "#1e293b",
+              color: colors.yellow[500],
             },
+            "&.Mui-error": {
+              color: "#ef4444",
+            },
+          },
+          "& .MuiFormHelperText-root": {
+            marginLeft: "14px",
+            marginRight: "14px",
           },
         },
       },
@@ -291,6 +333,19 @@ export const theme = createTheme({
         root: {
           '&[direction="row"]': {
             gap: "16px",
+          },
+        },
+      },
+    },
+    MuiSpeedDial: {
+      styleOverrides: {
+        root: {
+          "& .MuiFab-primary": {
+            background: colors.gradient.primary,
+            "&:hover": {
+              transform: "scale(1.1)",
+              boxShadow: "0 8px 20px rgba(30, 41, 59, 0.25)",
+            },
           },
         },
       },

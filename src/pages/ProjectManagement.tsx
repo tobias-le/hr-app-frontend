@@ -8,7 +8,7 @@ import {
 } from "@mui/material";
 import ApiService from "../services/api.service";
 import { Project } from "../types/project";
-import { Employee, EmployeeNameWithId } from "../types/employee";
+import { EmployeeNameWithId } from "../types/employee";
 import { useSnackbarStore } from "../components/GlobalSnackbar";
 import { debounce } from "lodash";
 import { PageLayout } from "../components/common/PageLayout";
@@ -20,11 +20,12 @@ import { handleApiError } from "../utils/errorUtils";
 import { useForm } from "../hooks/useForm";
 import { useProjectSelection } from "../hooks/useProjectSelection";
 import { useNavigate } from "react-router-dom";
+import { useEmployeeStore } from "../store/employeeStore";
 
 interface ProjectFormData {
   name: string;
   managerId: number;
-  members: Employee[];
+  members: EmployeeNameWithId[];
 }
 
 const ProjectManagement: React.FC = () => {
@@ -47,6 +48,7 @@ const ProjectManagement: React.FC = () => {
   const [projectsLoading, setProjectsLoading] = useState(true);
   const navigate = useNavigate();
   const [openDialog, setOpenDialog] = useState(false);
+  const currentEmployee = useEmployeeStore((state) => state.currentEmployee);
 
   const fetchProjects = useCallback(async () => {
     setProjectsLoading(true);
@@ -190,14 +192,16 @@ const ProjectManagement: React.FC = () => {
   return (
     <PageLayout title="Project Management">
       <div className="flex justify-between items-center mb-6">
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => handleOpenDialog()}
-          data-testid="add-project-button"
-        >
-          Add Project
-        </Button>
+        {currentEmployee?.hr && (
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => handleOpenDialog()}
+            data-testid="add-project-button"
+          >
+            Add Project
+          </Button>
+        )}
       </div>
 
       {projectsLoading ? (

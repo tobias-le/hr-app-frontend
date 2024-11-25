@@ -7,19 +7,25 @@ import { AttendanceRecord } from "../types/attendance";
 import AttendanceDetailsModal from "../components/AttendanceDetailsModal";
 import ProjectAttendanceSummary from "../components/ProjectAttendanceSummary";
 import { PageLayout } from "../components/common/PageLayout";
-import {useNavigate} from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom";
+import { useEmployeeStore } from "../store/employeeStore";
 
 const Dashboard: React.FC = () => {
-  const monday = startOfWeek(new Date(), { weekStartsOn: 1 });
-  const mondayDate = format(monday, "EEEE, d MMMM");
-  const sundayDate = format(addDays(monday, 6), "EEEE, d MMMM");
-  const weekDates = `${mondayDate} - ${sundayDate}`;
+  const currentEmployee = useEmployeeStore((state) => state.currentEmployee);
   const navigate = useNavigate();
-
   const [details, setDetails] = useState<AttendanceRecord[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [detailsLoading, setDetailsLoading] = useState(false);
   const [selectedProjectId, setSelectedProjectId] = useState<number>(1);
+
+  if (!currentEmployee?.hr) {
+    return <Navigate to="/work-time" replace />;
+  }
+
+  const monday = startOfWeek(new Date(), { weekStartsOn: 1 });
+  const mondayDate = format(monday, "EEEE, d MMMM");
+  const sundayDate = format(addDays(monday, 6), "EEEE, d MMMM");
+  const weekDates = `${mondayDate} - ${sundayDate}`;
 
   const handleAttendanceReportClick = () => {
     setModalOpen(true);

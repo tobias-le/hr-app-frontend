@@ -6,30 +6,30 @@ import { createProjectChip } from "../utils/chipUtils";
 import { BaseModal } from "./common/BaseModal";
 
 interface EmployeeDetailsModalProps {
-  selectedEmployee: Employee | null;
+  currentEmployee: Employee | null;
   handleCloseModal: () => void;
 }
 
 const EmployeeDetailsModal: React.FC<EmployeeDetailsModalProps> = ({
-  selectedEmployee,
+  currentEmployee,
   handleCloseModal,
 }) => (
   <BaseModal
-    open={!!selectedEmployee}
+    open={!!currentEmployee}
     onClose={handleCloseModal}
     title="Employee Details"
     maxWidth="sm"
     testId="employee-details-modal"
   >
-    {selectedEmployee && (
+    {currentEmployee && (
       <div className="space-y-4 py-4" data-testid="employee-details-content">
         <div className="flex items-center gap-4">
           <Avatar
             className="w-16 h-16"
-            sx={{ bgcolor: stringToColor(selectedEmployee.name ?? "") }}
+            sx={{ bgcolor: stringToColor(currentEmployee.name ?? "") }}
             data-testid="employee-avatar"
           >
-            {(selectedEmployee.name ?? "")
+            {(currentEmployee.name ?? "")
               .split(" ")
               .map((n) => n[0])
               .join("")
@@ -37,10 +37,10 @@ const EmployeeDetailsModal: React.FC<EmployeeDetailsModalProps> = ({
           </Avatar>
           <div>
             <Typography variant="h6" data-testid="employee-name">
-              {selectedEmployee.name}
+              {currentEmployee.name}
             </Typography>
             <Typography color="textSecondary" data-testid="employee-job-title">
-              {selectedEmployee.jobTitle}
+              {currentEmployee.jobTitle}
             </Typography>
           </div>
         </div>
@@ -54,9 +54,9 @@ const EmployeeDetailsModal: React.FC<EmployeeDetailsModalProps> = ({
               Status
             </Typography>
             <Chip
-              label={selectedEmployee.employmentStatus}
+              label={currentEmployee.employmentStatus}
               color={
-                selectedEmployee.employmentStatus === "ACTIVE"
+                currentEmployee.employmentStatus === "ACTIVE"
                   ? "success"
                   : "default"
               }
@@ -73,10 +73,10 @@ const EmployeeDetailsModal: React.FC<EmployeeDetailsModalProps> = ({
               Contact Information
             </Typography>
             <Typography data-testid="employee-email">
-              {selectedEmployee.email}
+              {currentEmployee.email}
             </Typography>
             <Typography data-testid="employee-phone">
-              {selectedEmployee.phoneNumber}
+              {currentEmployee.phoneNumber}
             </Typography>
           </div>
         </div>
@@ -92,7 +92,7 @@ const EmployeeDetailsModal: React.FC<EmployeeDetailsModalProps> = ({
             className="flex gap-1 flex-wrap mt-1"
             data-testid="projects-container"
           >
-            {selectedEmployee.currentProjects?.map((project, idx) => (
+            {currentEmployee.currentProjects?.map((project, idx) => (
               <Chip
                 key={idx}
                 {...createProjectChip(project)}

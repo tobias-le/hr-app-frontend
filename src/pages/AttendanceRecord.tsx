@@ -34,7 +34,7 @@ const WorkTime: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [pastEntries, setPastEntries] = useState<AttendanceRecord[]>([]);
   const [loading, setLoading] = useState(true);
-  const { selectedEmployee } = useEmployeeStore();
+  const currentEmployee = useEmployeeStore((state) => state.currentEmployee);
   const { showMessage } = useSnackbarStore();
   const [editingEntry, setEditingEntry] = useState<AttendanceRecord | null>(
     null
@@ -53,13 +53,13 @@ const WorkTime: React.FC = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      if (!selectedEmployee?.id) return;
+      if (!currentEmployee?.id) return;
 
       setLoading(true);
       try {
         const [projectsData, entriesData] = await Promise.all([
-          ApiService.getProjectsByEmployeeId(selectedEmployee.id),
-          ApiService.getAttendanceRecordsByMember(selectedEmployee.id),
+          ApiService.getProjectsByEmployeeId(currentEmployee.id),
+          ApiService.getAttendanceRecordsByMember(currentEmployee.id),
         ]);
 
         const validProjects = projectsData.filter(
@@ -80,7 +80,7 @@ const WorkTime: React.FC = () => {
     };
 
     fetchData();
-  }, [selectedEmployee?.id]);
+  }, [currentEmployee?.id]);
 
   const handleInputChange = (
     e:
@@ -92,7 +92,7 @@ const WorkTime: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedEmployee?.id || !isFormValid || isSubmitting) return;
+    if (!currentEmployee?.id || !isFormValid || isSubmitting) return;
 
     setIsSubmitting(true);
     try {
@@ -111,8 +111,8 @@ const WorkTime: React.FC = () => {
 
       const workTimeEntry: AttendanceRecord = {
         attendanceId: 0,
-        memberId: selectedEmployee.id,
-        member: selectedEmployee.name,
+        memberId: currentEmployee.id,
+        member: currentEmployee.name,
         date: formData.date,
         clockInTime: clockInDateTime,
         clockOutTime: clockOutDateTime,
@@ -188,7 +188,7 @@ const WorkTime: React.FC = () => {
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedEmployee?.id || !editingEntry?.attendanceId) return;
+    if (!currentEmployee?.id || !editingEntry?.attendanceId) return;
 
     setIsSubmitting(true);
     try {
@@ -209,8 +209,8 @@ const WorkTime: React.FC = () => {
       const updatedEntry: AttendanceRecord = {
         ...editingEntry,
         attendanceId: editingEntry.attendanceId,
-        memberId: selectedEmployee.id,
-        member: selectedEmployee.name,
+        memberId: currentEmployee.id,
+        member: currentEmployee.name,
         date: formData.date,
         clockInTime: clockInDateTime,
         clockOutTime: clockOutDateTime,

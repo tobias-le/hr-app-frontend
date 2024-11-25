@@ -19,15 +19,13 @@ import { handleApiError } from "../utils/errorUtils";
 import { BaseModal } from "../components/common/BaseModal";
 import { Employee } from "../types/employee";
 import { TeamForm } from "../components/TeamForm";
+import { useEmployeeStore } from "../store/employeeStore";
 
-const TeamDetails: React.FC = () => {
-  const { teamId } = useParams();
-  const navigate = useNavigate();
+// Extract team loading logic to a custom hook
+const useTeamData = (teamId: string | undefined) => {
   const [team, setTeam] = useState<Team | null>(null);
   const [loading, setLoading] = useState(true);
-  const { showMessage } = useSnackbarStore();
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchTeamDetails = async () => {
@@ -44,6 +42,18 @@ const TeamDetails: React.FC = () => {
 
     fetchTeamDetails();
   }, [teamId, navigate]);
+
+  return { team, setTeam, loading };
+};
+
+const TeamDetails: React.FC = () => {
+  const { teamId } = useParams();
+  const { team, setTeam, loading } = useTeamData(teamId);
+  const navigate = useNavigate();
+  const { showMessage } = useSnackbarStore();
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const { currentEmployee } = useEmployeeStore();
 
   const handleEdit = () => {
     setIsEditModalOpen(true);
@@ -213,23 +223,27 @@ const TeamDetails: React.FC = () => {
           Back to Teams
         </Button>
         <div className="space-x-2">
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleEdit}
-            data-testid="edit-button"
-          >
-            Edit Team
-          </Button>
-          <Button
-            variant="contained"
-            color="error"
-            onClick={handleDelete}
-            disabled={isDeleting}
-            data-testid="delete-button"
-          >
-            {isDeleting ? "Processing..." : "Delete Team"}
-          </Button>
+          {currentEmployee?.hr && (
+            <>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleEdit}
+                data-testid="edit-button"
+              >
+                Edit Team
+              </Button>
+              <Button
+                variant="contained"
+                color="error"
+                onClick={handleDelete}
+                disabled={isDeleting}
+                data-testid="delete-button"
+              >
+                {isDeleting ? "Processing..." : "Delete Team"}
+              </Button>
+            </>
+          )}
         </div>
       </div>
 
