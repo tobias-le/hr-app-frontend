@@ -17,6 +17,7 @@ import {
   Groups,
   School,
   Logout,
+  Search,
 } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import { stringToColor } from "../utils/colorUtils";
@@ -50,16 +51,28 @@ const Header: React.FC = () => {
           data-testid="nav-buttons"
         >
           {currentEmployee?.hr && (
-            <Tooltip title="Dashboard">
-              <IconButton
-                className="header-icon"
-                component={Link}
-                to="/"
-                data-testid="dashboard-link"
-              >
-                <Dashboard />
-              </IconButton>
-            </Tooltip>
+            <>
+              <Tooltip title="Dashboard">
+                <IconButton
+                  className="header-icon"
+                  component={Link}
+                  to="/"
+                  data-testid="dashboard-link"
+                >
+                  <Dashboard />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Employee Management">
+                <IconButton
+                  className="header-icon"
+                  component={Link}
+                  to="/employee-management"
+                  data-testid="employee-management-link"
+                >
+                  <Search />
+                </IconButton>
+              </Tooltip>
+            </>
           )}
           <Tooltip title="Time Off">
             <IconButton

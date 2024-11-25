@@ -3,7 +3,6 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Dashboard from "./pages/Dashboard";
 import WorkTime from "./pages/AttendanceRecord";
 import TimeOff from "./pages/TimeOff";
-import EmployeeDetailsForm from "./pages/EmployeeDetailsForm";
 import GlobalSnackbar from "./components/GlobalSnackbar";
 import ProjectManagement from "./pages/ProjectManagement";
 import { ThemeProvider } from "@mui/material/styles";
@@ -13,7 +12,9 @@ import TeamManagement from "./pages/TeamManagement";
 import TeamDetails from "./pages/TeamDetails";
 import Learn from "./pages/Learning";
 import { useAuth } from "./contexts/AuthContext";
-import Login from "./pages/Login";
+import { LoginPage } from "./pages/LoginPage";
+import EmployeeManagement from "./pages/EmployeeManagement";
+import EmployeeDetails from "./pages/EmployeeDetails";
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -31,7 +32,7 @@ const App: React.FC = () => {
   return (
     <ThemeProvider theme={theme}>
       <Routes>
-        <Route path="/login" element={<Login />} />
+        <Route path="/login" element={<LoginPage />} />
         <Route
           path="/"
           element={
@@ -60,7 +61,7 @@ const App: React.FC = () => {
           path="/employee-details"
           element={
             <ProtectedRoute>
-              <EmployeeDetailsForm />
+              <EmployeeDetails />
             </ProtectedRoute>
           }
         />
@@ -101,6 +102,22 @@ const App: React.FC = () => {
           element={
             <ProtectedRoute>
               <Learn />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/employee-management"
+          element={
+            <ProtectedRoute>
+              <EmployeeManagement />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/employee-management/:id"
+          element={
+            <ProtectedRoute>
+              <EmployeeDetails />
             </ProtectedRoute>
           }
         />

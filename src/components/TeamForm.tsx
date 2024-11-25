@@ -117,22 +117,6 @@ export const TeamForm: React.FC<TeamFormProps> = ({
     }
   };
 
-  const handleMemberAdd = async (employeeId: number) => {
-    const isValid = await validateTeamMembership(employeeId);
-    if (!isValid) return;
-
-    const employee = formData.employees.find((emp) => emp.id === employeeId);
-    if (
-      employee &&
-      !formData.members.some((member) => member.id === employee.id)
-    ) {
-      setFormData({
-        ...formData,
-        members: [...formData.members, employee],
-      });
-    }
-  };
-
   return (
     <Box
       component="form"
