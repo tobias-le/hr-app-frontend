@@ -17,40 +17,21 @@ import {
   Timer,
   FolderSpecial,
   Groups,
-  School
+  School,
+  Logout,
 } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import { stringToColor } from "../utils/colorUtils";
 import { useEmployeeStore } from "../store/employeeStore";
+import { useAuth } from "../contexts/AuthContext";
 
 const Header: React.FC = () => {
-  const { employees, selectedEmployee, fetchEmployees, setSelectedEmployee } =
-    useEmployeeStore();
-
-  useEffect(() => {
-    fetchEmployees();
-  }, [fetchEmployees]);
+  const { selectedEmployee } = useEmployeeStore();
+  const { logout } = useAuth();
 
   return (
     <AppBar position="static" data-testid="header">
       <Toolbar>
-        <Autocomplete
-          sx={{ width: 300, mr: 2 }}
-          options={employees}
-          getOptionLabel={(option) => option.name}
-          value={selectedEmployee}
-          onChange={(_, newValue) => setSelectedEmployee(newValue)}
-          data-testid="employee-search"
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              variant="outlined"
-              size="small"
-              placeholder="Search employee"
-              data-testid="employee-search-input"
-            />
-          )}
-        />
         <Typography variant="h6" sx={{ flexGrow: 1 }} data-testid="app-title">
           <Link
             to="/"
@@ -122,12 +103,21 @@ const Header: React.FC = () => {
           </Tooltip>
           <Tooltip title="Learning">
             <IconButton
-                className="header-icon"
-                component={Link}
-                to="/learning"
-                data-testid="learning-link"
+              className="header-icon"
+              component={Link}
+              to="/learning"
+              data-testid="learning-link"
             >
               <School />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Logout">
+            <IconButton
+              className="header-icon"
+              onClick={logout}
+              data-testid="logout-button"
+            >
+              <Logout />
             </IconButton>
           </Tooltip>
         </Box>
