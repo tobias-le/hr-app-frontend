@@ -19,6 +19,7 @@ import { handleApiError } from "../utils/errorUtils";
 import { BaseModal } from "../components/common/BaseModal";
 import { Employee } from "../types/employee";
 import { TeamForm } from "../components/TeamForm";
+import { useEmployeeStore } from "../store/employeeStore";
 
 const TeamDetails: React.FC = () => {
   const { teamId } = useParams();
@@ -28,6 +29,7 @@ const TeamDetails: React.FC = () => {
   const { showMessage } = useSnackbarStore();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const { currentEmployee } = useEmployeeStore();
 
   useEffect(() => {
     const fetchTeamDetails = async () => {
@@ -213,23 +215,27 @@ const TeamDetails: React.FC = () => {
           Back to Teams
         </Button>
         <div className="space-x-2">
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleEdit}
-            data-testid="edit-button"
-          >
-            Edit Team
-          </Button>
-          <Button
-            variant="contained"
-            color="error"
-            onClick={handleDelete}
-            disabled={isDeleting}
-            data-testid="delete-button"
-          >
-            {isDeleting ? "Processing..." : "Delete Team"}
-          </Button>
+          {currentEmployee?.hr && (
+            <>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleEdit}
+                data-testid="edit-button"
+              >
+                Edit Team
+              </Button>
+              <Button
+                variant="contained"
+                color="error"
+                onClick={handleDelete}
+                disabled={isDeleting}
+                data-testid="delete-button"
+              >
+                {isDeleting ? "Processing..." : "Delete Team"}
+              </Button>
+            </>
+          )}
         </div>
       </div>
 

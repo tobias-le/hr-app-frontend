@@ -49,16 +49,18 @@ const Header: React.FC = () => {
           sx={{ display: "flex", alignItems: "center", gap: 2 }}
           data-testid="nav-buttons"
         >
-          <Tooltip title="Dashboard">
-            <IconButton
-              className="header-icon"
-              component={Link}
-              to="/"
-              data-testid="dashboard-link"
-            >
-              <Dashboard />
-            </IconButton>
-          </Tooltip>
+          {currentEmployee?.hr && (
+            <Tooltip title="Dashboard">
+              <IconButton
+                className="header-icon"
+                component={Link}
+                to="/"
+                data-testid="dashboard-link"
+              >
+                <Dashboard />
+              </IconButton>
+            </Tooltip>
+          )}
           <Tooltip title="Time Off">
             <IconButton
               className="header-icon"

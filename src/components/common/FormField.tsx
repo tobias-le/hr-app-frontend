@@ -7,13 +7,16 @@ import {
   MenuItem,
   SelectChangeEvent,
   FormHelperText,
+  Checkbox,
+  FormControlLabel,
 } from "@mui/material";
 
 interface FormFieldProps {
   name: string;
   label: string;
   type?: string;
-  value: any;
+  value?: any;
+  checked?: boolean;
   onChange?: (
     event:
       | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -37,6 +40,7 @@ export const FormField: React.FC<FormFieldProps> = ({
   label,
   type = "text",
   value,
+  checked,
   onChange,
   options,
   multiline,
@@ -77,6 +81,28 @@ export const FormField: React.FC<FormFieldProps> = ({
             </MenuItem>
           ))}
         </Select>
+        {displayHelperText && (
+          <FormHelperText>{displayHelperText}</FormHelperText>
+        )}
+      </FormControl>
+    );
+  }
+
+  if (type === "checkbox") {
+    return (
+      <FormControl fullWidth error={isError} sx={{ my: 0.5 }}>
+        <FormControlLabel
+          control={
+            <Checkbox
+              name={name}
+              checked={checked}
+              onChange={onChange}
+              disabled={disabled}
+              data-testid={testId}
+            />
+          }
+          label={label}
+        />
         {displayHelperText && (
           <FormHelperText>{displayHelperText}</FormHelperText>
         )}

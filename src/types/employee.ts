@@ -10,6 +10,7 @@ export interface Employee {
   annualLearningBudget?: number;
   annualBusinessPerformanceBonusMax?: number;
   annualPersonalPerformanceBonusMax?: number;
+  hr: boolean;
 }
 
 export interface EmployeeNameWithId {

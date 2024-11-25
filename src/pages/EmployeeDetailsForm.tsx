@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Button, Typography, Grid } from "@mui/material";
+import { Button, Typography, Grid, Chip, Box } from "@mui/material";
 import ApiService from "../services/api.service";
 import { useEmployeeStore } from "../store/employeeStore";
 import { useSnackbarStore } from "../components/GlobalSnackbar";
@@ -8,10 +8,13 @@ import { PageLayout } from "../components/common/PageLayout";
 import { LoadingSpinner } from "../components/common/LoadingSpinner";
 import { useForm } from "../hooks/useForm";
 import { Employee } from "../types/employee";
+import PersonIcon from "@mui/icons-material/Person";
+
 const EmployeeDetailsForm: React.FC = () => {
   const { currentEmployee, updateEmployee } = useEmployeeStore();
   const { showMessage } = useSnackbarStore();
   const [loading, setLoading] = useState(false);
+  const [teamManager, setTeamManager] = useState<string>("");
 
   const { formData, handleChange, setFormData } = useForm({
     id: 0,
@@ -25,11 +28,25 @@ const EmployeeDetailsForm: React.FC = () => {
     annualLearningBudget: 0,
     annualBusinessPerformanceBonusMax: 0,
     annualPersonalPerformanceBonusMax: 0,
+    hr: false,
   } as Employee);
 
   useEffect(() => {
+    const fetchTeamManager = async () => {
+      if (currentEmployee?.id) {
+        try {
+          const team = await ApiService.getTeamByEmployeeId(currentEmployee.id);
+          setTeamManager(team.managerName || "No manager assigned");
+        } catch (error) {
+          console.error("Failed to fetch team manager:", error);
+          setTeamManager("Unable to load manager");
+        }
+      }
+    };
+
     if (currentEmployee) {
       setFormData(currentEmployee);
+      fetchTeamManager();
     }
   }, [currentEmployee, setFormData]);
 
@@ -76,7 +93,25 @@ const EmployeeDetailsForm: React.FC = () => {
   }
 
   return (
-    <PageLayout title={`Employee Details - ${currentEmployee.name}`}>
+    <PageLayout>
+      <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
+        <Typography variant="h6" sx={{ mr: 2 }}>
+          Employee Details - {currentEmployee.name}
+        </Typography>
+        {teamManager && (
+          <Chip
+            icon={<PersonIcon />}
+            label={`Manager: ${teamManager}`}
+            sx={{
+              backgroundColor: "primary.light",
+              color: "primary.contrastText",
+              "& .MuiChip-icon": {
+                color: "inherit",
+              },
+            }}
+          />
+        )}
+      </Box>
       <form noValidate autoComplete="off" data-testid="employee-details-form">
         <Grid container spacing={2}>
           <Grid item xs={12}>
@@ -187,6 +222,17 @@ const EmployeeDetailsForm: React.FC = () => {
               onChange={handleChange}
               disabled={true}
               testId="employee-personal-bonus-input"
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <FormField
+              name="hr"
+              label="HR Access"
+              type="checkbox"
+              checked={Boolean(formData.hr)}
+              onChange={handleChange}
+              disabled={true}
+              testId="employee-hr-checkbox"
             />
           </Grid>
           <Grid item xs={12}>

@@ -24,22 +24,28 @@ class ApiService {
     const url = `${API_CONFIG.BASE_URL}${endpoint}`;
     const token = localStorage.getItem("jwt_token");
 
+    const headers = {
+      ...API_CONFIG.HEADERS,
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(options?.headers || {}),
+    };
+
     const defaultOptions: RequestInit = {
-      headers: {
-        ...API_CONFIG.HEADERS,
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
       ...options,
+      headers,
     };
 
     try {
       const response = await fetch(url, defaultOptions);
       if (!response.ok) {
         if (response.status === 401) {
-          // Handle unauthorized access
           localStorage.removeItem("jwt_token");
           window.location.href = "/login";
           throw new Error("Unauthorized access");
+        }
+        if (response.status === 403) {
+          console.error("Forbidden access. Token:", token);
+          throw new Error("Forbidden access - check permissions");
         }
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -352,6 +358,24 @@ class ApiService {
       },
       body: JSON.stringify({ email, password }),
     });
+  }
+
+  public static async validateTeamMembership(
+    employeeId: number
+  ): Promise<boolean> {
+    const response = await this.fetchWithConfig(
+      `/api/teams/validate-membership/${employeeId}`,
+      {
+        method: "GET",
+      }
+    );
+    return response.data;
+  }
+
+  public static async getTeamByEmployeeId(employeeId: number): Promise<Team> {
+    return this.fetchWithConfig(
+      `${API_CONFIG.ENDPOINTS.TEAMS}/by-employee/${employeeId}`
+    );
   }
 }
 

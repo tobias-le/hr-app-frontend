@@ -26,30 +26,38 @@ interface EmployeeTableProps {
 const EmployeeTable: React.FC<EmployeeTableProps> = ({ projectId }) => {
   const { selectedProject } = useProjectStore();
   const [employees, setEmployees] = useState<Employee[]>([]);
+  const [manager, setManager] = useState<Employee | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentEmployee, setcurrentEmployee] = useState<Employee | null>(null);
 
-  const fetchEmployees = useCallback(async () => {
+  const fetchData = useCallback(async () => {
     try {
       if (!projectId) {
         setError("Project ID is required");
         return;
       }
-      const data = await ApiService.getEmployees(projectId);
-      setEmployees(data);
+      const [employeesData] = await Promise.all([
+        ApiService.getEmployees(projectId),
+        selectedProject?.managerId
+          ? ApiService.getEmployeeById(selectedProject.managerId)
+              .then((managerData) => setManager(managerData))
+              .catch(console.error)
+          : Promise.resolve(),
+      ]);
+      setEmployees(employeesData);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setLoading(false);
     }
-  }, [projectId]);
+  }, [projectId, selectedProject?.managerId]);
 
   useEffect(() => {
     setLoading(true);
     setError(null);
-    fetchEmployees();
-  }, [fetchEmployees]);
+    fetchData();
+  }, [fetchData]);
 
   const handleEmployeeClick = (employee: Employee) => {
     setcurrentEmployee(employee);
@@ -93,11 +101,20 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({ projectId }) => {
               <div className="flex items-center gap-2">
                 <Typography variant="subtitle1">Project Manager:</Typography>
                 <Chip
-                  label={selectedProject?.managerName || "Not assigned"}
+                  label={
+                    manager?.name ||
+                    selectedProject?.managerName ||
+                    "Not assigned"
+                  }
                   color="primary"
                   size="small"
                   data-testid="project-manager-chip"
                 />
+                {manager && (
+                  <Typography variant="body2" color="textSecondary">
+                    ({manager.email})
+                  </Typography>
+                )}
               </div>
             </TableCell>
           </TableRow>
