@@ -37,15 +37,31 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({ projectId }) => {
         setError("Project ID is required");
         return;
       }
-      const [employeesData] = await Promise.all([
+      const [employeesData, transformFn] = await Promise.all([
         ApiService.getEmployees(projectId),
         selectedProject?.managerId
           ? ApiService.getEmployeeById(selectedProject.managerId)
-              .then((managerData) => setManager(managerData))
+              .then((managerData) => {
+                setManager(managerData);
+                return (employees: Employee[]) => {
+                  const managerExists = employees.some(
+                    (emp: Employee) => emp.id === managerData.id
+                  );
+                  if (!managerExists) {
+                    return [managerData, ...employees];
+                  }
+                  return employees;
+                };
+              })
               .catch(console.error)
-          : Promise.resolve(),
+          : Promise.resolve((emp: Employee[]) => emp),
       ]);
-      setEmployees(employeesData);
+
+      const finalEmployees = transformFn
+        ? transformFn(employeesData)
+        : employeesData;
+
+      setEmployees(finalEmployees);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
     } finally {

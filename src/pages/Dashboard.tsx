@@ -74,22 +74,6 @@ const Dashboard: React.FC = () => {
         data-testid="project-attendance-summary"
       />
 
-      <div className="mt-6 flex space-x-4">
-        <TextField
-          variant="outlined"
-          size="small"
-          placeholder="Search employee"
-          className="flex-grow"
-          data-testid="employee-search"
-        />
-        <Button variant="outlined" data-testid="date-range-btn">
-          Date Range
-        </Button>
-        <Button variant="outlined" data-testid="advance-filter-btn">
-          Advance Filter
-        </Button>
-      </div>
-
       <EmployeeTable projectId={selectedProjectId} />
 
       <AttendanceDetailsModal
