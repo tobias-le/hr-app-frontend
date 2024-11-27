@@ -22,11 +22,11 @@ class ApiService {
     options?: RequestInit
   ): Promise<any> {
     const url = `${API_CONFIG.BASE_URL}${endpoint}`;
-    const token = localStorage.getItem("jwt_token");
+    const accessToken = localStorage.getItem("access_token");
 
     const headers = {
       ...API_CONFIG.HEADERS,
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
       ...(options?.headers || {}),
     };
 
@@ -39,12 +39,31 @@ class ApiService {
       const response = await fetch(url, defaultOptions);
       if (!response.ok) {
         if (response.status === 401) {
-          localStorage.removeItem("jwt_token");
-          window.location.href = "/login";
-          throw new Error("Unauthorized access");
+          // Try to refresh token
+          const refreshToken = localStorage.getItem("refresh_token");
+          if (refreshToken && endpoint !== "/auth/refresh") {
+            try {
+              const authResponse = await ApiService.refreshToken(refreshToken);
+              localStorage.setItem("access_token", authResponse.accessToken);
+              localStorage.setItem("refresh_token", authResponse.refreshToken);
+
+              // Retry original request with new token
+              return await ApiService.fetchWithConfig(endpoint, options);
+            } catch (refreshError) {
+              localStorage.removeItem("access_token");
+              localStorage.removeItem("refresh_token");
+              window.location.href = "/login";
+              throw new Error("Session expired");
+            }
+          } else {
+            localStorage.removeItem("access_token");
+            localStorage.removeItem("refresh_token");
+            window.location.href = "/login";
+            throw new Error("Unauthorized access");
+          }
         }
         if (response.status === 403) {
-          console.error("Forbidden access. Token:", token);
+          console.error("Forbidden access. Token:", accessToken);
           throw new Error("Forbidden access - check permissions");
         }
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -376,6 +395,18 @@ class ApiService {
     return this.fetchWithConfig(
       `${API_CONFIG.ENDPOINTS.TEAMS}/by-employee/${employeeId}`
     );
+  }
+
+  public static async refreshToken(
+    refreshToken: string
+  ): Promise<AuthResponse> {
+    return this.fetchWithConfig(`/auth/refresh`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ refreshToken }),
+    });
   }
 }
 

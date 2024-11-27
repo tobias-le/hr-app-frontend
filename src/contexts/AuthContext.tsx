@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import ApiService from "../services/api.service";
 import { useEmployeeStore } from "../store/employeeStore";
 import { Employee } from "../types/employee";
+import { AuthResponse } from "../types/auth";
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -19,42 +20,58 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [currentUser, setCurrentUser] = useState<Employee | undefined>();
   const navigate = useNavigate();
-  const setcurrentEmployee = useEmployeeStore(
+  const setCurrentEmployee = useEmployeeStore(
     (state) => state.setCurrentEmployee
   );
 
   useEffect(() => {
-    const token = localStorage.getItem("jwt_token");
-    if (token) {
-      setIsAuthenticated(true);
-    }
+    const initAuth = async () => {
+      const accessToken = localStorage.getItem("access_token");
+      const refreshToken = localStorage.getItem("refresh_token");
+
+      if (accessToken && refreshToken) {
+        try {
+          const response = await ApiService.refreshToken(refreshToken);
+          handleAuthSuccess(response);
+        } catch (error) {
+          handleLogout();
+        }
+      }
+    };
+
+    initAuth();
   }, []);
+
+  const handleAuthSuccess = (authResponse: AuthResponse) => {
+    localStorage.setItem("access_token", authResponse.accessToken);
+    localStorage.setItem("refresh_token", authResponse.refreshToken);
+    setCurrentUser(authResponse.employee);
+    setCurrentEmployee(authResponse.employee);
+    setIsAuthenticated(true);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
+    setIsAuthenticated(false);
+    setCurrentUser(undefined);
+    setCurrentEmployee(null);
+    navigate("/login");
+  };
 
   const login = async (email: string, password: string) => {
     try {
       const authResponse = await ApiService.login(email, password);
-
-      localStorage.setItem("jwt_token", authResponse.token);
-      setCurrentUser(authResponse.employee);
-      setcurrentEmployee(authResponse.employee);
-      setIsAuthenticated(true);
+      handleAuthSuccess(authResponse);
       navigate("/work-time");
     } catch (error) {
       throw new Error("Invalid credentials");
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem("jwt_token");
-    setIsAuthenticated(false);
-    setCurrentUser(undefined);
-    setcurrentEmployee(null);
-    navigate("/login");
-  };
-
   return (
     <AuthContext.Provider
-      value={{ isAuthenticated, currentUser, login, logout }}
+      value={{ isAuthenticated, currentUser, login, logout: handleLogout }}
     >
       {children}
     </AuthContext.Provider>
