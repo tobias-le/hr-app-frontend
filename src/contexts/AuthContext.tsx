@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
 import { useNavigate } from "react-router-dom";
 import ApiService from "../services/api.service";
 import { useEmployeeStore } from "../store/employeeStore";
@@ -24,6 +30,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     (state) => state.setCurrentEmployee
   );
 
+  const handleAuthSuccess = useCallback(
+    (authResponse: AuthResponse) => {
+      localStorage.setItem("access_token", authResponse.accessToken);
+      localStorage.setItem("refresh_token", authResponse.refreshToken);
+      setCurrentUser(authResponse.employee);
+      setCurrentEmployee(authResponse.employee);
+      setIsAuthenticated(true);
+    },
+    [setCurrentEmployee]
+  );
+
+  const handleLogout = useCallback(() => {
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
+    setIsAuthenticated(false);
+    setCurrentUser(undefined);
+    setCurrentEmployee(null);
+    navigate("/login");
+  }, [navigate, setCurrentEmployee]);
+
   useEffect(() => {
     const initAuth = async () => {
       const accessToken = localStorage.getItem("access_token");
@@ -40,24 +66,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     };
 
     initAuth();
-  }, []);
-
-  const handleAuthSuccess = (authResponse: AuthResponse) => {
-    localStorage.setItem("access_token", authResponse.accessToken);
-    localStorage.setItem("refresh_token", authResponse.refreshToken);
-    setCurrentUser(authResponse.employee);
-    setCurrentEmployee(authResponse.employee);
-    setIsAuthenticated(true);
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("refresh_token");
-    setIsAuthenticated(false);
-    setCurrentUser(undefined);
-    setCurrentEmployee(null);
-    navigate("/login");
-  };
+  }, [handleAuthSuccess, handleLogout]);
 
   const login = async (email: string, password: string) => {
     try {
