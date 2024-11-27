@@ -20,6 +20,8 @@ interface DataTableProps<T> {
   }[];
   loading?: boolean;
   emptyMessage?: string;
+  initialMessage?: string;
+  isInitialState?: boolean;
   testId?: string;
   onRowClick?: (item: T) => void;
 }
@@ -29,6 +31,8 @@ export function DataTable<T>({
   columns,
   loading = false,
   emptyMessage = "No data available",
+  initialMessage = "Start typing to search",
+  isInitialState = false,
   testId,
   onRowClick,
 }: DataTableProps<T>) {
@@ -37,7 +41,12 @@ export function DataTable<T>({
   }
 
   if (!data.length) {
-    return <EmptyState message={emptyMessage} testId={`${testId}-empty`} />;
+    return (
+      <EmptyState
+        message={isInitialState ? initialMessage : emptyMessage}
+        testId={`${testId}-empty`}
+      />
+    );
   }
 
   return (

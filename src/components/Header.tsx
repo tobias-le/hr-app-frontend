@@ -1,11 +1,9 @@
-import React, { useEffect } from "react";
+import React from "react";
 import {
   AppBar,
   Toolbar,
   Typography,
   IconButton,
-  Autocomplete,
-  TextField,
   Avatar,
   Tooltip,
   Divider,
@@ -17,40 +15,22 @@ import {
   Timer,
   FolderSpecial,
   Groups,
-  School
+  School,
+  Logout,
+  Search,
 } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import { stringToColor } from "../utils/colorUtils";
 import { useEmployeeStore } from "../store/employeeStore";
+import { useAuth } from "../contexts/AuthContext";
 
 const Header: React.FC = () => {
-  const { employees, selectedEmployee, fetchEmployees, setSelectedEmployee } =
-    useEmployeeStore();
-
-  useEffect(() => {
-    fetchEmployees();
-  }, [fetchEmployees]);
+  const currentEmployee = useEmployeeStore((state) => state.currentEmployee);
+  const { logout } = useAuth();
 
   return (
     <AppBar position="static" data-testid="header">
       <Toolbar>
-        <Autocomplete
-          sx={{ width: 300, mr: 2 }}
-          options={employees}
-          getOptionLabel={(option) => option.name}
-          value={selectedEmployee}
-          onChange={(_, newValue) => setSelectedEmployee(newValue)}
-          data-testid="employee-search"
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              variant="outlined"
-              size="small"
-              placeholder="Search employee"
-              data-testid="employee-search-input"
-            />
-          )}
-        />
         <Typography variant="h6" sx={{ flexGrow: 1 }} data-testid="app-title">
           <Link
             to="/"
@@ -70,16 +50,30 @@ const Header: React.FC = () => {
           sx={{ display: "flex", alignItems: "center", gap: 2 }}
           data-testid="nav-buttons"
         >
-          <Tooltip title="Dashboard">
-            <IconButton
-              className="header-icon"
-              component={Link}
-              to="/"
-              data-testid="dashboard-link"
-            >
-              <Dashboard />
-            </IconButton>
-          </Tooltip>
+          {currentEmployee?.hr && (
+            <>
+              <Tooltip title="Dashboard">
+                <IconButton
+                  className="header-icon"
+                  component={Link}
+                  to="/"
+                  data-testid="dashboard-link"
+                >
+                  <Dashboard />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Employee Management">
+                <IconButton
+                  className="header-icon"
+                  component={Link}
+                  to="/employee-management"
+                  data-testid="employee-management-link"
+                >
+                  <Search />
+                </IconButton>
+              </Tooltip>
+            </>
+          )}
           <Tooltip title="Time Off">
             <IconButton
               className="header-icon"
@@ -122,12 +116,21 @@ const Header: React.FC = () => {
           </Tooltip>
           <Tooltip title="Learning">
             <IconButton
-                className="header-icon"
-                component={Link}
-                to="/learning"
-                data-testid="learning-link"
+              className="header-icon"
+              component={Link}
+              to="/learning"
+              data-testid="learning-link"
             >
               <School />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Logout">
+            <IconButton
+              className="header-icon"
+              onClick={logout}
+              data-testid="logout-button"
+            >
+              <Logout />
             </IconButton>
           </Tooltip>
         </Box>
@@ -140,18 +143,18 @@ const Header: React.FC = () => {
           sx={{ padding: 1.5 }}
         >
           <Avatar
-            alt={selectedEmployee?.name || "User"}
+            alt={currentEmployee?.name || "User"}
             sx={{
               width: 40,
               height: 40,
-              bgcolor: stringToColor(selectedEmployee?.name || ""),
+              bgcolor: stringToColor(currentEmployee?.name || ""),
             }}
             data-testid="profile-avatar"
           >
-            {selectedEmployee?.name
-              ? selectedEmployee.name
+            {currentEmployee?.name
+              ? currentEmployee.name
                   .split(" ")
-                  .map((n) => n[0])
+                  .map((n: string) => n[0])
                   .join("")
                   .toUpperCase()
               : ""}

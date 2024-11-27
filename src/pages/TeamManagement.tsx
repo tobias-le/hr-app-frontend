@@ -11,6 +11,7 @@ import { handleApiError } from "../utils/errorUtils";
 import { useForm } from "../hooks/useForm";
 import { useNavigate } from "react-router-dom";
 import { TeamForm, TeamFormData } from "../components/TeamForm";
+import { useEmployeeStore } from "../store/employeeStore";
 
 const TeamManagement: React.FC = () => {
   const { formData, setFormData, isSubmitting, setIsSubmitting } =
@@ -28,6 +29,7 @@ const TeamManagement: React.FC = () => {
   const navigate = useNavigate();
   const [openDialog, setOpenDialog] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const { currentEmployee } = useEmployeeStore();
 
   const fetchTeams = useCallback(async () => {
     setTeamsLoading(true);
@@ -91,6 +93,10 @@ const TeamManagement: React.FC = () => {
       const apiTeamData = {
         ...formData,
         managerId: formData.managerId || undefined,
+        members: formData.members.map((member) => ({
+          ...member,
+          hr: false,
+        })),
       };
 
       await ApiService.createTeam(apiTeamData);
@@ -116,14 +122,16 @@ const TeamManagement: React.FC = () => {
   return (
     <PageLayout title="Team Management">
       <div className="flex justify-between items-center mb-6">
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => handleOpenDialog()}
-          data-testid="add-team-button"
-        >
-          Add Team
-        </Button>
+        {currentEmployee?.hr && (
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => handleOpenDialog()}
+            data-testid="add-team-button"
+          >
+            Add Team
+          </Button>
+        )}
       </div>
 
       {teamsLoading ? (
@@ -142,19 +150,6 @@ const TeamManagement: React.FC = () => {
         onClose={handleCloseDialog}
         title={isEditing ? "Edit Team" : "Create Team"}
         maxWidth="md"
-        actions={
-          <>
-            <Button onClick={handleCloseDialog}>Cancel</Button>
-            <Button
-              onClick={handleSubmit}
-              variant="contained"
-              color="primary"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? "Processing..." : isEditing ? "Save" : "Create"}
-            </Button>
-          </>
-        }
       >
         <TeamForm
           formData={formData}

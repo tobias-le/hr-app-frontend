@@ -5,6 +5,8 @@ import { AutocompleteField } from "./common/AutocompleteField";
 import { Employee, EmployeeNameWithId } from "../types/employee";
 import { debounce } from "lodash";
 import ApiService from "../services/api.service";
+import { handleApiError } from "../utils/errorUtils";
+import { useSnackbarStore } from "./GlobalSnackbar";
 
 export interface TeamFormData {
   name: string;
@@ -37,6 +39,7 @@ export const TeamForm: React.FC<TeamFormProps> = ({
   const [memberOptions, setMemberOptions] = useState<EmployeeNameWithId[]>([]);
   const [managerLoading, setManagerLoading] = useState(false);
   const [memberLoading, setMemberLoading] = useState(false);
+  const { showMessage } = useSnackbarStore();
 
   useEffect(() => {
     if (formData.managerId && formData.managerName) {
@@ -70,10 +73,7 @@ export const TeamForm: React.FC<TeamFormProps> = ({
     const fetchMemberOptions = async (query: string) => {
       setMemberLoading(true);
       try {
-        const excludeIds = [
-          ...(formData.members?.map((m) => m.id) || []),
-          formData.managerId || 0,
-        ].filter(Boolean);
+        const excludeIds = formData.members?.map((m) => m.id) || [];
         const response = await ApiService.autocompleteEmployees(
           query,
           excludeIds
@@ -87,7 +87,35 @@ export const TeamForm: React.FC<TeamFormProps> = ({
     };
 
     return debounce(fetchMemberOptions, 300);
-  }, [formData.members, formData.managerId]);
+  }, [formData.members]);
+
+  const validateTeamMembership = async (employeeId: number) => {
+    try {
+      const allTeams = await ApiService.getAllTeams();
+
+      // Skip validation if we're editing and the employee is already in this team
+      const isInCurrentTeam = formData.members?.some(
+        (member) => member.id === employeeId
+      );
+      if (isEditing && isInCurrentTeam) {
+        return true;
+      }
+
+      // Check if employee exists in any team as a member (not as a manager)
+      const isInOtherTeam = allTeams.some((team) =>
+        team.members?.some((member) => member.id === employeeId)
+      );
+
+      if (isInOtherTeam) {
+        showMessage("Employee is already a member of another team");
+        return false;
+      }
+      return true;
+    } catch (error) {
+      handleApiError(error, "Failed to validate team membership");
+      return false;
+    }
+  };
 
   return (
     <Box
@@ -143,12 +171,24 @@ export const TeamForm: React.FC<TeamFormProps> = ({
         label="Team Members"
         value={formData.members || []}
         options={memberOptions}
-        onChange={(_, newValue) =>
+        onChange={async (_, newValue) => {
+          const newMember = newValue.find(
+            (member: EmployeeNameWithId) =>
+              !formData.members.some((existing) => existing.id === member.id)
+          );
+
+          if (newMember) {
+            const isValid = await validateTeamMembership(newMember.id);
+            if (!isValid) {
+              return;
+            }
+          }
+
           setFormData((prevData) => ({
             ...prevData,
             members: newValue,
-          }))
-        }
+          }));
+        }}
         onInputChange={(_, newInputValue) => {
           debouncedFetchMemberOptions(newInputValue);
         }}

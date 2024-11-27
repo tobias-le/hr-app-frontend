@@ -5,14 +5,61 @@ import {
   AttendanceSummaryType,
   AttendanceRecord,
 } from "../types/attendance";
-import {EmployeeLeaveBalance, GeneralRequest, Leave, LeaveDto, PendingRequest} from "../types/timeoff";
+import {EmployeeLeaveBalance, Leave, LeaveDto} from "../types/timeoff";
 import { Employee, EmployeeNameWithId } from "../types/employee";
 import { Project } from "../types/project";
 import { Team } from "../types/team";
-import {Learning, LearningAssignmentDto, LearningDto} from "../types/learning";
+import {
+  Learning,
+  LearningAssignmentDto,
+  LearningDto,
+} from "../types/learning";
+import { AuthResponse } from "../types/auth";
 
 class ApiService {
   private static async fetchWithConfig(
+    endpoint: string,
+    options?: RequestInit
+  ): Promise<any> {
+    const url = `${API_CONFIG.BASE_URL}${endpoint}`;
+    const token = localStorage.getItem("jwt_token");
+
+    const headers = {
+      ...API_CONFIG.HEADERS,
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(options?.headers || {}),
+    };
+
+    const defaultOptions: RequestInit = {
+      ...options,
+      headers,
+    };
+
+    try {
+      const response = await fetch(url, defaultOptions);
+      if (!response.ok) {
+        if (response.status === 401) {
+          localStorage.removeItem("jwt_token");
+          window.location.href = "/login";
+          throw new Error("Unauthorized access");
+        }
+        if (response.status === 403) {
+          console.error("Forbidden access. Token:", token);
+          throw new Error("Forbidden access - check permissions");
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      if (response.status === 204) {
+        return true;
+      }
+      return await response.json();
+    } catch (error) {
+      console.error("API call failed:", error);
+      throw error;
+    }
+  }
+
+  private static async fetchWithoutBody(
     endpoint: string,
     options?: RequestInit
   ): Promise<any> {
@@ -27,37 +74,11 @@ class ApiService {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      if (response.status === 204) {
-        return true;
-      }
-      return await response.json();
-    } catch (error) {
-      console.error("API call failed:", error);
-      throw error;
-    }
-  }
-
-  private static async fetchWithoutBody(
-      endpoint: string,
-      options?: RequestInit
-  ): Promise<any> {
-    const url = `${API_CONFIG.BASE_URL}${endpoint}`;
-    const defaultOptions: RequestInit = {
-      headers: API_CONFIG.HEADERS,
-      ...options,
-    }
-
-    try {
-      const response = await fetch(url, defaultOptions);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
       return response.ok;
     } catch (error) {
       console.error("API call failed:", error);
       throw error;
     }
-
   }
 
   public static async getEmployees(projectId: number): Promise<Employee[]> {
@@ -83,18 +104,28 @@ class ApiService {
     return this.fetchWithConfig(API_CONFIG.ENDPOINTS.TEAMS) as Promise<Team[]>;
   }
 
-  public static async getTimeOffSummary(employeeId:number) :Promise<EmployeeLeaveBalance> {
-    return this.fetchWithConfig(`/leave/${employeeId}/balance`) as Promise<EmployeeLeaveBalance>;
+  public static async getTimeOffSummary(
+    employeeId: number
+  ): Promise<EmployeeLeaveBalance> {
+    return this.fetchWithConfig(
+      `/leave/${employeeId}/balance`
+    ) as Promise<EmployeeLeaveBalance>;
   }
 
-  public static async getRecentTimeOffRequests(employeeId:number) :Promise<Leave[]> {
-    return this.fetchWithConfig(`/leave/requests/${employeeId}`) as Promise<Leave[]>;
+  public static async getRecentTimeOffRequests(
+    employeeId: number
+  ): Promise<Leave[]> {
+    return this.fetchWithConfig(`/leave/requests/${employeeId}`) as Promise<
+      Leave[]
+    >;
   }
 
   //to create new time off request, returns 1 if ok and 0 if not??
-  public static async createNewTimeOffRequest(timeOffRequest: LeaveDto):Promise<Leave> {
+  public static async createNewTimeOffRequest(
+    timeOffRequest: LeaveDto
+  ): Promise<Leave> {
     return this.fetchWithConfig(`/leave`, {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify(timeOffRequest),
     });
   }
@@ -296,25 +327,38 @@ class ApiService {
     });
   }
 
-
   public static async getCourses(): Promise<Learning[]> {
     return this.fetchWithConfig(`${API_CONFIG.ENDPOINTS.LEARNINGS}`);
   }
 
-  public static async createLearning( learning: LearningDto): Promise<Learning> {
+  public static async createLearning(learning: LearningDto): Promise<Learning> {
     return this.fetchWithConfig(`${API_CONFIG.ENDPOINTS.LEARNINGS}`, {
       method: "POST",
-      body : JSON.stringify(learning),
+      body: JSON.stringify(learning),
     });
   }
 
-  public static async submitLearning( learningAssignment: LearningAssignmentDto): Promise<void> {
+  public static async submitLearning(
+    learningAssignment: LearningAssignmentDto
+  ): Promise<void> {
     return this.fetchWithoutBody(`${API_CONFIG.ENDPOINTS.LEARNINGS}/assign`, {
       method: "POST",
-      body : JSON.stringify(learningAssignment),
+      body: JSON.stringify(learningAssignment),
     });
   }
 
+  public static async login(
+    email: string,
+    password: string
+  ): Promise<AuthResponse> {
+    return this.fetchWithConfig(`/auth/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
+    });
+  }
   public static async createNewGeneralRequest(employeeId: number, message:string): Promise<GeneralRequest> {
     return this.fetchWithConfig(`${API_CONFIG.ENDPOINTS.GENERAL_REQUESTS}`, {
       method: "POST",
@@ -341,7 +385,23 @@ class ApiService {
     return this.fetchWithConfig(`${API_CONFIG.ENDPOINTS.GENERAL_REQUESTS}/${pendingRequest.id}/${action}/`, {method: "PATCH"});
   }
 
-}
+  public static async validateTeamMembership(
+    employeeId: number
+  ): Promise<boolean> {
+    const response = await this.fetchWithConfig(
+      `/api/teams/validate-membership/${employeeId}`,
+      {
+        method: "GET",
+      }
+    );
+    return response.data;
+  }
 
+  public static async getTeamByEmployeeId(employeeId: number): Promise<Team> {
+    return this.fetchWithConfig(
+      `${API_CONFIG.ENDPOINTS.TEAMS}/by-employee/${employeeId}`
+    );
+  }
+}
 
 export default ApiService;

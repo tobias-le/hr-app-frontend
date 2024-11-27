@@ -7,13 +7,16 @@ import {
   MenuItem,
   SelectChangeEvent,
   FormHelperText,
+  Checkbox,
+  FormControlLabel,
 } from "@mui/material";
 
 interface FormFieldProps {
   name: string;
   label: string;
   type?: string;
-  value: any;
+  value?: any;
+  checked?: boolean;
   onChange?: (
     event:
       | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -29,6 +32,9 @@ interface FormFieldProps {
   validateNotEmpty?: boolean;
   emptyErrorMessage?: string;
   className?: string;
+  disabled?: boolean;
+  isCurrency?: boolean;
+  isPhone?: boolean;
 }
 
 export const FormField: React.FC<FormFieldProps> = ({
@@ -36,6 +42,7 @@ export const FormField: React.FC<FormFieldProps> = ({
   label,
   type = "text",
   value,
+  checked,
   onChange,
   options,
   multiline,
@@ -47,6 +54,9 @@ export const FormField: React.FC<FormFieldProps> = ({
   validateNotEmpty = false,
   emptyErrorMessage = "This field is required",
   className,
+  disabled = false,
+  isCurrency = false,
+  isPhone = false,
 }) => {
   const isError = error || (validateNotEmpty && required && !value);
   const displayHelperText = isError
@@ -54,6 +64,17 @@ export const FormField: React.FC<FormFieldProps> = ({
       ? emptyErrorMessage
       : helperText
     : helperText;
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!onChange) return;
+    onChange(event);
+  };
+
+  const formatDisplayValue = (value: any): string => {
+    return value?.toString() || "";
+  };
+
+  const displayValue = formatDisplayValue(value);
 
   if (options) {
     return (
@@ -67,6 +88,7 @@ export const FormField: React.FC<FormFieldProps> = ({
           required={required}
           data-testid={testId}
           error={isError}
+          disabled={disabled}
         >
           {options.map((option) => (
             <MenuItem key={option.value} value={option.value}>
@@ -81,13 +103,35 @@ export const FormField: React.FC<FormFieldProps> = ({
     );
   }
 
+  if (type === "checkbox") {
+    return (
+      <FormControl fullWidth error={isError} sx={{ my: 0.5 }}>
+        <FormControlLabel
+          control={
+            <Checkbox
+              name={name}
+              checked={checked}
+              onChange={onChange}
+              disabled={disabled}
+              data-testid={testId}
+            />
+          }
+          label={label}
+        />
+        {displayHelperText && (
+          <FormHelperText>{displayHelperText}</FormHelperText>
+        )}
+      </FormControl>
+    );
+  }
+
   return (
     <TextField
       name={name}
       label={label}
       type={type}
-      value={value}
-      onChange={onChange}
+      value={displayValue}
+      onChange={handleChange}
       multiline={multiline}
       rows={rows}
       required={required}
@@ -95,9 +139,10 @@ export const FormField: React.FC<FormFieldProps> = ({
       data-testid={testId}
       error={isError}
       helperText={displayHelperText}
-      InputLabelProps={
-        type === "date" || type === "time" ? { shrink: true } : undefined
-      }
+      disabled={disabled}
+      InputLabelProps={{
+        shrink: type === "date" || type === "time" || Boolean(value),
+      }}
       sx={{ my: 0.5 }}
     />
   );
