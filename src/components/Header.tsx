@@ -8,6 +8,8 @@ import {
   Tooltip,
   Divider,
   Box,
+  Menu,
+  MenuItem,
 } from "@mui/material";
 import {
   Dashboard,
@@ -16,17 +18,45 @@ import {
   FolderSpecial,
   Groups,
   School,
-  Logout,
-  Search,
+  BadgeOutlined,
 } from "@mui/icons-material";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { stringToColor } from "../utils/colorUtils";
 import { useEmployeeStore } from "../store/employeeStore";
 import { useAuth } from "../contexts/AuthContext";
+import { useState } from "react";
 
 const Header: React.FC = () => {
   const currentEmployee = useEmployeeStore((state) => state.currentEmployee);
   const { logout } = useAuth();
+  const location = useLocation();
+
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const iconButtonStyle = (path: string) => ({
+    color: location.pathname === path ? "white" : "inherit",
+    transition: "color 0.6s ease",
+    "&:hover": {
+      color: "white",
+    },
+  });
+
+  const profileButtonStyle = {
+    padding: 1.5,
+    transition: "all 0.3s ease",
+    "&:hover": {
+      transform: "scale(1.1)",
+    },
+  };
 
   return (
     <AppBar position="static" data-testid="header">
@@ -58,6 +88,7 @@ const Header: React.FC = () => {
                   component={Link}
                   to="/"
                   data-testid="dashboard-link"
+                  sx={iconButtonStyle("/")}
                 >
                   <Dashboard />
                 </IconButton>
@@ -67,9 +98,10 @@ const Header: React.FC = () => {
                   className="header-icon"
                   component={Link}
                   to="/employee-management"
-                  data-testid="employee-management-link"
+                  data-testid="employees-link"
+                  sx={iconButtonStyle("/employee-management")}
                 >
-                  <Search />
+                  <BadgeOutlined />
                 </IconButton>
               </Tooltip>
             </>
@@ -80,6 +112,7 @@ const Header: React.FC = () => {
               component={Link}
               to="/time-off"
               data-testid="time-off-link"
+              sx={iconButtonStyle("/time-off")}
             >
               <EventNote />
             </IconButton>
@@ -90,6 +123,7 @@ const Header: React.FC = () => {
               component={Link}
               to="/work-time"
               data-testid="work-time-link"
+              sx={iconButtonStyle("/work-time")}
             >
               <Timer />
             </IconButton>
@@ -100,6 +134,7 @@ const Header: React.FC = () => {
               component={Link}
               to="/project-management"
               data-testid="project-management-link"
+              sx={iconButtonStyle("/project-management")}
             >
               <FolderSpecial />
             </IconButton>
@@ -110,6 +145,7 @@ const Header: React.FC = () => {
               component={Link}
               to="/team-management"
               data-testid="team-management-link"
+              sx={iconButtonStyle("/team-management")}
             >
               <Groups />
             </IconButton>
@@ -120,27 +156,26 @@ const Header: React.FC = () => {
               component={Link}
               to="/learning"
               data-testid="learning-link"
+              sx={iconButtonStyle("/learning")}
             >
               <School />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Logout">
-            <IconButton
-              className="header-icon"
-              onClick={logout}
-              data-testid="logout-button"
-            >
-              <Logout />
             </IconButton>
           </Tooltip>
         </Box>
         <Divider orientation="vertical" flexItem className="header-divider" />
         <IconButton
           className="header-icon"
-          component={Link}
-          to="/employee-details"
+          onClick={handleClick}
           data-testid="profile-button"
-          sx={{ padding: 1.5 }}
+          sx={{
+            ...profileButtonStyle,
+            color:
+              location.pathname === "/employee-details" ? "white" : "inherit",
+            "&:hover": {
+              ...profileButtonStyle["&:hover"],
+              color: "white",
+            },
+          }}
         >
           <Avatar
             alt={currentEmployee?.name || "User"}
@@ -160,6 +195,23 @@ const Header: React.FC = () => {
               : ""}
           </Avatar>
         </IconButton>
+        <Menu
+          anchorEl={anchorEl}
+          open={open}
+          onClose={handleClose}
+          onClick={handleClose}
+        >
+          <MenuItem
+            component={Link}
+            to="/employee-details"
+            data-testid="profile-menu-item"
+          >
+            Profile
+          </MenuItem>
+          <MenuItem onClick={logout} data-testid="logout-menu-item">
+            Logout
+          </MenuItem>
+        </Menu>
       </Toolbar>
     </AppBar>
   );
