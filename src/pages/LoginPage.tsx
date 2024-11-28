@@ -19,19 +19,19 @@ const quickLoginUsers: QuickLoginUser[] = [
   {
     email: "catherine.adams@company.com",
     password: "pass123",
-    role: "HR Director",
+    role: "HR Director - Catherine Adams",
     icon: <AdminPanelSettings />,
   },
   {
     email: "steven.wright@company.com",
     password: "pass123",
-    role: "Backend Developer",
+    role: "Backend Developer - Steven Wright",
     icon: <Code />,
   },
   {
-    email: "john.smith@company.com",
+    email: "emma.davis@company.com",
     password: "pass123",
-    role: "Chief Executive Officer",
+    role: "Chief Operations Officer - Emma Davis",
     icon: <Business />,
   },
 ];
