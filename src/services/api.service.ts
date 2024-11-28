@@ -17,6 +17,9 @@ import {
 import { AuthResponse } from "../types/auth";
 
 class ApiService {
+  private static isRefreshing = false;
+  private static refreshPromise: Promise<AuthResponse> | null;
+
   private static async fetchWithConfig(
     endpoint: string,
     options?: RequestInit
@@ -43,22 +46,37 @@ class ApiService {
           const refreshToken = localStorage.getItem("refresh_token");
           if (refreshToken && endpoint !== "/auth/refresh") {
             try {
-              const authResponse = await ApiService.refreshToken(refreshToken);
+              // Ensure only one refresh operation happens at a time
+              if (!this.isRefreshing) {
+                this.isRefreshing = true;
+                this.refreshPromise = this.refreshToken(refreshToken);
+              }
+
+              const authResponse = await this.refreshPromise;
+              if (!authResponse) {
+                throw new Error("Failed to refresh token");
+              }
+              this.isRefreshing = false;
+              this.refreshPromise = null;
+
+              if (!localStorage.getItem("refresh_token")) {
+                // User logged out during refresh
+                throw new Error("Session ended");
+              }
+
               localStorage.setItem("access_token", authResponse.accessToken);
               localStorage.setItem("refresh_token", authResponse.refreshToken);
 
               // Retry original request with new token
-              return await ApiService.fetchWithConfig(endpoint, options);
+              return await this.fetchWithConfig(endpoint, options);
             } catch (refreshError) {
-              localStorage.removeItem("access_token");
-              localStorage.removeItem("refresh_token");
-              window.location.href = "/login";
+              this.isRefreshing = false;
+              this.refreshPromise = null;
+              this.handleLogout();
               throw new Error("Session expired");
             }
           } else {
-            localStorage.removeItem("access_token");
-            localStorage.removeItem("refresh_token");
-            window.location.href = "/login";
+            this.handleLogout();
             throw new Error("Unauthorized access");
           }
         }
@@ -407,6 +425,21 @@ class ApiService {
       },
       body: JSON.stringify({ refreshToken }),
     });
+  }
+
+  private static handleLogout() {
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
+    this.isRefreshing = false;
+    this.refreshPromise = null;
+    window.location.href = "/login";
+  }
+
+  public static async logout(): Promise<void> {
+    this.isRefreshing = false;
+    this.refreshPromise = null;
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
   }
 }
 

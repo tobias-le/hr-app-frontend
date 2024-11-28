@@ -42,12 +42,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 
   const handleLogout = useCallback(() => {
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("refresh_token");
-    setIsAuthenticated(false);
-    setCurrentUser(undefined);
-    setCurrentEmployee(null);
-    navigate("/login");
+    ApiService.logout().then(() => {
+      setIsAuthenticated(false);
+      setCurrentUser(undefined);
+      setCurrentEmployee(null);
+      navigate("/login");
+    });
   }, [navigate, setCurrentEmployee]);
 
   useEffect(() => {
