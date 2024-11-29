@@ -1,6 +1,15 @@
-import React, {useEffect, useState} from "react";
+import React, {
+    useEffect,
+    useState
+} from "react";
 import {PageLayout} from "../components/common/PageLayout";
-import {Box, Button, Chip, CircularProgress, FormControl, Typography} from "@mui/material";
+import {Box,
+    Button,
+    Chip,
+    CircularProgress,
+    FormControl,
+    Typography
+} from "@mui/material";
 import {FormField} from "../components/common/FormField";
 import {useEmployeeStore} from "../store/employeeStore";
 import {GeneralRequest} from "../types/timeoff";
@@ -9,6 +18,7 @@ import {getStatusColor} from "../utils/colorUtils";
 import RequestModal from "../components/RequestModal";
 import {format} from "date-fns";
 import ApiService from "../services/api.service";
+import {useSnackbarStore} from "../components/GlobalSnackbar";
 
 const GeneralRequests: React.FC = ()=> {
     const employee = useEmployeeStore(state => state.currentEmployee);
@@ -16,6 +26,7 @@ const GeneralRequests: React.FC = ()=> {
     const [currentRequest, setCurrentRequest] = useState<GeneralRequest | null>(null);
     const [requestMessage, setRequestMessage] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(false);
+    const {showMessage} = useSnackbarStore();
 
     const sendNewRequest = (event: React.FormEvent) => {
         event.preventDefault();
@@ -26,6 +37,7 @@ const GeneralRequests: React.FC = ()=> {
                 .then(newRequest => setRequests(prevState => {
                     const newState = Array.from(prevState);
                     newState.push(newRequest);
+                    showMessage("Request successfully created");
                     return newState;
                 }))
                 .catch(error => console.log(error))

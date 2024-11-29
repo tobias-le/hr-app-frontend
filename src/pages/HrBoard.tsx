@@ -4,13 +4,19 @@ import {PendingRequest} from "../types/timeoff";
 import {
     Avatar,
     Box,
-    Button, CircularProgress, Grid,
-    Paper, Table,
+    Button,
+    CircularProgress,
+    Grid,
+    Paper,
+    Table,
     TableBody,
     TableCell,
     TableContainer,
     TableHead,
-    TableRow, ToggleButton, ToggleButtonGroup, Typography
+    TableRow,
+    ToggleButton,
+    ToggleButtonGroup,
+    Typography
 } from "@mui/material";
 import {BaseModal} from "../components/common/BaseModal";
 import {stringToColor} from "../utils/colorUtils";
@@ -18,7 +24,8 @@ import {Employee} from "../types/employee";
 import ApiService from "../services/api.service";
 import {EmptyState} from "../components/common/EmptyState";
 import {format} from "date-fns";
-
+import {useSnackbarStore} from "../components/GlobalSnackbar";
+import {Link} from "react-router-dom";
 
 const HrBoard:React.FC =()=> {
     const [requests, setRequests] = useState<PendingRequest[]>([]);
@@ -28,6 +35,7 @@ const HrBoard:React.FC =()=> {
     const [currentRequests, setCurrentRequests] = useState<PendingRequest[]>([]);
     const [timeOffs, setTimeOffs] = useState<boolean>(true);
     const [lockedButton, setLockedButton] = useState<number>(0);
+    const {showMessage} = useSnackbarStore();
 
     useEffect(() => {
         setCurrentRequests(timeOffs? leaveRequests : requests);
@@ -62,15 +70,14 @@ const HrBoard:React.FC =()=> {
             action==="approve"? setLockedButton(2): setLockedButton(1);
             ApiService.resolveRequest(currentRequest, action)
                 .then(response => {
-                    setRequests( prevState => {
-                        return prevState.filter( request => {
-                            if (timeOffs) {
-                                return request.startDate? request.messageId!==currentRequest.messageId : true;
-                            }
-                            return !request.startDate? request.messageId!==currentRequest.messageId : true;
-                        })
-                    });
+                    const resolvedId = currentRequest.messageId;
+                    if (timeOffs) {
+                        setLeaveRequests(prevState => prevState.filter(req => req.messageId !== resolvedId));
+                    } else {
+                        setRequests(prevState => prevState.filter(req => req.messageId !== resolvedId));
+                    }
                     setCurrentRequest(null);
+                    showMessage("Successfully " + (action==="approve" ? "approved": "rejected"));
                 })
                 .catch(error => console.log(error))
                 .finally(()=>setLockedButton(0));
@@ -78,7 +85,7 @@ const HrBoard:React.FC =()=> {
     }
 
     return (
-        <PageLayout data-testid="hrBoard" title="Resolve requests">
+        <PageLayout data-testid="pending-requests-page" title="Resolve requests">
             <div className="w-full flex justify-end">
                 <ToggleButtonGroup
                     size="small"
@@ -119,26 +126,28 @@ const HrBoard:React.FC =()=> {
                         {currentRequests.map( request => {
                             return (
                                 <TableRow key={request.messageId}>
-                                    <TableCell>{format(request.datetime, "dd.MM.yy hh:mm")}</TableCell>
+                                    <TableCell data-testid="request-create-date">{format(request.datetime, "dd.MM.yy hh:mm")}</TableCell>
 
-                                    <TableCell>{request.employee.name}</TableCell>
+                                    <TableCell data-testid="request-employee-name">
+                                        <Link to={`/employee-management/${request.employee.id}`}>{request.employee.name}</Link>
+                                        </TableCell>
 
                                     {request.startDate &&
-                                        <TableCell>{format(request.startDate, "dd.MM.yyyy")}</TableCell>}
+                                        <TableCell data-testid="request-startdate">{format(request.startDate, "dd.MM.yyyy")}</TableCell>}
 
                                     {request.endDate &&
-                                        <TableCell>{format(request.endDate, "dd.MM.yyyy")}</TableCell>}
+                                        <TableCell data-testid="request-enddate">{format(request.endDate, "dd.MM.yyyy")}</TableCell>}
 
                                     {timeOffs &&
-                                        <TableCell>{request.leaveType}</TableCell>}
+                                        <TableCell data-testid="request-leavetype">{request.leaveType}</TableCell>}
 
                                     {!timeOffs &&
-                                        <TableCell sx={{width:"50%", maxWidth:"50%"}}>
+                                        <TableCell data-testid="request-message" sx={{width:"50%", maxWidth:"50%"}}>
                                             <Box sx={{display:"inline-block", overflow:"hidden", textOverflow:"ellipsis", maxHeight:"1rem"}}>{request.message}</Box>
                                         </TableCell>}
 
                                     <TableCell align="right">
-                                        <Button variant="contained" onClick={()=> {
+                                        <Button data-testid="request-resolve" variant="contained" onClick={()=> {
                                             setCurrentRequest(request);
                                         }}>Resolve</Button>
                                     </TableCell>
@@ -201,6 +210,7 @@ const HrBoard:React.FC =()=> {
                         </Grid>
                         <Grid item xs={3} sx={{display:"flex", flexDirection:"row", justifyContent:"space-between"}}>
                             <Button
+                                data-testid="currentrequest-reject"
                                 sx={{backgroundColor:"red", color:"white"}}
                                 onClick={() => resolveRequest("reject")}
                                 disabled={lockedButton!==0}>
@@ -208,6 +218,7 @@ const HrBoard:React.FC =()=> {
                                 {lockedButton===1 && <CircularProgress/>}
                             </Button>
                             <Button
+                                data-testid="currentrequest-approve"
                                 sx={{backgroundColor:"green", color:"white"}}
                                 onClick={() => resolveRequest("approve")}
                                 disabled={lockedButton!==0}>

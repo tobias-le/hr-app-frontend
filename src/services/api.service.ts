@@ -22,7 +22,8 @@ class ApiService {
 
   private static async fetchWithConfig(
     endpoint: string,
-    options?: RequestInit
+    options?: RequestInit,
+    noBody?: boolean
   ): Promise<any> {
     const url = `${API_CONFIG.BASE_URL}${endpoint}`;
     const accessToken = localStorage.getItem("access_token");
@@ -37,6 +38,7 @@ class ApiService {
       ...options,
       headers,
     };
+
 
     try {
       const response = await fetch(url, defaultOptions);
@@ -89,37 +91,10 @@ class ApiService {
       if (response.status === 204) {
         return true;
       }
-      return await response.json();
-    } catch (error) {
-      console.error("API call failed:", error);
-      throw error;
-    }
-  }
-
-  private static async fetchWithoutBody(
-    endpoint: string,
-    options?: RequestInit
-  ): Promise<any> {
-    const url = `${API_CONFIG.BASE_URL}${endpoint}`;
-
-    const token = localStorage.getItem("jwt_token");
-
-    const headers = {
-      ...API_CONFIG.HEADERS,
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...(options?.headers || {}),
-    };
-    const defaultOptions: RequestInit = {
-      ...options,
-      headers,
-    };
-    console.log(defaultOptions);
-    try {
-      const response = await fetch(url, defaultOptions);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      if (noBody) {
+        return;
       }
-      return response.ok;
+      return await response.json();
     } catch (error) {
       console.error("API call failed:", error);
       throw error;
@@ -386,10 +361,14 @@ class ApiService {
   public static async submitLearning(
     learningAssignment: LearningAssignmentDto
   ): Promise<void> {
-    return this.fetchWithoutBody(`${API_CONFIG.ENDPOINTS.LEARNINGS}/assign`, {
+    return this.fetchWithConfig(`${API_CONFIG.ENDPOINTS.LEARNINGS}/assign`, {
       method: "POST",
       body: JSON.stringify(learningAssignment),
-    });
+    }, true);
+  }
+
+  public static async getUserCompletedCourses(employeeId:number): Promise<Learning[]> {
+    return this.fetchWithConfig(`${API_CONFIG.ENDPOINTS.LEARNINGS}/${employeeId}`);
   }
 
   public static async login(
