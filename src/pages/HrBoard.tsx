@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {PageLayout} from "../components/common/PageLayout";
-import {LeaveType, PendingRequest} from "../types/timeoff";
+import {PendingRequest} from "../types/timeoff";
 import {
     Avatar,
     Box,
@@ -17,53 +17,21 @@ import {stringToColor} from "../utils/colorUtils";
 import {Employee} from "../types/employee";
 import ApiService from "../services/api.service";
 import {EmptyState} from "../components/common/EmptyState";
+import {format} from "date-fns";
 
 
 const HrBoard:React.FC =()=> {
     const [requests, setRequests] = useState<PendingRequest[]>([]);
+    const [leaveRequests, setLeaveRequests] = useState<PendingRequest[]>([]);
     const [currentRequest, setCurrentRequest] = useState<PendingRequest | null>(null);
     const [currentEmployee, setCurrentEmployee] = useState<Employee | null>(null);
     const [currentRequests, setCurrentRequests] = useState<PendingRequest[]>([]);
     const [timeOffs, setTimeOffs] = useState<boolean>(true);
     const [lockedButton, setLockedButton] = useState<number>(0);
 
-    //mocked data
-    const reqs: PendingRequest[] = [
-        {
-            id:1,
-            employee: {
-                name:"John Doe",
-                id: 1
-            },
-            startDate: "29.11.2024",
-            endDate: "1.12.2024",
-            datetime : "16.11.2024",
-            leaveType: LeaveType.Personal,
-            leaveAmount: 168,
-            currentDaysLeft: 10,
-            message: "im going to Ibiza"
-        }
-        ,{
-            id:1,
-            employee: {
-                name:"John Smith",
-                id: 3
-            },
-            datetime: "29.11.2024",
-            message: "we need new coffee machinewe need new coffee machinewe need new coffee machinewe need new coffee machinewe need new coffee machinewe need new coffee machine"
-        }
-
-    ];
-
     useEffect(() => {
-        const newRequests = requests.filter(request => {
-            if (timeOffs) {
-                return request.startDate ;
-            }
-            return !request.startDate;
-        });
-        setCurrentRequests(newRequests);
-    }, [timeOffs, requests]);
+        setCurrentRequests(timeOffs? leaveRequests : requests);
+    }, [timeOffs, requests, leaveRequests]);
 
     useEffect(() => {
         if (currentRequest) {
@@ -76,8 +44,17 @@ const HrBoard:React.FC =()=> {
     }, [currentRequest]);
 
     useEffect(() => {
-        setRequests(reqs);
-        setTimeOffs(true);
+        ApiService.getPendingGeneralRequests()
+            .then(pendingGenerals => {
+                setRequests(pendingGenerals)})
+            .catch()
+            .finally();
+
+        ApiService.getPendingLeaveRequests()
+            .then(pendingLeaves => {
+                setLeaveRequests(pendingLeaves);})
+            .catch()
+            .finally();
     }, []);
 
     const resolveRequest = (action:string) => {
@@ -88,9 +65,9 @@ const HrBoard:React.FC =()=> {
                     setRequests( prevState => {
                         return prevState.filter( request => {
                             if (timeOffs) {
-                                return request.startDate? request.id!==currentRequest.id : true;
+                                return request.startDate? request.messageId!==currentRequest.messageId : true;
                             }
-                            return !request.startDate? request.id!==currentRequest.id : true;
+                            return !request.startDate? request.messageId!==currentRequest.messageId : true;
                         })
                     });
                     setCurrentRequest(null);
@@ -141,16 +118,16 @@ const HrBoard:React.FC =()=> {
                     <TableBody>
                         {currentRequests.map( request => {
                             return (
-                                <TableRow key={request.id}>
-                                    <TableCell>{request.datetime}</TableCell>
+                                <TableRow key={request.messageId}>
+                                    <TableCell>{format(request.datetime, "dd.MM.yy hh:mm")}</TableCell>
 
                                     <TableCell>{request.employee.name}</TableCell>
 
-                                    {timeOffs &&
-                                        <TableCell>{request.startDate}</TableCell>}
+                                    {request.startDate &&
+                                        <TableCell>{format(request.startDate, "dd.MM.yyyy")}</TableCell>}
 
-                                    {timeOffs &&
-                                        <TableCell>{request.endDate}</TableCell>}
+                                    {request.endDate &&
+                                        <TableCell>{format(request.endDate, "dd.MM.yyyy")}</TableCell>}
 
                                     {timeOffs &&
                                         <TableCell>{request.leaveType}</TableCell>}
@@ -197,13 +174,13 @@ const HrBoard:React.FC =()=> {
                                 <Grid item xs={1}>
                                     <Typography >From</Typography>
 
-                                    <Typography variant="h6">{currentRequest.startDate}</Typography>
+                                    <Typography variant="h6">{currentRequest.startDate && format(currentRequest.startDate, "dd.MM.yyyy")}</Typography>
                                 </Grid>
 
                                 <Grid item xs={1}>
                                     <Typography >To</Typography>
 
-                                    <Typography variant="h6">{currentRequest.endDate}</Typography>
+                                    <Typography variant="h6">{currentRequest.endDate && format(currentRequest.endDate, "dd.MM.yyyy")}</Typography>
                                 </Grid>
 
                                 <Grid item xs={1}>
@@ -212,7 +189,7 @@ const HrBoard:React.FC =()=> {
                                         {(currentRequest.currentDaysLeft && currentRequest.leaveAmount) &&
                                             <Grid container columns={2}>
                                                 <Typography color="primary" variant="h5">{currentRequest.currentDaysLeft} →</Typography>
-                                                <Typography color={currentRequest.currentDaysLeft- currentRequest.leaveAmount/8 >= 0 ? "secondary": "error"} variant="h5">{currentRequest.currentDaysLeft - currentRequest.leaveAmount/8}</Typography>
+                                                <Typography color={currentRequest.currentDaysLeft- currentRequest.leaveAmount/8 >= 0 ? "secondary": "error"} variant="h5">{currentRequest.currentDaysLeft - currentRequest.leaveAmount}</Typography>
                                             </Grid>}
                                     </Typography>
                                 </Grid>

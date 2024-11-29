@@ -17,7 +17,7 @@ import {
   Groups,
   School,
   Logout,
-  Search,
+  Search, Inbox, ContactMail,
 } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import { stringToColor } from "../utils/colorUtils";
@@ -72,6 +72,16 @@ const Header: React.FC = () => {
                   <Search />
                 </IconButton>
               </Tooltip>
+              <Tooltip title="Pending Requests">
+                <IconButton
+                    className="header-icon"
+                    component={Link}
+                    to="/requests/pending"
+                    data-testid="pending-requests-link"
+                >
+                  <Inbox />
+                </IconButton>
+              </Tooltip>
             </>
           )}
           <Tooltip title="Time Off">
@@ -122,6 +132,16 @@ const Header: React.FC = () => {
               data-testid="learning-link"
             >
               <School />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Contact HR">
+            <IconButton
+            className="header-icon"
+            component={Link}
+            to="/requests"
+            data-testid="request-link"
+            >
+              <ContactMail/>
             </IconButton>
           </Tooltip>
           <Tooltip title="Logout">

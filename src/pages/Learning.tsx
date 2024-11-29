@@ -2,7 +2,7 @@ import {
   Box,
   Button,
   CircularProgress,
-  Paper,
+  Paper, ToggleButton, ToggleButtonGroup,
   Typography,
 } from "@mui/material";
 import React, { FormEvent, useEffect, useState } from "react";
@@ -13,6 +13,7 @@ import ApiService from "../services/api.service";
 import LearningEntry from "../components/LearningEntry";
 import { BaseModal } from "../components/common/BaseModal";
 import { FormField } from "../components/common/FormField";
+import {EmptyState} from "../components/common/EmptyState";
 
 function isValid(url: string): boolean {
   try {
@@ -35,25 +36,19 @@ const Learn: React.FC = () => {
   const [validName, setValidName] = useState<string | null>(null);
   const [formLocked, setFormLocked] = useState<boolean>(false);
 
-  const updateFilter = (event: React.MouseEvent) => {
-    if (event.currentTarget.id === filter) {
-      setFilter(null);
-    } else {
-      setFilter(event.currentTarget.id);
-    }
-  };
-
   const update = (learningId: number, employeeId: number): void => {
     setCourses((prevState) => {
       return prevState.map((learning) => {
         if (learning.learningId === learningId) {
           const newArray = Array.from(learning.enrolledEmployees);
+          const date = new Date();
+          date.setDate(date.getDate() + 7);
           newArray.push({
             id: {
               learningId: learningId,
               employeeId: employeeId,
             },
-            date: new Date(),
+            date: date,
           });
           return {
             ...learning,

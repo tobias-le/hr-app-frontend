@@ -1,39 +1,54 @@
 import React, {useEffect, useState} from "react";
 import {PageLayout} from "../components/common/PageLayout";
-import {Box, Button, Chip, FormControl, Typography} from "@mui/material";
+import {Box, Button, Chip, CircularProgress, FormControl, Typography} from "@mui/material";
 import {FormField} from "../components/common/FormField";
 import {useEmployeeStore} from "../store/employeeStore";
-import {GeneralRequest, LeaveStatus} from "../types/timeoff";
+import {GeneralRequest} from "../types/timeoff";
 import {DataTable} from "../components/common/DataTable";
 import {getStatusColor} from "../utils/colorUtils";
 import RequestModal from "../components/RequestModal";
 import {format} from "date-fns";
+import ApiService from "../services/api.service";
 
 const GeneralRequests: React.FC = ()=> {
-    const employee = useEmployeeStore(state => state.selectedEmployee);
+    const employee = useEmployeeStore(state => state.currentEmployee);
     const [requests, setRequests] = useState<GeneralRequest[]>([]);
     const [currentRequest, setCurrentRequest] = useState<GeneralRequest | null>(null);
     const [requestMessage, setRequestMessage] = useState<string>("");
+    const [loading, setLoading] = useState<boolean>(false);
+
+    const sendNewRequest = (event: React.FormEvent) => {
+        event.preventDefault();
+        event.stopPropagation();
+        if (employee) {
+            setLoading(true);
+            ApiService.createNewGeneralRequest(employee.id, requestMessage)
+                .then(newRequest => setRequests(prevState => {
+                    const newState = Array.from(prevState);
+                    newState.push(newRequest);
+                    return newState;
+                }))
+                .catch(error => console.log(error))
+                .finally(() => setLoading(false));
+        }
+    }
 
     useEffect(() => {
-        //update Current request by emloyeeid
+        if (employee) {
+            ApiService.getGeneralRequestsByUserId(employee.id)
+                .then(response => {
+                    setRequests(response);
+                    console.log(response);
+                })
+                .catch(error => console.log("Failed to load users requests"))
+        }
     }, [employee]);
-
-    useEffect(() => {
-        setRequests([{
-            messageId:1,
-            employeeId : 1,
-            datetime : new Date(),
-            status: LeaveStatus.Pending,
-            message: "Ligma",
-        }])
-    }, []);
 
     return (
         <PageLayout testId="general-requests-page">
             <Box className="m-6 space-y-2">
                 <Typography variant="h6">Contact HR Department</Typography>
-                <form>
+                <form onSubmit={sendNewRequest}>
                     <FormControl fullWidth>
                         <FormField
                             name="general-request-message"
@@ -47,8 +62,8 @@ const GeneralRequests: React.FC = ()=> {
                     </FormControl>
 
                     <div className="w-full flex justify-end space-x-2">
-                        <Button variant="outlined">Cancel</Button>
-                        <Button variant="contained">Submit request</Button>
+                        <Button variant="outlined" onClick={()=> setRequestMessage("")}>Cancel</Button>
+                        <Button variant="contained" type="submit" disabled={loading}>Submit request {loading && <CircularProgress/>}</Button>
                     </div>
                 </form>
             </Box>
@@ -59,7 +74,8 @@ const GeneralRequests: React.FC = ()=> {
                     data={requests}
                     columns={[
                         { header: "Date", accessor: (request => format(request.datetime, "dd.MM.yyyy")) },
-                        { header: "Message", accessor: "message" as keyof GeneralRequest },
+                        { header: "Message", accessor: (request =>
+                                <Box sx={{display:"inline-block", overflow:"hidden", textOverflow:"ellipsis", maxHeight:"1.5rem"}}>{request.message}</Box>)},
                         {header: "Status",
                             accessor: (request: GeneralRequest) => (
                                 <Chip

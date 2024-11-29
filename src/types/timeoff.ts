@@ -42,15 +42,16 @@ export interface LeaveDto {
 }
 
 export interface PendingRequest {
-  id: number;
+  messageId: number;
   employee: EmployeeNameWithId;
   leaveType?: LeaveType;
-  startDate?: string;
-  endDate?: string;
-  datetime: string;
+  startDate?: Date;
+  endDate?: Date;
+  datetime: Date;
   leaveAmount?: number;
   currentDaysLeft?: number;
   message: string;
+  isGeneral: boolean;
 }
 
 export interface GeneralRequest {

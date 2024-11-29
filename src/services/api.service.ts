@@ -5,7 +5,7 @@ import {
   AttendanceSummaryType,
   AttendanceRecord,
 } from "../types/attendance";
-import {EmployeeLeaveBalance, Leave, LeaveDto} from "../types/timeoff";
+import {EmployeeLeaveBalance, GeneralRequest, Leave, LeaveDto, PendingRequest} from "../types/timeoff";
 import { Employee, EmployeeNameWithId } from "../types/employee";
 import { Project } from "../types/project";
 import { Team } from "../types/team";
@@ -64,11 +64,19 @@ class ApiService {
     options?: RequestInit
   ): Promise<any> {
     const url = `${API_CONFIG.BASE_URL}${endpoint}`;
-    const defaultOptions: RequestInit = {
-      headers: API_CONFIG.HEADERS,
-      ...options,
-    };
 
+    const token = localStorage.getItem("jwt_token");
+
+    const headers = {
+      ...API_CONFIG.HEADERS,
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(options?.headers || {}),
+    };
+    const defaultOptions: RequestInit = {
+      ...options,
+      headers,
+    };
+    console.log(defaultOptions);
     try {
       const response = await fetch(url, defaultOptions);
       if (!response.ok) {
@@ -379,10 +387,13 @@ class ApiService {
 
   public static async resolveRequest(pendingRequest: PendingRequest, action: string): Promise<void> {
     if (pendingRequest.startDate) {
-      return this.fetchWithConfig(`${API_CONFIG.ENDPOINTS.LEAVE_REQUESTS}/request/${pendingRequest.id}/${action}`, {method: "PATCH"});
+      return this.fetchWithConfig(`${API_CONFIG.ENDPOINTS.LEAVE_REQUESTS}/request/${pendingRequest.messageId}/${action}`, {method: "PATCH"});
     }
-    action = action==="approve"? "APPROVED" : "REJECTED";
-    return this.fetchWithConfig(`${API_CONFIG.ENDPOINTS.GENERAL_REQUESTS}/${pendingRequest.id}/${action}/`, {method: "PATCH"});
+    return this.fetchWithConfig(`${API_CONFIG.ENDPOINTS.GENERAL_REQUESTS}/${pendingRequest.messageId}/${action}`, {method: "PATCH"});
+  }
+
+  public static async getGeneralRequestsByUserId( userId: number) : Promise<GeneralRequest[]> {
+    return this.fetchWithConfig(`${API_CONFIG.ENDPOINTS.GENERAL_REQUESTS}/all/${userId}`);
   }
 
   public static async validateTeamMembership(

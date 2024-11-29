@@ -123,8 +123,22 @@ const App: React.FC = () => {
             </ProtectedRoute>
           }
         />
-          <Route path="/requests/pending" element={<HrBoard/>} />
-          <Route path="/requests" element={<GeneralRequests/>}/>
+          <Route
+              path="/requests/pending"
+              element={
+              <ProtectedRoute>
+                  <HrBoard/>
+              </ProtectedRoute>
+          }
+          />
+          <Route
+              path="/requests"
+              element={
+              <ProtectedRoute>
+              <GeneralRequests/>
+              </ProtectedRoute>
+          }
+          />
       </Routes>
       <GlobalSnackbar />
     </ThemeProvider>

@@ -21,8 +21,8 @@ import { DataTable } from "../components/common/DataTable";
 import { PageLayout } from "../components/common/PageLayout";
 import { FormField } from "../components/common/FormField";
 import {getStatusColor} from "../utils/colorUtils";
-import {RequestPage} from "@mui/icons-material";
 import RequestModal from "../components/RequestModal";
+import {useSnackbarStore} from "../components/GlobalSnackbar";
 
 function calculateDaysBetween(date1: Date, date2: Date): number {
   const MS_PER_DAY = 1000 * 60 * 60 * 24;
@@ -112,7 +112,9 @@ const TimeOff: React.FC = () => {
   const [requests, setRequests] = useState<Leave[]>([]);
   const employee = useEmployeeStore((state) => state.currentEmployee);
   const [currentRequest, setCurrentRequest] = useState<Leave | null>(null);
-  const employee = useEmployeeStore(state => state.selectedEmployee);
+
+  const {showMessage} = useSnackbarStore();
+
 
   //submitting form, checks for required fields
   const submitRequestForm = (event: React.FormEvent) => {
@@ -133,7 +135,7 @@ const TimeOff: React.FC = () => {
         leaveType: requestType,
         leaveStatus: LeaveStatus.Pending,
         leaveAmount:
-          calculateDaysBetween(new Date(endDate), new Date(startDate)) * 8,
+          calculateDaysBetween(new Date(endDate), new Date(startDate)), //budeme brát leaveAmount po dnech
         employeeId: employee.id,
         reason: description,
       };
@@ -146,6 +148,7 @@ const TimeOff: React.FC = () => {
           });
           resetInput();
           setFormLocked(false);
+          showMessage("Request successfully sent");
         })
         .catch((error) => alert("We had problem with creating new request"));
     }
@@ -221,18 +224,6 @@ const TimeOff: React.FC = () => {
       setDaysBetween(calculateDaysBetween(endDateAsDate, startDateAsDate));
     }
   }, [startDate, endDate, setEndDateInvalid]);
-
-  //returns color in which chip is displayed
-  const getStatusColor = (status: LeaveStatus) => {
-    switch (status) {
-      case LeaveStatus.Approved:
-        return "success";
-      case LeaveStatus.Rejected:
-        return "error";
-      default:
-        return "warning";
-    }
-  };
 
   const columns = [
     { header: "Type", accessor: "leaveType" as keyof Leave },
