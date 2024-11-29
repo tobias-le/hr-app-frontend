@@ -1,8 +1,15 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
 import { useNavigate } from "react-router-dom";
 import ApiService from "../services/api.service";
 import { useEmployeeStore } from "../store/employeeStore";
 import { Employee } from "../types/employee";
+import { AuthResponse } from "../types/auth";
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -19,42 +26,61 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [currentUser, setCurrentUser] = useState<Employee | undefined>();
   const navigate = useNavigate();
-  const setcurrentEmployee = useEmployeeStore(
+  const setCurrentEmployee = useEmployeeStore(
     (state) => state.setCurrentEmployee
   );
 
-  useEffect(() => {
-    const token = localStorage.getItem("jwt_token");
-    if (token) {
+  const handleAuthSuccess = useCallback(
+    (authResponse: AuthResponse) => {
+      localStorage.setItem("access_token", authResponse.accessToken);
+      localStorage.setItem("refresh_token", authResponse.refreshToken);
+      setCurrentUser(authResponse.employee);
+      setCurrentEmployee(authResponse.employee);
       setIsAuthenticated(true);
-    }
-  }, []);
+    },
+    [setCurrentEmployee]
+  );
+
+  const handleLogout = useCallback(() => {
+    ApiService.logout().then(() => {
+      setIsAuthenticated(false);
+      setCurrentUser(undefined);
+      setCurrentEmployee(null);
+      navigate("/login");
+    });
+  }, [navigate, setCurrentEmployee]);
+
+  useEffect(() => {
+    const initAuth = async () => {
+      const accessToken = localStorage.getItem("access_token");
+      const refreshToken = localStorage.getItem("refresh_token");
+
+      if (accessToken && refreshToken) {
+        try {
+          const response = await ApiService.refreshToken(refreshToken);
+          handleAuthSuccess(response);
+        } catch (error) {
+          handleLogout();
+        }
+      }
+    };
+
+    initAuth();
+  }, [handleAuthSuccess, handleLogout]);
 
   const login = async (email: string, password: string) => {
     try {
       const authResponse = await ApiService.login(email, password);
-
-      localStorage.setItem("jwt_token", authResponse.token);
-      setCurrentUser(authResponse.employee);
-      setcurrentEmployee(authResponse.employee);
-      setIsAuthenticated(true);
+      handleAuthSuccess(authResponse);
       navigate("/work-time");
     } catch (error) {
       throw new Error("Invalid credentials");
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem("jwt_token");
-    setIsAuthenticated(false);
-    setCurrentUser(undefined);
-    setcurrentEmployee(null);
-    navigate("/login");
-  };
-
   return (
     <AuthContext.Provider
-      value={{ isAuthenticated, currentUser, login, logout }}
+      value={{ isAuthenticated, currentUser, login, logout: handleLogout }}
     >
       {children}
     </AuthContext.Provider>

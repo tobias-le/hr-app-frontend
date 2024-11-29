@@ -17,6 +17,7 @@ import { useAuth } from "./contexts/AuthContext";
 import { LoginPage } from "./pages/LoginPage";
 import EmployeeManagement from "./pages/EmployeeManagement";
 import EmployeeDetails from "./pages/EmployeeDetails";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -33,6 +34,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
 const App: React.FC = () => {
   return (
     <ThemeProvider theme={theme}>
+        <ErrorBoundary>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route
@@ -141,6 +143,7 @@ const App: React.FC = () => {
           />
       </Routes>
       <GlobalSnackbar />
+        </ErrorBoundary>
     </ThemeProvider>
   );
 };
