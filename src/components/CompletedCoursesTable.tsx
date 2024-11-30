@@ -31,7 +31,7 @@ const CompletedCoursesTable = ({employeeId}:CourseTableProps) => {
         ApiService.getUserCompletedCourses(employeeId)
             .then(response => {
                 setCourses(response);
-                if (courses.length===0) {
+                if (response.length===0) {
                     setEmptyMessage("No courses completed");
                 } else {
                     setEmptyMessage(null);
@@ -39,7 +39,7 @@ const CompletedCoursesTable = ({employeeId}:CourseTableProps) => {
             })
             .catch()
             .finally(()=> setLoading(false))
-    });
+    }, [employeeId]);
 
     useEffect(() => {
         setCurrentCourses(courses);
@@ -58,7 +58,7 @@ const CompletedCoursesTable = ({employeeId}:CourseTableProps) => {
             }
             setCurrentCourses(nextCourses);
         }
-    }, [courses, filter]);
+    }, [filter]);
 
     return (
         <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3 , mt:3, flexDirection:"column"}}>
