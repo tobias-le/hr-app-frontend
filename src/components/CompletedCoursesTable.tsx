@@ -39,7 +39,7 @@ const CompletedCoursesTable = ({employeeId}:CourseTableProps) => {
             })
             .catch()
             .finally(()=> setLoading(false))
-    }, [employeeId]);
+    });
 
     useEffect(() => {
         setCurrentCourses(courses);
