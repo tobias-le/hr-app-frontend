@@ -19,8 +19,8 @@ import {
   Groups,
   School,
   BadgeOutlined,
-  Logout,
-  Search, Inbox, ContactMail,
+  Inbox,
+  ContactMail,
 } from "@mui/icons-material";
 import { Link, useLocation } from "react-router-dom";
 import { stringToColor } from "../utils/colorUtils";
@@ -90,6 +90,7 @@ const Header: React.FC = () => {
                   component={Link}
                   to="/"
                   data-testid="dashboard-link"
+                  sx={iconButtonStyle("/")}
                 >
                   <Dashboard />
                 </IconButton>
@@ -111,6 +112,7 @@ const Header: React.FC = () => {
                     component={Link}
                     to="/requests/pending"
                     data-testid="pending-requests-link"
+                    sx={iconButtonStyle("/requests/pending")}
                 >
                   <Inbox />
                 </IconButton>
@@ -178,6 +180,7 @@ const Header: React.FC = () => {
             component={Link}
             to="/requests"
             data-testid="request-link"
+            sx={iconButtonStyle("/requests")}
             >
               <ContactMail/>
             </IconButton>

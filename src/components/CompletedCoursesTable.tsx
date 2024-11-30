@@ -39,7 +39,7 @@ const CompletedCoursesTable = ({employeeId}:CourseTableProps) => {
             })
             .catch()
             .finally(()=> setLoading(false))
-    }, []);
+    }, [employeeId]);
 
     useEffect(() => {
         setCurrentCourses(courses);
@@ -58,7 +58,7 @@ const CompletedCoursesTable = ({employeeId}:CourseTableProps) => {
             }
             setCurrentCourses(nextCourses);
         }
-    }, [filter]);
+    }, [courses, filter]);
 
     return (
         <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3 , mt:3, flexDirection:"column"}}>
