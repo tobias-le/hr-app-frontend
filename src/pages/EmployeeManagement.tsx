@@ -147,6 +147,7 @@ const EmployeeManagement: React.FC = () => {
         columns={columns}
         onRowClick={handleRowClick}
         loading={loading}
+        rowKey={employee => employee.id}
         emptyMessage="No employees found matching your search"
         initialMessage="Start typing to search for employees"
         isInitialState={!hasSearched}

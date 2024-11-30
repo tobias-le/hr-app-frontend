@@ -55,14 +55,12 @@ const HrBoard:React.FC =()=> {
         ApiService.getPendingGeneralRequests()
             .then(pendingGenerals => {
                 setRequests(pendingGenerals)})
-            .catch()
-            .finally();
+            .catch(error => console.log(error));
 
         ApiService.getPendingLeaveRequests()
             .then(pendingLeaves => {
                 setLeaveRequests(pendingLeaves);})
-            .catch()
-            .finally();
+            .catch(error => console.log(error));
     }, []);
 
     const resolveRequest = (action:string) => {

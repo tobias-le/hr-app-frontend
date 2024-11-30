@@ -398,6 +398,7 @@ const TimeOff: React.FC = () => {
           </div>
           <div className="w-full">
             <FormField
+                data-testid="reason-input"
               name="reason"
               label="Reason"
               multiline
@@ -405,7 +406,6 @@ const TimeOff: React.FC = () => {
               className="col-span-2"
               value={description}
               onChange={updateDescription}
-              data-testid="reason-input"
             />
           </div>
           <div className="flex justify-end space-x-2">
