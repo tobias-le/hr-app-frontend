@@ -71,6 +71,12 @@ const WorkTime: React.FC = () => {
         );
 
         setProjects(validProjects);
+        if (validProjects.length > 0) {
+          setFormData((prev) => ({
+            ...prev,
+            project: validProjects[0].projectId.toString(),
+          }));
+        }
         setPastEntries(entriesData);
       } catch (error) {
         console.error("Error fetching data:", error);
