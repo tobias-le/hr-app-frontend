@@ -5,7 +5,7 @@ import {
   AttendanceSummaryType,
   AttendanceRecord,
 } from "../types/attendance";
-import { EmployeeLeaveBalance, Leave, LeaveDto } from "../types/timeoff";
+import {EmployeeLeaveBalance, GeneralRequest, Leave, LeaveDto, PendingRequest} from "../types/timeoff";
 import { Employee, EmployeeNameWithId } from "../types/employee";
 import { Project } from "../types/project";
 import { Team } from "../types/team";
@@ -22,7 +22,8 @@ class ApiService {
 
   private static async fetchWithConfig(
     endpoint: string,
-    options?: RequestInit
+    options?: RequestInit,
+    noBody?: boolean
   ): Promise<any> {
     const url = `${API_CONFIG.BASE_URL}${endpoint}`;
     const accessToken = localStorage.getItem("access_token");
@@ -37,6 +38,7 @@ class ApiService {
       ...options,
       headers,
     };
+
 
     try {
       const response = await fetch(url, defaultOptions);
@@ -89,29 +91,10 @@ class ApiService {
       if (response.status === 204) {
         return true;
       }
-      return await response.json();
-    } catch (error) {
-      console.error("API call failed:", error);
-      throw error;
-    }
-  }
-
-  private static async fetchWithoutBody(
-    endpoint: string,
-    options?: RequestInit
-  ): Promise<any> {
-    const url = `${API_CONFIG.BASE_URL}${endpoint}`;
-    const defaultOptions: RequestInit = {
-      headers: API_CONFIG.HEADERS,
-      ...options,
-    };
-
-    try {
-      const response = await fetch(url, defaultOptions);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      if (noBody) {
+        return;
       }
-      return response.ok;
+      return await response.json();
     } catch (error) {
       console.error("API call failed:", error);
       throw error;
@@ -378,10 +361,14 @@ class ApiService {
   public static async submitLearning(
     learningAssignment: LearningAssignmentDto
   ): Promise<void> {
-    return this.fetchWithoutBody(`${API_CONFIG.ENDPOINTS.LEARNINGS}/assign`, {
+    return this.fetchWithConfig(`${API_CONFIG.ENDPOINTS.LEARNINGS}/assign`, {
       method: "POST",
       body: JSON.stringify(learningAssignment),
-    });
+    }, true);
+  }
+
+  public static async getUserCompletedCourses(employeeId:number): Promise<Learning[]> {
+    return this.fetchWithConfig(`${API_CONFIG.ENDPOINTS.LEARNINGS}/${employeeId}`);
   }
 
   public static async login(
@@ -395,6 +382,34 @@ class ApiService {
       },
       body: JSON.stringify({ email, password }),
     });
+  }
+  public static async createNewGeneralRequest(employeeId: number, message:string): Promise<GeneralRequest> {
+    return this.fetchWithConfig(`${API_CONFIG.ENDPOINTS.GENERAL_REQUESTS}`, {
+      method: "POST",
+      body: JSON.stringify({
+        employeeId: employeeId,
+        message: message,
+      })
+    })
+  }
+
+  public static async getPendingLeaveRequests() : Promise<PendingRequest[]> {
+    return this.fetchWithConfig(`${API_CONFIG.ENDPOINTS.LEAVE_REQUESTS}/pending`);
+  }
+
+  public static async getPendingGeneralRequests() : Promise<PendingRequest[]> {
+    return this.fetchWithConfig(`${API_CONFIG.ENDPOINTS.GENERAL_REQUESTS}/pending`);
+  }
+
+  public static async resolveRequest(pendingRequest: PendingRequest, action: string): Promise<void> {
+    if (pendingRequest.startDate) {
+      return this.fetchWithConfig(`${API_CONFIG.ENDPOINTS.LEAVE_REQUESTS}/request/${pendingRequest.messageId}/${action}`, {method: "PATCH"});
+    }
+    return this.fetchWithConfig(`${API_CONFIG.ENDPOINTS.GENERAL_REQUESTS}/${pendingRequest.messageId}/${action}`, {method: "PATCH"});
+  }
+
+  public static async getGeneralRequestsByUserId( userId: number) : Promise<GeneralRequest[]> {
+    return this.fetchWithConfig(`${API_CONFIG.ENDPOINTS.GENERAL_REQUESTS}/all/${userId}`);
   }
 
   public static async validateTeamMembership(

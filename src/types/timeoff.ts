@@ -1,4 +1,4 @@
-import {Employee} from "./employee";
+import {Employee, EmployeeNameWithId} from "./employee";
 
 export interface Leave {
   id: number;
@@ -39,4 +39,25 @@ export interface LeaveDto {
   leaveStatus: LeaveStatus;
   leaveAmount: number;
   reason: string;
+}
+
+export interface PendingRequest {
+  messageId: number;
+  employee: EmployeeNameWithId;
+  leaveType?: LeaveType;
+  startDate?: Date;
+  endDate?: Date;
+  datetime: Date;
+  leaveAmount?: number;
+  currentDaysLeft?: number;
+  message: string;
+  isGeneral: boolean;
+}
+
+export interface GeneralRequest {
+  messageId:number;
+  employeeId : number;
+  datetime : Date;
+  status: LeaveStatus;
+  message: string;
 }

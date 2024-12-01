@@ -14,6 +14,8 @@ import { isValidEmail, isValidPhone } from "../utils/validation";
 import { createProjectChip } from "../utils/chipUtils";
 import { SelectChangeEvent } from "@mui/material/Select";
 import { Team } from "../types/team";
+import CompletedCoursesTable from "../components/CompletedCoursesTable";
+import {toNumber} from "lodash";
 
 const INITIAL_EMPLOYEE_STATE: Employee = {
   id: 0,
@@ -354,6 +356,7 @@ const EmployeeDetails: React.FC = () => {
               </Grid>
             </Grid>
           </form>
+          <CompletedCoursesTable employeeId={id? toNumber(id) : (currentEmployee? currentEmployee.id : 0)}/>
           {loading && <LoadingSpinner fullPage testId="loading-spinner" />}
         </PageLayout>
       )}

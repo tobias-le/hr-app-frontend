@@ -135,8 +135,6 @@ const WorkTime: React.FC = () => {
         status: Status.PENDING,
       };
 
-      console.log(workTimeEntry);
-
       const response = await ApiService.createAttendanceRecord(workTimeEntry);
 
       if (response) {

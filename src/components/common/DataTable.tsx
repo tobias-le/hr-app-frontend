@@ -24,6 +24,7 @@ interface DataTableProps<T> {
   isInitialState?: boolean;
   testId?: string;
   onRowClick?: (item: T) => void;
+  rowKey?: (item: T) => any;
 }
 
 export function DataTable<T>({
@@ -35,6 +36,7 @@ export function DataTable<T>({
   isInitialState = false,
   testId,
   onRowClick,
+    rowKey,
 }: DataTableProps<T>) {
   if (loading) {
     return <LoadingSpinner testId={`${testId}-loading`} />;
@@ -64,6 +66,7 @@ export function DataTable<T>({
         <TableBody>
           {data.map((item, rowIndex) => (
             <TableRow
+                data-testid={rowKey && rowKey(item)}
               key={rowIndex}
               onClick={() => onRowClick?.(item)}
               className={onRowClick ? "cursor-pointer hover:bg-gray-50" : ""}
