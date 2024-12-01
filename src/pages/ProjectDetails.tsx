@@ -73,7 +73,6 @@ const ProjectDetails: React.FC = () => {
           const data = await ApiService.getProjectAttendanceDetails(
             project.projectId
           );
-          console.log("Attendance Data:", data);
           setAttendanceData(data);
         } catch (error) {
           handleApiError(error, "Failed to fetch attendance details");
@@ -142,7 +141,6 @@ const ProjectDetails: React.FC = () => {
           status: newStatus,
         }
       );
-      console.log("Updating with:", existingRecord);
 
       // Update the local state with the new record
       setAttendanceData((prev) =>

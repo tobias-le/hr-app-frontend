@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { Button, Grid } from "@mui/material";
 import { Project } from "../types/project";
 import { Employee, EmployeeNameWithId } from "../types/employee";
@@ -36,6 +36,17 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
       members: [],
     }
   );
+
+  useEffect(() => {
+    if (initialData?.managerId && initialData?.managerName) {
+      setManagerOptions([
+        {
+          id: initialData.managerId,
+          name: initialData.managerName,
+        },
+      ]);
+    }
+  }, [initialData]);
 
   const fetchManagerOptions = async (query: string) => {
     setManagerLoading(true);
@@ -118,7 +129,9 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
           name="manager"
           label="Project Manager"
           value={
-            managerOptions.find((emp) => emp.id === formData.managerId) || null
+            managerOptions.find((emp) => {
+              return emp.id === formData.managerId;
+            }) || null
           }
           options={managerOptions}
           getOptionLabel={(option) => option.name || ""}

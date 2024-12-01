@@ -175,8 +175,6 @@ const WorkTime: React.FC = () => {
   };
 
   const handleEdit = (entry: AttendanceRecord) => {
-    console.log("Editing entry:", entry);
-
     const formValues = {
       project:
         projects.find((p) => p.name === entry.project)?.projectId.toString() ||
@@ -187,7 +185,6 @@ const WorkTime: React.FC = () => {
       description: entry.description || "",
     };
 
-    console.log("Setting form values:", formValues);
     setEditingEntry(entry);
     setFormData(formValues);
   };

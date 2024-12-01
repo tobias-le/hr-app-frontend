@@ -59,10 +59,8 @@ const useEmployeeData = (id: string | undefined, isHrView: boolean) => {
 
           // Get employee's team info
           const team = await ApiService.getTeamByEmployeeId(employeeData.id);
-          console.log("Team data:", team); // Debug log
           if (team && team.managerName) {
             setTeamManager(team.managerName);
-            console.log("Setting team manager to:", team.managerName); // Debug log
           }
         }
       } catch (error) {
@@ -247,9 +245,6 @@ const EmployeeDetails: React.FC = () => {
     );
   };
 
-  console.log("Current teamManager value:", teamManager); // Debug log
-  console.log("Is HR View:", isHrView); // Debug log
-
   return (
     <>
       {isHrView && !currentEmployee?.hr ? (
@@ -272,13 +267,23 @@ const EmployeeDetails: React.FC = () => {
                   }}
                 />
               )}
-              {Boolean(teamManager) && (
+              {teamManager ? (
                 <Chip
                   icon={<PersonIcon />}
                   label={`Reports to ${teamManager}`}
                   sx={{
                     backgroundColor: "primary.light",
                     color: "primary.contrastText",
+                    "& .MuiChip-icon": { color: "inherit" },
+                  }}
+                />
+              ) : (
+                <Chip
+                  icon={<PersonIcon />}
+                  label="Not currently part of any team"
+                  sx={{
+                    backgroundColor: "grey.400",
+                    color: "grey.900",
                     "& .MuiChip-icon": { color: "inherit" },
                   }}
                 />
