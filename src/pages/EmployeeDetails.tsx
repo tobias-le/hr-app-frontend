@@ -96,19 +96,16 @@ const EmployeeDetails: React.FC = () => {
       return { editable: true, visible: true };
     }
 
-    // Own profile can only edit contact info
+    // For own profile, only contact info is editable
+    const contactFields = ["email", "phoneNumber"];
     if (isOwnProfile) {
-      switch (fieldName) {
-        case "email":
-        case "phoneNumber":
-          return { editable: true, visible: true };
-        case "hr":
-          return { editable: false, visible: false };
-        default:
-          return { editable: false, visible: true };
-      }
+      return {
+        editable: contactFields.includes(fieldName),
+        visible: fieldName !== "hr",
+      };
     }
 
+    // Default case - visible but not editable
     return { editable: false, visible: true };
   };
 
