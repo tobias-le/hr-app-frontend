@@ -21,6 +21,20 @@ import { PageLayout } from "../components/common/PageLayout";
 import { handleApiError } from "../utils/errorUtils";
 import { useForm } from "../hooks/useForm";
 
+const sortDates = (a: AttendanceRecord, b: AttendanceRecord): number => {
+  const aDate = new Date(a.date);
+  const bDate = new Date(b.date);
+  if (aDate.getFullYear() === bDate.getFullYear()) {
+    if (aDate.getMonth() === bDate.getMonth()) {
+      return aDate.getDay() - bDate.getDay();
+    } else {
+      return aDate.getMonth() - bDate.getMonth();
+    }
+  } else {
+    return aDate.getFullYear() - bDate.getFullYear();
+  }
+};
+
 const WorkTime: React.FC = () => {
   const { formData, handleChange, isSubmitting, setIsSubmitting, setFormData } =
     useForm({
@@ -49,7 +63,7 @@ const WorkTime: React.FC = () => {
         formData.endTime
     );
     setIsFormValid(valid);
-  }, [formData]);
+  }, [formData]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const fetchData = async () => {
@@ -71,12 +85,6 @@ const WorkTime: React.FC = () => {
         );
 
         setProjects(validProjects);
-        if (validProjects.length > 0) {
-          setFormData((prev) => ({
-            ...prev,
-            project: validProjects[0].projectId.toString(),
-          }));
-        }
         setPastEntries(entriesData);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -127,6 +135,8 @@ const WorkTime: React.FC = () => {
         status: Status.PENDING,
       };
 
+      console.log(workTimeEntry);
+
       const response = await ApiService.createAttendanceRecord(workTimeEntry);
 
       if (response) {
@@ -175,6 +185,8 @@ const WorkTime: React.FC = () => {
   };
 
   const handleEdit = (entry: AttendanceRecord) => {
+    console.log("Editing entry:", entry);
+
     const formValues = {
       project:
         projects.find((p) => p.name === entry.project)?.projectId.toString() ||
@@ -185,6 +197,7 @@ const WorkTime: React.FC = () => {
       description: entry.description || "",
     };
 
+    console.log("Setting form values:", formValues);
     setEditingEntry(entry);
     setFormData(formValues);
   };
@@ -435,7 +448,7 @@ const WorkTime: React.FC = () => {
       </Typography>
 
       <DataTable
-        data={pastEntries}
+        data={pastEntries.sort(sortDates)}
         columns={columns}
         loading={loading}
         emptyMessage="No entries found"
