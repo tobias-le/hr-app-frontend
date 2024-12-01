@@ -19,6 +19,8 @@ import {
   Groups,
   School,
   BadgeOutlined,
+  Inbox,
+  ContactMail,
 } from "@mui/icons-material";
 import { Link, useLocation } from "react-router-dom";
 import { stringToColor } from "../utils/colorUtils";
@@ -104,6 +106,17 @@ const Header: React.FC = () => {
                   <BadgeOutlined />
                 </IconButton>
               </Tooltip>
+              <Tooltip title="Pending Requests">
+                <IconButton
+                    className="header-icon"
+                    component={Link}
+                    to="/requests/pending"
+                    data-testid="pending-requests-link"
+                    sx={iconButtonStyle("/requests/pending")}
+                >
+                  <Inbox />
+                </IconButton>
+              </Tooltip>
             </>
           )}
           <Tooltip title="Time Off">
@@ -159,6 +172,17 @@ const Header: React.FC = () => {
               sx={iconButtonStyle("/learning")}
             >
               <School />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Contact HR">
+            <IconButton
+            className="header-icon"
+            component={Link}
+            to="/requests"
+            data-testid="request-link"
+            sx={iconButtonStyle("/requests")}
+            >
+              <ContactMail/>
             </IconButton>
           </Tooltip>
         </Box>

@@ -21,6 +21,20 @@ import { PageLayout } from "../components/common/PageLayout";
 import { handleApiError } from "../utils/errorUtils";
 import { useForm } from "../hooks/useForm";
 
+const sortDates = ( a: AttendanceRecord, b: AttendanceRecord ): number => {
+  const aDate = new Date(a.date);
+  const bDate = new Date(b.date);
+  if (aDate.getFullYear()=== bDate.getFullYear()) {
+    if (aDate.getMonth()=== bDate.getMonth()) {
+      return aDate.getDay() - bDate.getDay();
+    } else {
+      return aDate.getMonth() - bDate.getMonth();
+    }
+  } else {
+    return aDate.getFullYear() - bDate.getFullYear();
+  }
+}
+
 const WorkTime: React.FC = () => {
   const { formData, handleChange, isSubmitting, setIsSubmitting, setFormData } =
     useForm({
@@ -120,6 +134,8 @@ const WorkTime: React.FC = () => {
         description: formData.description,
         status: Status.PENDING,
       };
+
+      console.log(workTimeEntry);
 
       const response = await ApiService.createAttendanceRecord(workTimeEntry);
 
@@ -432,7 +448,7 @@ const WorkTime: React.FC = () => {
       </Typography>
 
       <DataTable
-        data={pastEntries}
+        data={pastEntries.sort(sortDates)}
         columns={columns}
         loading={loading}
         emptyMessage="No entries found"

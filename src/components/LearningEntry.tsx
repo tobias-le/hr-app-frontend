@@ -12,6 +12,7 @@ import CheckIcon from "@mui/icons-material/Check";
 import { format } from "date-fns";
 import React, { useEffect, useState } from "react";
 import ApiService from "../services/api.service";
+import {useSnackbarStore} from "./GlobalSnackbar";
 interface CourseEntryProps {
   course: Learning;
   updateFunction: (courseId: number, employeeId: number) => void;
@@ -19,6 +20,7 @@ interface CourseEntryProps {
 
 const LearningEntry = ({ course, updateFunction }: CourseEntryProps) => {
   const employee = useEmployeeStore((state) => state.currentEmployee);
+  const {showMessage} = useSnackbarStore();
   const [finished, setFinished] = useState<boolean>(false);
   const [date, setDate] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
@@ -48,6 +50,7 @@ const LearningEntry = ({ course, updateFunction }: CourseEntryProps) => {
         .then(() => {
           updateFunction(course.learningId, employee.id);
           setLoading(false);
+          showMessage("Learning completed");
         })
         .catch();
     }

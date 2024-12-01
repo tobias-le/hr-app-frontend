@@ -2,7 +2,7 @@ import {
   Box,
   Button,
   CircularProgress,
-  Paper,
+  Paper, ToggleButton, ToggleButtonGroup,
   Typography,
 } from "@mui/material";
 import React, { FormEvent, useEffect, useState } from "react";
@@ -13,6 +13,7 @@ import ApiService from "../services/api.service";
 import LearningEntry from "../components/LearningEntry";
 import { BaseModal } from "../components/common/BaseModal";
 import { FormField } from "../components/common/FormField";
+import {EmptyState} from "../components/common/EmptyState";
 
 function isValid(url: string): boolean {
   try {
@@ -35,25 +36,19 @@ const Learn: React.FC = () => {
   const [validName, setValidName] = useState<string | null>(null);
   const [formLocked, setFormLocked] = useState<boolean>(false);
 
-  const updateFilter = (event: React.MouseEvent) => {
-    if (event.currentTarget.id === filter) {
-      setFilter(null);
-    } else {
-      setFilter(event.currentTarget.id);
-    }
-  };
-
   const update = (learningId: number, employeeId: number): void => {
     setCourses((prevState) => {
       return prevState.map((learning) => {
         if (learning.learningId === learningId) {
           const newArray = Array.from(learning.enrolledEmployees);
+          const date = new Date();
+          date.setDate(date.getDate() + 7);
           newArray.push({
             id: {
               learningId: learningId,
               employeeId: employeeId,
             },
-            date: new Date(),
+            date: date,
           });
           return {
             ...learning,
@@ -139,42 +134,35 @@ const Learn: React.FC = () => {
     }
   }, [newName]);
 
-  return (
-    <PageLayout data-testid="learning-page" title="Required Learning">
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: "flex-end",
-          alignItems: "center",
-          padding: "16px",
-        }}
-      >
-        <Typography variant="body2">filter:</Typography>
 
-        <Button
-          id="complete"
-          onClick={updateFilter}
-          variant={filter === "complete" ? "contained" : "text"}
-          data-testid="complted-filter-button"
-        >
-          Completed
-        </Button>
+    return (
+        <PageLayout data-testid="learning-page" title="Required Learning">
+            <Box sx={{display: "flex", flexDirection: "row", justifyContent: "flex-end", alignItems:"center", padding:"16px"}}>
+                <Typography variant="body2">filter:</Typography>
+                <ToggleButtonGroup
+                    value={filter}
+                    onChange={(event, newFilter) => {setFilter(newFilter);console.log(newFilter)}}
+                    exclusive
+                    size="small"
+                >
+                    <ToggleButton value="complete" data-testid="complted-filter-button">
+                        Completed
+                    </ToggleButton>
 
-        <Button
-          id="waiting"
-          onClick={updateFilter}
-          variant={filter === "waiting" ? "contained" : "text"}
-          data-testid="waiting-filter-button"
-        >
-          Waiting
-        </Button>
-      </Box>
-      <Paper>
-        {viewedCourses.map((course) => (
-          <LearningEntry course={course} updateFunction={update} />
-        ))}
-      </Paper>
+                    <ToggleButton value="waiting" data-testid="waiting-filter-button">
+                        Waiting
+                    </ToggleButton>
+                </ToggleButtonGroup>
+
+            </Box>
+            {viewedCourses.length > 0?
+                <Paper>
+                    {viewedCourses.map(
+                        course => <LearningEntry course={course} updateFunction={update}/>
+                    )}
+                </Paper>:
+                <EmptyState message={courses.length===0? "No courses yet": "Nothing to show"}/>
+            }
 
       {currentEmployee?.hr && (
         <Box
