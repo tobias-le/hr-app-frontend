@@ -13,6 +13,7 @@ import {
   Tab,
   IconButton,
   Tooltip,
+  ButtonGroup,
 } from "@mui/material";
 import { Status } from "../types/attendance";
 import { Project } from "../types/project";
@@ -43,6 +44,7 @@ const ProjectDetails: React.FC = () => {
   const [attendanceData, setAttendanceData] = useState<AttendanceRecord[]>([]);
   const [loadingAttendance, setLoadingAttendance] = useState(false);
   const currentEmployee = useEmployeeStore((state) => state.currentEmployee);
+  const [statusFilter, setStatusFilter] = useState<string>("ALL");
 
   const isHr = currentEmployee?.hr || false;
   const isManager = project?.managerId === currentEmployee?.id;
@@ -154,6 +156,18 @@ const ProjectDetails: React.FC = () => {
       handleApiError(error, `Failed to ${newStatus.toLowerCase()} attendance`);
     }
   };
+
+  const getFilteredAttendanceData = () => {
+    if (statusFilter === "ALL") return attendanceData;
+    return attendanceData.filter((record) => record.status === statusFilter);
+  };
+
+  const statusOptions = [
+    { value: "ALL", label: "All Statuses" },
+    { value: Status.PENDING, label: "Pending" },
+    { value: Status.APPROVED, label: "Approved" },
+    { value: Status.REJECTED, label: "Rejected" },
+  ];
 
   return (
     <PageLayout title={project?.name || "Project Details"}>
@@ -267,8 +281,27 @@ const ProjectDetails: React.FC = () => {
               </div>
             ) : (
               <div className="space-y-4">
+                <ButtonGroup sx={{ mb: 2 }}>
+                  {statusOptions.map((option) => (
+                    <Button
+                      key={option.value}
+                      variant={
+                        statusFilter === option.value ? "contained" : "outlined"
+                      }
+                      onClick={() => setStatusFilter(option.value)}
+                      sx={{ minWidth: 120 }}
+                    >
+                      {option.value === "ALL" ? (
+                        option.label
+                      ) : (
+                        <StatusBadge status={option.value as Status} />
+                      )}
+                    </Button>
+                  ))}
+                </ButtonGroup>
+
                 <DataTable
-                  data={attendanceData}
+                  data={getFilteredAttendanceData()}
                   loading={loadingAttendance}
                   testId="attendance-table"
                   columns={[
