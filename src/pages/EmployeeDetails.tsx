@@ -13,6 +13,7 @@ import PersonIcon from "@mui/icons-material/Person";
 import { isValidEmail, isValidPhone } from "../utils/validation";
 import { createProjectChip } from "../utils/chipUtils";
 import { SelectChangeEvent } from "@mui/material/Select";
+import { Team } from "../types/team";
 import CompletedCoursesTable from "../components/CompletedCoursesTable";
 import {toNumber} from "lodash";
 
@@ -34,6 +35,7 @@ const INITIAL_EMPLOYEE_STATE: Employee = {
 const useEmployeeData = (id: string | undefined, isHrView: boolean) => {
   const { currentEmployee } = useEmployeeStore();
   const [teamManager, setTeamManager] = useState<string>("");
+  const [managedTeam, setManagedTeam] = useState<Team | null>(null);
   const { formData, setFormData } = useForm(INITIAL_EMPLOYEE_STATE);
   const navigate = useNavigate();
   const { showMessage } = useSnackbarStore();
@@ -41,13 +43,27 @@ const useEmployeeData = (id: string | undefined, isHrView: boolean) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        let employeeData;
         if (isHrView && id) {
-          const employee = await ApiService.getEmployeeById(Number(id));
-          setFormData(employee);
+          employeeData = await ApiService.getEmployeeById(Number(id));
+          setFormData(employeeData);
         } else if (currentEmployee) {
-          setFormData(currentEmployee);
-          const team = await ApiService.getTeamByEmployeeId(currentEmployee.id);
-          setTeamManager(team.managerName || "No manager assigned");
+          employeeData = currentEmployee;
+          setFormData(employeeData);
+        }
+
+        if (employeeData) {
+          // Check if employee is a manager
+          const managedTeamData = await ApiService.getTeamByManagerId(
+            employeeData.id
+          );
+          setManagedTeam(managedTeamData);
+
+          // Get employee's team info
+          const team = await ApiService.getTeamByEmployeeId(employeeData.id);
+          if (team && team.managerName) {
+            setTeamManager(team.managerName);
+          }
         }
       } catch (error) {
         console.error("Failed to fetch data:", error);
@@ -59,7 +75,7 @@ const useEmployeeData = (id: string | undefined, isHrView: boolean) => {
     fetchData();
   }, [id, currentEmployee, setFormData, navigate, showMessage, isHrView]);
 
-  return { formData, setFormData, teamManager };
+  return { formData, setFormData, teamManager, managedTeam };
 };
 
 const EmployeeDetails: React.FC = () => {
@@ -68,7 +84,7 @@ const EmployeeDetails: React.FC = () => {
   const { currentEmployee, updateEmployee } = useEmployeeStore();
   const { showMessage } = useSnackbarStore();
   const [loading, setLoading] = useState(false);
-  const { formData, setFormData, teamManager } = useEmployeeData(
+  const { formData, setFormData, teamManager, managedTeam } = useEmployeeData(
     id,
     Boolean(id)
   );
@@ -82,19 +98,16 @@ const EmployeeDetails: React.FC = () => {
       return { editable: true, visible: true };
     }
 
-    // Own profile can only edit contact info
+    // For own profile, only contact info is editable
+    const contactFields = ["email", "phoneNumber"];
     if (isOwnProfile) {
-      switch (fieldName) {
-        case "email":
-        case "phoneNumber":
-          return { editable: true, visible: true };
-        case "hr":
-          return { editable: false, visible: false };
-        default:
-          return { editable: false, visible: true };
-      }
+      return {
+        editable: contactFields.includes(fieldName),
+        visible: fieldName !== "hr",
+      };
     }
 
+    // Default case - visible but not editable
     return { editable: false, visible: true };
   };
 
@@ -238,17 +251,38 @@ const EmployeeDetails: React.FC = () => {
       ) : (
         <PageLayout>
           <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3 }}>
-            <Box sx={{ display: "flex", alignItems: "center" }}>
-              <Typography variant="h6" sx={{ mr: 2 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+              <Typography variant="h6">
                 {isHrView ? "Edit Employee Details" : "Employee Profile"}
               </Typography>
-              {isOwnProfile && teamManager && (
+              {managedTeam && (
                 <Chip
                   icon={<PersonIcon />}
-                  label={`Manager: ${teamManager}`}
+                  label={`Team Manager of ${managedTeam.name}`}
+                  sx={{
+                    backgroundColor: "success.light",
+                    color: "success.contrastText",
+                    "& .MuiChip-icon": { color: "inherit" },
+                  }}
+                />
+              )}
+              {teamManager ? (
+                <Chip
+                  icon={<PersonIcon />}
+                  label={`Reports to ${teamManager}`}
                   sx={{
                     backgroundColor: "primary.light",
                     color: "primary.contrastText",
+                    "& .MuiChip-icon": { color: "inherit" },
+                  }}
+                />
+              ) : (
+                <Chip
+                  icon={<PersonIcon />}
+                  label="Not currently part of any team"
+                  sx={{
+                    backgroundColor: "grey.400",
+                    color: "grey.900",
                     "& .MuiChip-icon": { color: "inherit" },
                   }}
                 />

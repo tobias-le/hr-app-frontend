@@ -424,10 +424,28 @@ class ApiService {
     return response.data;
   }
 
-  public static async getTeamByEmployeeId(employeeId: number): Promise<Team> {
-    return this.fetchWithConfig(
-      `${API_CONFIG.ENDPOINTS.TEAMS}/by-employee/${employeeId}`
-    );
+  public static async getTeamByEmployeeId(
+    employeeId: number
+  ): Promise<Team | null> {
+    try {
+      return await this.fetchWithConfig(
+        `${API_CONFIG.ENDPOINTS.TEAMS}/by-employee/${employeeId}`
+      );
+    } catch (error) {
+      return null;
+    }
+  }
+
+  public static async getTeamByManagerId(
+    managerId: number
+  ): Promise<Team | null> {
+    try {
+      return await this.fetchWithConfig(
+        `${API_CONFIG.ENDPOINTS.TEAMS}/by-manager/${managerId}`
+      );
+    } catch (error) {
+      return null;
+    }
   }
 
   public static async refreshToken(

@@ -21,11 +21,11 @@ import { PageLayout } from "../components/common/PageLayout";
 import { handleApiError } from "../utils/errorUtils";
 import { useForm } from "../hooks/useForm";
 
-const sortDates = ( a: AttendanceRecord, b: AttendanceRecord ): number => {
+const sortDates = (a: AttendanceRecord, b: AttendanceRecord): number => {
   const aDate = new Date(a.date);
   const bDate = new Date(b.date);
-  if (aDate.getFullYear()=== bDate.getFullYear()) {
-    if (aDate.getMonth()=== bDate.getMonth()) {
+  if (aDate.getFullYear() === bDate.getFullYear()) {
+    if (aDate.getMonth() === bDate.getMonth()) {
       return aDate.getDay() - bDate.getDay();
     } else {
       return aDate.getMonth() - bDate.getMonth();
@@ -33,7 +33,7 @@ const sortDates = ( a: AttendanceRecord, b: AttendanceRecord ): number => {
   } else {
     return aDate.getFullYear() - bDate.getFullYear();
   }
-}
+};
 
 const WorkTime: React.FC = () => {
   const { formData, handleChange, isSubmitting, setIsSubmitting, setFormData } =
@@ -63,7 +63,7 @@ const WorkTime: React.FC = () => {
         formData.endTime
     );
     setIsFormValid(valid);
-  }, [formData]);
+  }, [formData]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const fetchData = async () => {
@@ -134,8 +134,6 @@ const WorkTime: React.FC = () => {
         description: formData.description,
         status: Status.PENDING,
       };
-
-      console.log(workTimeEntry);
 
       const response = await ApiService.createAttendanceRecord(workTimeEntry);
 
