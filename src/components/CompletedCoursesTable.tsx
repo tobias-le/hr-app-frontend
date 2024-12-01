@@ -42,11 +42,6 @@ const CompletedCoursesTable = ({employeeId}:CourseTableProps) => {
     }, [employeeId]);
 
     useEffect(() => {
-        setCurrentCourses(courses);
-        setFilter("");
-    }, [courses]);
-
-    useEffect(() => {
         if (filter.trim()==="") {
             setCurrentCourses(courses);
         } else {
