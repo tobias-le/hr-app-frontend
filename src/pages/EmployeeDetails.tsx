@@ -41,18 +41,28 @@ const useEmployeeData = (id: string | undefined, isHrView: boolean) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        let employeeData;
         if (isHrView && id) {
-          const employee = await ApiService.getEmployeeById(Number(id));
-          setFormData(employee);
+          employeeData = await ApiService.getEmployeeById(Number(id));
+          setFormData(employeeData);
         } else if (currentEmployee) {
-          setFormData(currentEmployee);
+          employeeData = currentEmployee;
+          setFormData(employeeData);
+        }
+
+        if (employeeData) {
+          // Check if employee is a manager
           const managedTeamData = await ApiService.getTeamByManagerId(
-            currentEmployee.id
+            employeeData.id
           );
           setManagedTeam(managedTeamData);
-          const team = await ApiService.getTeamByEmployeeId(currentEmployee.id);
-          if (team) {
-            setTeamManager(team.managerName || "No manager assigned");
+
+          // Get employee's team info
+          const team = await ApiService.getTeamByEmployeeId(employeeData.id);
+          console.log("Team data:", team); // Debug log
+          if (team && team.managerName) {
+            setTeamManager(team.managerName);
+            console.log("Setting team manager to:", team.managerName); // Debug log
           }
         }
       } catch (error) {
@@ -237,6 +247,9 @@ const EmployeeDetails: React.FC = () => {
     );
   };
 
+  console.log("Current teamManager value:", teamManager); // Debug log
+  console.log("Is HR View:", isHrView); // Debug log
+
   return (
     <>
       {isHrView && !currentEmployee?.hr ? (
@@ -259,7 +272,7 @@ const EmployeeDetails: React.FC = () => {
                   }}
                 />
               )}
-              {isOwnProfile && teamManager && (
+              {Boolean(teamManager) && (
                 <Chip
                   icon={<PersonIcon />}
                   label={`Reports to ${teamManager}`}
