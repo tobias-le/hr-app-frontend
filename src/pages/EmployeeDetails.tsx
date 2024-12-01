@@ -13,6 +13,7 @@ import PersonIcon from "@mui/icons-material/Person";
 import { isValidEmail, isValidPhone } from "../utils/validation";
 import { createProjectChip } from "../utils/chipUtils";
 import { SelectChangeEvent } from "@mui/material/Select";
+import { Team } from "../types/team";
 
 const INITIAL_EMPLOYEE_STATE: Employee = {
   id: 0,
@@ -32,6 +33,7 @@ const INITIAL_EMPLOYEE_STATE: Employee = {
 const useEmployeeData = (id: string | undefined, isHrView: boolean) => {
   const { currentEmployee } = useEmployeeStore();
   const [teamManager, setTeamManager] = useState<string>("");
+  const [managedTeam, setManagedTeam] = useState<Team | null>(null);
   const { formData, setFormData } = useForm(INITIAL_EMPLOYEE_STATE);
   const navigate = useNavigate();
   const { showMessage } = useSnackbarStore();
@@ -44,8 +46,14 @@ const useEmployeeData = (id: string | undefined, isHrView: boolean) => {
           setFormData(employee);
         } else if (currentEmployee) {
           setFormData(currentEmployee);
+          const managedTeamData = await ApiService.getTeamByManagerId(
+            currentEmployee.id
+          );
+          setManagedTeam(managedTeamData);
           const team = await ApiService.getTeamByEmployeeId(currentEmployee.id);
-          setTeamManager(team.managerName || "No manager assigned");
+          if (team) {
+            setTeamManager(team.managerName || "No manager assigned");
+          }
         }
       } catch (error) {
         console.error("Failed to fetch data:", error);
@@ -57,7 +65,7 @@ const useEmployeeData = (id: string | undefined, isHrView: boolean) => {
     fetchData();
   }, [id, currentEmployee, setFormData, navigate, showMessage, isHrView]);
 
-  return { formData, setFormData, teamManager };
+  return { formData, setFormData, teamManager, managedTeam };
 };
 
 const EmployeeDetails: React.FC = () => {
@@ -66,7 +74,7 @@ const EmployeeDetails: React.FC = () => {
   const { currentEmployee, updateEmployee } = useEmployeeStore();
   const { showMessage } = useSnackbarStore();
   const [loading, setLoading] = useState(false);
-  const { formData, setFormData, teamManager } = useEmployeeData(
+  const { formData, setFormData, teamManager, managedTeam } = useEmployeeData(
     id,
     Boolean(id)
   );
@@ -236,14 +244,25 @@ const EmployeeDetails: React.FC = () => {
       ) : (
         <PageLayout>
           <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3 }}>
-            <Box sx={{ display: "flex", alignItems: "center" }}>
-              <Typography variant="h6" sx={{ mr: 2 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+              <Typography variant="h6">
                 {isHrView ? "Edit Employee Details" : "Employee Profile"}
               </Typography>
+              {managedTeam && (
+                <Chip
+                  icon={<PersonIcon />}
+                  label={`Team Manager of ${managedTeam.name}`}
+                  sx={{
+                    backgroundColor: "success.light",
+                    color: "success.contrastText",
+                    "& .MuiChip-icon": { color: "inherit" },
+                  }}
+                />
+              )}
               {isOwnProfile && teamManager && (
                 <Chip
                   icon={<PersonIcon />}
-                  label={`Manager: ${teamManager}`}
+                  label={`Reports to ${teamManager}`}
                   sx={{
                     backgroundColor: "primary.light",
                     color: "primary.contrastText",
