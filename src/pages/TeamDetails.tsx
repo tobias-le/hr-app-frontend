@@ -18,7 +18,7 @@ import { useSnackbarStore } from "../components/GlobalSnackbar";
 import { handleApiError } from "../utils/errorUtils";
 import { BaseModal } from "../components/common/BaseModal";
 import { Employee } from "../types/employee";
-import { TeamForm } from "../components/TeamForm";
+import { TeamForm, TeamFormData } from "../components/TeamForm";
 import { useEmployeeStore } from "../store/employeeStore";
 
 // Extract team loading logic to a custom hook
@@ -34,7 +34,7 @@ const useTeamData = (teamId: string | undefined) => {
         setTeam(details);
       } catch (error) {
         handleApiError(error, "Failed to fetch team details");
-        navigate("/teams");
+        navigate("/team-management");
       } finally {
         setLoading(false);
       }
@@ -54,6 +54,29 @@ const TeamDetails: React.FC = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const { currentEmployee } = useEmployeeStore();
+  const [formData, setFormData] = useState<TeamFormData>({
+    name: "",
+    managerId: null,
+    managerName: "",
+    members: [],
+    employees: [],
+  });
+
+  useEffect(() => {
+    if (team) {
+      setFormData({
+        name: team.name,
+        managerId: team.managerId || null,
+        managerName: team.managerName || "",
+        members:
+          team.members?.map((member) => ({
+            id: member.id,
+            name: member.name,
+          })) || [],
+        employees: team.members || [],
+      });
+    }
+  }, [team]);
 
   const handleEdit = () => {
     setIsEditModalOpen(true);
@@ -71,22 +94,22 @@ const TeamDetails: React.FC = () => {
     try {
       await ApiService.deleteTeam(team.teamId);
       showMessage("Team deleted successfully");
-      navigate("/teams");
+      navigate("/team-management");
     } catch (error) {
       handleApiError(error, "Failed to delete team");
       setIsDeleting(false);
     }
   };
 
-  const handleUpdateTeam = async (updatedData: Partial<Team>) => {
+  const handleUpdateTeam = async () => {
     if (!team) return;
 
     try {
       const updatedTeam = await ApiService.updateTeam(team.teamId, {
         ...team,
-        ...updatedData,
-        managerId: updatedData.managerId,
-        members: updatedData.members,
+        name: formData.name,
+        managerId: formData.managerId || undefined,
+        members: formData.employees,
       });
       setTeam(updatedTeam);
       setIsEditModalOpen(false);
@@ -338,23 +361,9 @@ const TeamDetails: React.FC = () => {
         {team && (
           <div>
             <TeamForm
-              formData={{
-                name: team.name,
-                managerId: team.managerId || null,
-                managerName: team.managerName || "",
-                members: team.members || [],
-                employees: team.members || [],
-              }}
-              setFormData={() => {
-                handleUpdateTeam({
-                  name: team.name,
-                  managerId: team.managerId ?? undefined,
-                  members: team.members,
-                });
-              }}
-              onSubmit={async () => {
-                setIsEditModalOpen(false);
-              }}
+              formData={formData}
+              setFormData={setFormData}
+              onSubmit={handleUpdateTeam}
               onCancel={() => setIsEditModalOpen(false)}
               isSubmitting={isDeleting}
               isEditing={true}

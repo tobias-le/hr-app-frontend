@@ -117,10 +117,52 @@ export const TeamForm: React.FC<TeamFormProps> = ({
     }
   };
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await onSubmit();
+  };
+
+  const handleMembersChange = async (
+    _: any,
+    newValue: EmployeeNameWithId[]
+  ) => {
+    const newMember = newValue.find(
+      (member) =>
+        !formData.members.some((existing) => existing.id === member.id)
+    );
+
+    if (newMember) {
+      const isValid = await validateTeamMembership(newMember.id);
+      if (!isValid) {
+        return;
+      }
+    }
+
+    setFormData((prevData) => ({
+      ...prevData,
+      members: newValue,
+      employees: newValue.map((member) => {
+        const existingEmployee = prevData.employees.find(
+          (emp) => emp.id === member.id
+        );
+        return (
+          existingEmployee || {
+            id: member.id,
+            name: member.name,
+            email: "",
+            phoneNumber: "",
+            jobTitle: "",
+            hr: false,
+          }
+        );
+      }),
+    }));
+  };
+
   return (
     <Box
       component="form"
-      onSubmit={onSubmit}
+      onSubmit={handleSubmit}
       sx={{
         display: "grid",
         gap: 3,
@@ -169,26 +211,9 @@ export const TeamForm: React.FC<TeamFormProps> = ({
       <AutocompleteField
         name="members"
         label="Team Members"
-        value={formData.members || []}
+        value={formData.members}
         options={memberOptions}
-        onChange={async (_, newValue) => {
-          const newMember = newValue.find(
-            (member: EmployeeNameWithId) =>
-              !formData.members.some((existing) => existing.id === member.id)
-          );
-
-          if (newMember) {
-            const isValid = await validateTeamMembership(newMember.id);
-            if (!isValid) {
-              return;
-            }
-          }
-
-          setFormData((prevData) => ({
-            ...prevData,
-            members: newValue,
-          }));
-        }}
+        onChange={handleMembersChange}
         onInputChange={(_, newInputValue) => {
           debouncedFetchMemberOptions(newInputValue);
         }}
@@ -199,6 +224,7 @@ export const TeamForm: React.FC<TeamFormProps> = ({
 
       <div className="flex justify-end space-x-2 mt-auto">
         <Button
+          type="button"
           onClick={onCancel}
           disabled={isSubmitting}
           variant="outlined"
@@ -207,7 +233,7 @@ export const TeamForm: React.FC<TeamFormProps> = ({
           Cancel
         </Button>
         <Button
-          onClick={onSubmit}
+          type="submit"
           variant="contained"
           color="primary"
           disabled={isSubmitting}
