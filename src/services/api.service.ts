@@ -107,10 +107,7 @@ class ApiService {
           .getState()
           .showMessage(errorData.message || `Error: ${response.statusText}`);
 
-        throw {
-          ...errorData,
-          toString: () => errorData.message || `Error: ${response.statusText}`,
-        };
+        throw new Error(errorData.message || `Error: ${response.statusText}`);
       }
       if (response.status === 204) {
         return true;
