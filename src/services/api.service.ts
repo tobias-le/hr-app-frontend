@@ -21,6 +21,15 @@ import {
   LearningDto,
 } from "../types/learning";
 import { AuthResponse } from "../types/auth";
+import { useSnackbarStore } from "../components/GlobalSnackbar";
+
+interface ApiError {
+  status: number;
+  error: string;
+  message: string;
+  path: string;
+  timestamp: string;
+}
 
 class ApiService {
   private static isRefreshing = false;
@@ -48,6 +57,8 @@ class ApiService {
     try {
       const response = await fetch(url, defaultOptions);
       if (!response.ok) {
+        const errorData: ApiError = await response.json();
+
         if (response.status === 401) {
           // Try to refresh token
           const refreshToken = localStorage.getItem("refresh_token");
@@ -91,7 +102,15 @@ class ApiService {
           console.error("Forbidden access. Token:", accessToken);
           throw new Error("Forbidden access - check permissions");
         }
-        throw new Error(`HTTP error! status: ${response.status}`);
+        // Show error message in snackbar
+        useSnackbarStore
+          .getState()
+          .showMessage(errorData.message || `Error: ${response.statusText}`);
+
+        throw {
+          ...errorData,
+          toString: () => errorData.message || `Error: ${response.statusText}`,
+        };
       }
       if (response.status === 204) {
         return true;
@@ -101,6 +120,12 @@ class ApiService {
       }
       return await response.json();
     } catch (error) {
+      // If it's not an ApiError, show a generic message
+      if (!(error as ApiError).status) {
+        useSnackbarStore
+          .getState()
+          .showMessage("An unexpected error occurred. Please try again later.");
+      }
       console.error("API call failed:", error);
       throw error;
     }
