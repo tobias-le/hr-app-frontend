@@ -156,8 +156,13 @@ const ProjectDetails: React.FC = () => {
   };
 
   const getFilteredAttendanceData = () => {
-    if (statusFilter === "ALL") return attendanceData;
-    return attendanceData.filter((record) => record.status === statusFilter);
+    // Sort by date (newest first) and then filter by status
+    const sortedData = [...attendanceData].sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
+
+    if (statusFilter === "ALL") return sortedData;
+    return sortedData.filter((record) => record.status === statusFilter);
   };
 
   const statusOptions = [
@@ -324,6 +329,10 @@ const ProjectDetails: React.FC = () => {
                     {
                       header: "Time Out",
                       accessor: (item) => item.clockOutTime || "—",
+                    },
+                    {
+                      header: "Description",
+                      accessor: (item) => item.description || "—",
                     },
                     {
                       header: "Status",
