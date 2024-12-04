@@ -1,6 +1,6 @@
 const API_CONFIG = {
   BASE_URL: "https://backend-test-7dda.up.railway.app",
-  //BASE_URL: "http://localhost:8080",
+  // BASE_URL: "http://localhost:8080",
 
   ENDPOINTS: {
     EMPLOYEES: "/api/employees",
@@ -11,7 +11,7 @@ const API_CONFIG = {
     ATTENDANCE_DETAILS: "/api/attendance/details",
     LEARNINGS: "/learning",
     GENERAL_REQUESTS: "/request",
-    LEAVE_REQUESTS: "/leave"
+    LEAVE_REQUESTS: "/leave",
   },
   TIMEOUT: 5000,
   HEADERS: {

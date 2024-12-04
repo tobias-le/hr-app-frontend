@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Button, Typography, Grid, Chip, Box } from "@mui/material";
+import { Button, Typography, Grid, Chip, Box, MenuItem } from "@mui/material";
 import { useParams, useNavigate, Navigate } from "react-router-dom";
 import ApiService from "../services/api.service";
 import { useEmployeeStore } from "../store/employeeStore";
@@ -15,7 +15,13 @@ import { createProjectChip } from "../utils/chipUtils";
 import { SelectChangeEvent } from "@mui/material/Select";
 import { Team } from "../types/team";
 import CompletedCoursesTable from "../components/CompletedCoursesTable";
-import {toNumber} from "lodash";
+import { toNumber } from "lodash";
+import DeleteIcon from "@mui/icons-material/Delete";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
 
 const INITIAL_EMPLOYEE_STATE: Employee = {
   id: 0,
@@ -32,6 +38,12 @@ const INITIAL_EMPLOYEE_STATE: Employee = {
   hr: false,
 };
 
+const EMPLOYMENT_STATUS_OPTIONS = [
+  { value: "FULL_TIME", label: "Full Time (8h)", hours: 8 },
+  { value: "PART_TIME", label: "Part Time (4h)", hours: 4 },
+  { value: "CONTRACT", label: "Contract", hours: 0 },
+];
+
 const useEmployeeData = (id: string | undefined, isHrView: boolean) => {
   const { currentEmployee } = useEmployeeStore();
   const [teamManager, setTeamManager] = useState<string>("");
@@ -43,6 +55,12 @@ const useEmployeeData = (id: string | undefined, isHrView: boolean) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        if (id === "create") {
+          // Reset to initial state for create mode
+          setFormData(INITIAL_EMPLOYEE_STATE);
+          return;
+        }
+
         let employeeData;
         if (isHrView && id) {
           employeeData = await ApiService.getEmployeeById(Number(id));
@@ -88,9 +106,11 @@ const EmployeeDetails: React.FC = () => {
     id,
     Boolean(id)
   );
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const isHrView = Boolean(id);
   const isOwnProfile = !isHrView;
+  const isCreateMode = id === "create";
 
   const getFieldPermissions = (fieldName: string) => {
     // HR can edit everything in HR view
@@ -132,9 +152,6 @@ const EmployeeDetails: React.FC = () => {
   const handleUpdateEmployee = async () => {
     setLoading(true);
     try {
-      const employeeId = isHrView ? Number(id) : currentEmployee?.id;
-      if (!employeeId) return;
-
       // Clean up the data by removing spaces from currency fields
       const cleanedData = {
         ...formData,
@@ -150,31 +167,44 @@ const EmployeeDetails: React.FC = () => {
         ),
       };
 
-      const updatedData = isHrView
-        ? cleanedData
-        : {
-            ...currentEmployee,
-            email: formData.email,
-            phoneNumber: formData.phoneNumber,
-          };
+      if (isCreateMode) {
+        await ApiService.createEmployee(cleanedData as Employee);
+        showMessage("Employee created successfully");
+      } else {
+        const employeeId = isHrView ? Number(id) : currentEmployee?.id;
+        if (!employeeId) return;
 
-      const updatedEmployee = await ApiService.updateEmployee(
-        employeeId,
-        updatedData as Employee
-      );
+        const updatedData = isHrView
+          ? cleanedData
+          : {
+              ...currentEmployee,
+              email: formData.email,
+              phoneNumber: formData.phoneNumber,
+            };
 
-      if (isOwnProfile) {
-        updateEmployee(updatedEmployee);
+        const updatedEmployee = await ApiService.updateEmployee(
+          employeeId,
+          updatedData as Employee
+        );
+
+        if (isOwnProfile) {
+          updateEmployee(updatedEmployee);
+        }
+
+        showMessage("Employee updated successfully");
       }
 
-      showMessage("Employee updated successfully");
-
-      if (isHrView) {
-        navigate("/employee-management");
-      }
+      navigate("/employee-management");
     } catch (error) {
-      console.error("Failed to update employee:", error);
-      showMessage("Failed to update employee");
+      console.error(
+        isCreateMode
+          ? "Failed to create employee:"
+          : "Failed to update employee:",
+        error
+      );
+      showMessage(
+        isCreateMode ? "Failed to create employee" : "Failed to update employee"
+      );
     } finally {
       setLoading(false);
     }
@@ -204,6 +234,33 @@ const EmployeeDetails: React.FC = () => {
     if (!permissions.visible) return null;
 
     const label = getFieldLabel(fieldName);
+
+    // Special handling for employment status
+    if (fieldName === "employmentStatus") {
+      return (
+        <Grid item xs={12} md={6}>
+          <FormField
+            name={fieldName}
+            label={label}
+            value={formData[fieldName]}
+            onChange={handleChange}
+            disabled={!permissions.editable}
+            select
+            testId={`employee-${fieldName}-input`}
+          >
+            {EMPLOYMENT_STATUS_OPTIONS.map((option) => (
+              <MenuItem
+                key={option.value}
+                value={option.value}
+                data-testid={`employment-status-option-${option.value}`}
+              >
+                {option.label}
+              </MenuItem>
+            ))}
+          </FormField>
+        </Grid>
+      );
+    }
 
     // Special handling for projects display
     if (fieldName === "currentProjects") {
@@ -244,6 +301,25 @@ const EmployeeDetails: React.FC = () => {
     );
   };
 
+  const handleDeleteClick = () => {
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    setLoading(true);
+    try {
+      await ApiService.deleteEmployee(Number(id));
+      showMessage("Employee deleted successfully");
+      navigate("/employee-management");
+    } catch (error) {
+      console.error("Failed to delete employee:", error);
+      showMessage("Failed to delete employee");
+    } finally {
+      setLoading(false);
+      setDeleteDialogOpen(false);
+    }
+  };
+
   return (
     <>
       {isHrView && !currentEmployee?.hr ? (
@@ -253,50 +329,62 @@ const EmployeeDetails: React.FC = () => {
           <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3 }}>
             <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
               <Typography variant="h6">
-                {isHrView ? "Edit Employee Details" : "Employee Profile"}
+                {isCreateMode
+                  ? "Create New Employee"
+                  : isHrView
+                  ? "Edit Employee Details"
+                  : "Employee Profile"}
               </Typography>
-              {managedTeam && (
-                <Chip
-                  icon={<PersonIcon />}
-                  label={`Team Manager of ${managedTeam.name}`}
-                  sx={{
-                    backgroundColor: "success.light",
-                    color: "success.contrastText",
-                    "& .MuiChip-icon": { color: "inherit" },
-                  }}
-                />
-              )}
-              {teamManager ? (
-                <Chip
-                  icon={<PersonIcon />}
-                  label={`Reports to ${teamManager}`}
-                  sx={{
-                    backgroundColor: "primary.light",
-                    color: "primary.contrastText",
-                    "& .MuiChip-icon": { color: "inherit" },
-                  }}
-                />
-              ) : (
-                <Chip
-                  icon={<PersonIcon />}
-                  label="Not currently part of any team"
-                  sx={{
-                    backgroundColor: "grey.400",
-                    color: "grey.900",
-                    "& .MuiChip-icon": { color: "inherit" },
-                  }}
-                />
+              {!isCreateMode && (
+                <>
+                  {managedTeam && (
+                    <Chip
+                      icon={<PersonIcon />}
+                      label={`Team Manager of ${managedTeam.name}`}
+                      sx={{
+                        backgroundColor: "success.light",
+                        color: "success.contrastText",
+                        "& .MuiChip-icon": { color: "inherit" },
+                      }}
+                    />
+                  )}
+                  {teamManager ? (
+                    <Chip
+                      icon={<PersonIcon />}
+                      label={`Reports to ${teamManager}`}
+                      sx={{
+                        backgroundColor: "primary.light",
+                        color: "primary.contrastText",
+                        "& .MuiChip-icon": { color: "inherit" },
+                      }}
+                    />
+                  ) : (
+                    <Chip
+                      icon={<PersonIcon />}
+                      label="Not currently part of any team"
+                      sx={{
+                        backgroundColor: "grey.400",
+                        color: "grey.900",
+                        "& .MuiChip-icon": { color: "inherit" },
+                      }}
+                    />
+                  )}
+                </>
               )}
             </Box>
-            {isHrView && (
-              <Button
-                variant="outlined"
-                onClick={() => navigate("/employee-management")}
-                data-testid="back-button"
-              >
-                Back to Employee Management
-              </Button>
-            )}
+            <Box sx={{ display: "flex", gap: 2 }}>
+              {isHrView && !isCreateMode && (
+                <Button
+                  variant="outlined"
+                  color="error"
+                  startIcon={<DeleteIcon />}
+                  onClick={handleDeleteClick}
+                  data-testid="delete-employee-button"
+                >
+                  Delete Employee
+                </Button>
+              )}
+            </Box>
           </Box>
 
           <form noValidate autoComplete="off">
@@ -351,13 +439,49 @@ const EmployeeDetails: React.FC = () => {
                   fullWidth
                   data-testid="update-employee-button"
                 >
-                  {isHrView ? "Update Employee" : "Update Contact Information"}
+                  {isCreateMode
+                    ? "Create Employee"
+                    : isHrView
+                    ? "Update Employee"
+                    : "Update Contact Information"}
                 </Button>
               </Grid>
             </Grid>
           </form>
-          <CompletedCoursesTable employeeId={id? toNumber(id) : (currentEmployee? currentEmployee.id : 0)}/>
+          {!isCreateMode && (
+            <CompletedCoursesTable
+              employeeId={
+                id ? toNumber(id) : currentEmployee ? currentEmployee.id : 0
+              }
+            />
+          )}
           {loading && <LoadingSpinner fullPage testId="loading-spinner" />}
+          <Dialog
+            open={deleteDialogOpen}
+            onClose={() => setDeleteDialogOpen(false)}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+          >
+            <DialogTitle id="alert-dialog-title">
+              {"Confirm Delete"}
+            </DialogTitle>
+            <DialogContent>
+              <DialogContentText id="alert-dialog-description">
+                Are you sure you want to delete this employee?
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button
+                onClick={() => setDeleteDialogOpen(false)}
+                color="primary"
+              >
+                Cancel
+              </Button>
+              <Button onClick={handleDeleteConfirm} color="primary" autoFocus>
+                Delete
+              </Button>
+            </DialogActions>
+          </Dialog>
         </PageLayout>
       )}
     </>

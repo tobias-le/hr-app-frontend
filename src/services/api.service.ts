@@ -5,7 +5,13 @@ import {
   AttendanceSummaryType,
   AttendanceRecord,
 } from "../types/attendance";
-import {EmployeeLeaveBalance, GeneralRequest, Leave, LeaveDto, PendingRequest} from "../types/timeoff";
+import {
+  EmployeeLeaveBalance,
+  GeneralRequest,
+  Leave,
+  LeaveDto,
+  PendingRequest,
+} from "../types/timeoff";
 import { Employee, EmployeeNameWithId } from "../types/employee";
 import { Project } from "../types/project";
 import { Team } from "../types/team";
@@ -38,7 +44,6 @@ class ApiService {
       ...options,
       headers,
     };
-
 
     try {
       const response = await fetch(url, defaultOptions);
@@ -361,14 +366,22 @@ class ApiService {
   public static async submitLearning(
     learningAssignment: LearningAssignmentDto
   ): Promise<void> {
-    return this.fetchWithConfig(`${API_CONFIG.ENDPOINTS.LEARNINGS}/assign`, {
-      method: "POST",
-      body: JSON.stringify(learningAssignment),
-    }, true);
+    return this.fetchWithConfig(
+      `${API_CONFIG.ENDPOINTS.LEARNINGS}/assign`,
+      {
+        method: "POST",
+        body: JSON.stringify(learningAssignment),
+      },
+      true
+    );
   }
 
-  public static async getUserCompletedCourses(employeeId:number): Promise<Learning[]> {
-    return this.fetchWithConfig(`${API_CONFIG.ENDPOINTS.LEARNINGS}/${employeeId}`);
+  public static async getUserCompletedCourses(
+    employeeId: number
+  ): Promise<Learning[]> {
+    return this.fetchWithConfig(
+      `${API_CONFIG.ENDPOINTS.LEARNINGS}/${employeeId}`
+    );
   }
 
   public static async login(
@@ -383,33 +396,53 @@ class ApiService {
       body: JSON.stringify({ email, password }),
     });
   }
-  public static async createNewGeneralRequest(employeeId: number, message:string): Promise<GeneralRequest> {
+  public static async createNewGeneralRequest(
+    employeeId: number,
+    message: string
+  ): Promise<GeneralRequest> {
     return this.fetchWithConfig(`${API_CONFIG.ENDPOINTS.GENERAL_REQUESTS}`, {
       method: "POST",
       body: JSON.stringify({
         employeeId: employeeId,
         message: message,
-      })
-    })
+      }),
+    });
   }
 
-  public static async getPendingLeaveRequests() : Promise<PendingRequest[]> {
-    return this.fetchWithConfig(`${API_CONFIG.ENDPOINTS.LEAVE_REQUESTS}/pending`);
+  public static async getPendingLeaveRequests(): Promise<PendingRequest[]> {
+    return this.fetchWithConfig(
+      `${API_CONFIG.ENDPOINTS.LEAVE_REQUESTS}/pending`
+    );
   }
 
-  public static async getPendingGeneralRequests() : Promise<PendingRequest[]> {
-    return this.fetchWithConfig(`${API_CONFIG.ENDPOINTS.GENERAL_REQUESTS}/pending`);
+  public static async getPendingGeneralRequests(): Promise<PendingRequest[]> {
+    return this.fetchWithConfig(
+      `${API_CONFIG.ENDPOINTS.GENERAL_REQUESTS}/pending`
+    );
   }
 
-  public static async resolveRequest(pendingRequest: PendingRequest, action: string): Promise<void> {
+  public static async resolveRequest(
+    pendingRequest: PendingRequest,
+    action: string
+  ): Promise<void> {
     if (pendingRequest.startDate) {
-      return this.fetchWithConfig(`${API_CONFIG.ENDPOINTS.LEAVE_REQUESTS}/request/${pendingRequest.messageId}/${action}`, {method: "PATCH"});
+      return this.fetchWithConfig(
+        `${API_CONFIG.ENDPOINTS.LEAVE_REQUESTS}/request/${pendingRequest.messageId}/${action}`,
+        { method: "PATCH" }
+      );
     }
-    return this.fetchWithConfig(`${API_CONFIG.ENDPOINTS.GENERAL_REQUESTS}/${pendingRequest.messageId}/${action}`, {method: "PATCH"});
+    return this.fetchWithConfig(
+      `${API_CONFIG.ENDPOINTS.GENERAL_REQUESTS}/${pendingRequest.messageId}/${action}`,
+      { method: "PATCH" }
+    );
   }
 
-  public static async getGeneralRequestsByUserId( userId: number) : Promise<GeneralRequest[]> {
-    return this.fetchWithConfig(`${API_CONFIG.ENDPOINTS.GENERAL_REQUESTS}/all/${userId}`);
+  public static async getGeneralRequestsByUserId(
+    userId: number
+  ): Promise<GeneralRequest[]> {
+    return this.fetchWithConfig(
+      `${API_CONFIG.ENDPOINTS.GENERAL_REQUESTS}/all/${userId}`
+    );
   }
 
   public static async validateTeamMembership(
@@ -473,6 +506,28 @@ class ApiService {
     this.refreshPromise = null;
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");
+  }
+
+  public static async createEmployee(
+    employeeData: Employee
+  ): Promise<Employee> {
+    return this.fetchWithConfig(API_CONFIG.ENDPOINTS.EMPLOYEES, {
+      method: "POST",
+      body: JSON.stringify(employeeData),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  }
+
+  public static async deleteEmployee(id: number): Promise<void> {
+    return this.fetchWithConfig(
+      `${API_CONFIG.ENDPOINTS.EMPLOYEES}/${id}`,
+      {
+        method: "DELETE",
+      },
+      true
+    ); // true for noBody response
   }
 }
 

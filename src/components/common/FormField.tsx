@@ -35,6 +35,8 @@ interface FormFieldProps {
   disabled?: boolean;
   isCurrency?: boolean;
   isPhone?: boolean;
+  children?: React.ReactNode;
+  select?: boolean;
 }
 
 export const FormField: React.FC<FormFieldProps> = ({
@@ -57,6 +59,8 @@ export const FormField: React.FC<FormFieldProps> = ({
   disabled = false,
   isCurrency = false,
   isPhone = false,
+  children,
+  select = false,
 }) => {
   const isError = error || (validateNotEmpty && required && !value);
   const displayHelperText = isError

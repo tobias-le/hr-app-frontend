@@ -5,7 +5,13 @@ import React, {
   useMemo,
   useRef,
 } from "react";
-import { Autocomplete, TextField } from "@mui/material";
+import {
+  Autocomplete,
+  TextField,
+  Button,
+  Box,
+  Typography,
+} from "@mui/material";
 import { useNavigate, Navigate } from "react-router-dom";
 import { debounce } from "lodash";
 import ApiService from "../services/api.service";
@@ -13,6 +19,7 @@ import { Employee, EmployeeNameWithId } from "../types/employee";
 import { PageLayout } from "../components/common/PageLayout";
 import { DataTable } from "../components/common/DataTable";
 import { useEmployeeStore } from "../store/employeeStore";
+import AddIcon from "@mui/icons-material/Add";
 
 const EmployeeManagement: React.FC = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -106,6 +113,10 @@ const EmployeeManagement: React.FC = () => {
     navigate(`/employee-management/${employee.id}`);
   };
 
+  const handleCreateEmployee = () => {
+    navigate("/employee-management/create");
+  };
+
   if (!currentEmployee?.hr) {
     return <Navigate to="/" replace />;
   }
@@ -118,7 +129,26 @@ const EmployeeManagement: React.FC = () => {
   ];
 
   return (
-    <PageLayout title="Employee Management">
+    <PageLayout>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 4,
+        }}
+      >
+        <Typography variant="h6">Employee Management</Typography>
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={handleCreateEmployee}
+          data-testid="create-employee-button"
+        >
+          Create Employee
+        </Button>
+      </Box>
+
       <div className="flex justify-center items-center mb-6">
         <Autocomplete
           freeSolo
@@ -147,7 +177,7 @@ const EmployeeManagement: React.FC = () => {
         columns={columns}
         onRowClick={handleRowClick}
         loading={loading}
-        rowKey={employee => employee.id}
+        rowKey={(employee) => employee.id}
         emptyMessage="No employees found matching your search"
         initialMessage="Start typing to search for employees"
         isInitialState={!hasSearched}
