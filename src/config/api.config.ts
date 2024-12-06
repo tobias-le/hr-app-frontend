@@ -1,5 +1,5 @@
 const API_CONFIG = {
-  BASE_URL: "https://backend-test-7dda.up.railway.app",
+  BASE_URL: "timely-api.up.railway.app",
   // BASE_URL: "http://localhost:8080",
 
   ENDPOINTS: {
